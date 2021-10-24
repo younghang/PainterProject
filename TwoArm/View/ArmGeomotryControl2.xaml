@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="TwoArm.View.ArmGeomotryControl2"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TwoArm.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="100">
+    <Canvas Width="{Binding ArmLength}" Height="{Binding GeoWidth}">
+        <Line X1="25" Y1="20" X2="75" Y2="20" Stroke="Black" StrokeThickness="4"/>
+        <Line X1="25" Y1="30" X2="75" Y2="30" Stroke="Black" StrokeThickness="4"/>
+        <Ellipse  Width="50"  StrokeThickness="6" Stroke="Tan" Fill="AliceBlue" Height="50" />
+        <Ellipse Width="25" Margin="72,12.5" Height="25" Fill="AliceBlue" StrokeThickness="6" Stroke="Tan" />
+    </Canvas>
+</UserControl>

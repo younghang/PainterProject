@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Painter", ".\Painter\Painter.csproj", "{62292569-8234-43BA-876F-6F30DDD5D023}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Painter", "Painter\Painter.csproj", "{62292569-8234-43BA-876F-6F30DDD5D023}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalculatorDll", ".\CalculatorDll\CalculatorDll.csproj", "{504F7DA7-0B18-41F7-86C5-CE231001F735}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalculatorDll", "CalculatorDll\CalculatorDll.csproj", "{504F7DA7-0B18-41F7-86C5-CE231001F735}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DD639E44-E705-4510-A706-03A1D1187112}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,7 +14,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OtherProjects", "OtherProjects", "{1CF41532-930E-4F5B-80EA-065BD9DD9A0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireWorks", ".\FireWorks\FireWorks.csproj", "{B2DDF7A3-75C4-4D6E-8116-B095360F38A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireWorks", "FireWorks\FireWorks.csproj", "{B2DDF7A3-75C4-4D6E-8116-B095360F38A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj", "{A173BC18-5C0E-4D18-91D8-2DD408CC73A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwoArm", "TwoArm\TwoArm.csproj", "{CBC1836D-46A6-4EF0-BA65-BB3E0372160F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,12 +38,22 @@ Global
 		{B2DDF7A3-75C4-4D6E-8116-B095360F38A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2DDF7A3-75C4-4D6E-8116-B095360F38A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2DDF7A3-75C4-4D6E-8116-B095360F38A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A173BC18-5C0E-4D18-91D8-2DD408CC73A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A173BC18-5C0E-4D18-91D8-2DD408CC73A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A173BC18-5C0E-4D18-91D8-2DD408CC73A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A173BC18-5C0E-4D18-91D8-2DD408CC73A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBC1836D-46A6-4EF0-BA65-BB3E0372160F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBC1836D-46A6-4EF0-BA65-BB3E0372160F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBC1836D-46A6-4EF0-BA65-BB3E0372160F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBC1836D-46A6-4EF0-BA65-BB3E0372160F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B2DDF7A3-75C4-4D6E-8116-B095360F38A9} = {1CF41532-930E-4F5B-80EA-065BD9DD9A0E}
+		{A173BC18-5C0E-4D18-91D8-2DD408CC73A6} = {1CF41532-930E-4F5B-80EA-065BD9DD9A0E}
+		{CBC1836D-46A6-4EF0-BA65-BB3E0372160F} = {1CF41532-930E-4F5B-80EA-065BD9DD9A0E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {44A717B0-8F44-454C-B4C4-88D1AD737A3A}
