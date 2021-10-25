@@ -1,8 +1,4 @@
-﻿using Painter.View.Window;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows.Forms;
 
 namespace Painter
@@ -18,7 +14,7 @@ namespace Painter
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Settings.LoadSettingFile();
-            Application.Run(new GCodeLaserHeadForm());
+            Application.Run(new GameJumpFrm());
         }
     }
 }

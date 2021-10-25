@@ -79,7 +79,7 @@ namespace Painter.Painters
 
                 drawingContext.DrawLine(new System.Windows.Media.Pen(
                     new SolidColorBrush(color), dm.LineWidth),
-                    new System.Windows.Point(line.StartPoint.X, line.StartPoint.Y), new System.Windows.Point(line.EndPoint.X, line.EndPoint.Y));
+                    new System.Windows.Point(line.FirstPoint.X, line.FirstPoint.Y), new System.Windows.Point(line.SecondPoint.X, line.SecondPoint.Y));
             }
         }
 
@@ -134,10 +134,10 @@ namespace Painter.Painters
                 color.B = dm.ForeColor.B;
                 mydrawline.Stroke = new SolidColorBrush(color);
                 mydrawline.StrokeThickness = dm.LineWidth;//线宽度
-                mydrawline.X1 = line.StartPoint.X;
-                mydrawline.Y1 = line.StartPoint.Y;
-                mydrawline.X2 = line.EndPoint.X;
-                mydrawline.Y2 = line.EndPoint.Y;
+                mydrawline.X1 = line.FirstPoint.X;
+                mydrawline.Y1 = line.FirstPoint.Y;
+                mydrawline.X2 = line.SecondPoint.X;
+                mydrawline.Y2 = line.SecondPoint.Y;
                 mCanvas.Children.Add(mydrawline);
             }
         }
@@ -271,7 +271,7 @@ namespace Painter.Painters
                 {
                     pen.DashPattern = dm.DashLineStyle;
                 }
-                graphics.DrawLine(pen, TransformX(line.StartPoint.X), TransformY(line.StartPoint.Y), TransformX(line.EndPoint.X), TransformY(line.EndPoint.Y));
+                graphics.DrawLine(pen, TransformX(line.FirstPoint.X), TransformY(line.FirstPoint.Y), TransformX(line.SecondPoint.X), TransformY(line.SecondPoint.Y));
             }
         }
         public override void DrawCircle(CircleGeo circle)
@@ -337,16 +337,17 @@ namespace Painter.Painters
         #endregion
         public override void Dispose()
         {
-            //base.Dispose();
-            //			if (this.canvas!=null) {
-            //				this.canvas.Dispose();
-            //				this.canvas=null;
-            //			}
-            //			if(this.graphics!=null)
-            //			{
-            //				this.graphics.Dispose();
-            //				this.graphics=null;
-            //			} 
+            base.Dispose();
+            if (this.canvas != null)
+            {
+                this.canvas.Dispose();
+                this.canvas = null;
+            }
+            if (this.graphics != null)
+            {
+                this.graphics.Dispose();
+                this.graphics = null;
+            }
         }
 
     }

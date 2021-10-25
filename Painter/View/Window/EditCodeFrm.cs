@@ -44,8 +44,8 @@ namespace Painter.View.Window
             if (this.CurShape!=null)
             {
                 //this.shapePreview1.SetShape(curShape);
-                this.lblEndPos.Text ="终点："+ this.CurShape.EndPoint.ToString();
-                this.lblStartPos.Text = "起点：" + this.CurShape.StartPoint.ToString();
+                this.lblEndPos.Text ="终点："+ this.CurShape.SecondPoint.ToString();
+                this.lblStartPos.Text = "起点：" + this.CurShape.FirstPoint.ToString();
                 this.lblPerimeter.Text = "长度：" + this.CurShape.GetPerimeter().ToString();
                 this.panel1.Controls.Clear();
                 int MarginSpan= (this.lblEndPos.Top - this.lblStartPos.Bottom);

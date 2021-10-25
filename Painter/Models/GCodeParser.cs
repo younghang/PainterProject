@@ -62,11 +62,11 @@ namespace Painter.Models
                     Geo geo = new Geo();
                     geo.AddShape(rapidLine);
                     moveGeoProcessor.CutGeo = geo;
-                    moveGeoProcessor.StartPoint = rapidLine.StartPoint;
-                    moveGeoProcessor.EndPoint = rapidLine.EndPoint;
+                    moveGeoProcessor.StartPoint = rapidLine.FirstPoint;
+                    moveGeoProcessor.EndPoint = rapidLine.SecondPoint;
                     moveGeoProcessor.cutSpeed = double.Parse(CalService.Input("RAPIDSPEED"));
                     moveGeoProcessor.cutDistance = rapidLine.GetPerimeter();
-                    moveGeoProcessor.cutDistanceInXDirection = rapidLine.StartPoint.X - rapidLine.EndPoint.X;
+                    moveGeoProcessor.cutDistanceInXDirection = rapidLine.FirstPoint.X - rapidLine.SecondPoint.X;
                     this.gCodeInterpreter.AddGeoProcessor(moveGeoProcessor);
                 };
             }
@@ -85,24 +85,24 @@ namespace Painter.Models
                     float y = float.Parse(strY);
                     PointGeo point = new PointGeo(x, y);
                     LineGeo rapidLine = new LineGeo();
-                    rapidLine.StartPoint = curPos;
+                    rapidLine.FirstPoint = curPos;
                     if (isRelative)
                     {
-                        rapidLine.EndPoint = point + curPos;
+                        rapidLine.SecondPoint = point + curPos;
                     }
                     else
                     {
-                        rapidLine.EndPoint = point;
+                        rapidLine.SecondPoint = point;
                     }
-                    curPos = rapidLine.EndPoint;
-                    if (rapidLine.EndPoint.X < rapidLine.StartPoint.X && rapidLine.GetPerimeter() > double.Parse(CalService.Input("HEAD1LIMIT")))
+                    curPos = rapidLine.SecondPoint;
+                    if (rapidLine.SecondPoint.X < rapidLine.FirstPoint.X && rapidLine.GetPerimeter() > double.Parse(CalService.Input("HEAD1LIMIT")))
                     {
                         int breakCount = 3;
                         for (int i = 0; i < breakCount; i++)
                         {
                             LineGeo lineGeo = new LineGeo();
-                            lineGeo.StartPoint = (rapidLine.EndPoint - rapidLine.StartPoint) * (1.0f * (i + 0) / breakCount) + rapidLine.StartPoint;
-                            lineGeo.EndPoint = (rapidLine.EndPoint - rapidLine.StartPoint) * (1.0f * (i + 1) / breakCount) + rapidLine.StartPoint;
+                            lineGeo.FirstPoint = (rapidLine.SecondPoint - rapidLine.FirstPoint) * (1.0f * (i + 0) / breakCount) + rapidLine.FirstPoint;
+                            lineGeo.SecondPoint = (rapidLine.SecondPoint - rapidLine.FirstPoint) * (1.0f * (i + 1) / breakCount) + rapidLine.FirstPoint;
                             actionAddMoveProcessor(lineGeo);
                         }
                     }
@@ -128,18 +128,18 @@ namespace Painter.Models
                     float y = float.Parse(strY);
                     PointGeo point = new PointGeo(x, y);
                     shape = new LineGeo();
-                    shape.StartPoint = curPos;
+                    shape.FirstPoint = curPos;
                     if (isRelative)
                     {
-                        shape.EndPoint = point + curPos;
+                        shape.SecondPoint = point + curPos;
                     }
                     else
                     {
-                        shape.EndPoint = point;
+                        shape.SecondPoint = point;
                     }
-                    shape.StartPoint = shape.StartPoint;
-                    shape.EndPoint = shape.EndPoint;
-                    curPos = shape.EndPoint;
+                    shape.FirstPoint = shape.FirstPoint;
+                    shape.SecondPoint = shape.SecondPoint;
+                    curPos = shape.SecondPoint;
                 }
                 return shape;
             };
@@ -169,15 +169,15 @@ namespace Painter.Models
 
                     shape = new ArcGeo();
                     shape.IsClockwise = true;
-                    shape.StartPoint = curPos;
+                    shape.FirstPoint = curPos;
 
                     if (isRelative)
                     {
-                        shape.EndPoint = endPoint + curPos;
+                        shape.SecondPoint = endPoint + curPos;
                     }
                     else
                     {
-                        shape.EndPoint = endPoint;
+                        shape.SecondPoint = endPoint;
                     }
                     shape.Radius = (float)Math.Sqrt(offsetI * offsetI + offsetJ * offsetJ);
                     centerPoint += curPos;
@@ -185,12 +185,12 @@ namespace Painter.Models
                     shape.CenterY = centerPoint.Y;
                     
                     //y,x 返回角度 θ，以弧度为单位，满足 - π≤θ≤π，且 tan(θ) = y / x
-                    float startAngle = (float)(Math.Atan2(shape.EndPoint.Y - shape.CenterY, shape.EndPoint.X - shape.CenterX) / Math.PI * 180);
-                    float endAngle = (float)(Math.Atan2(shape.StartPoint.Y - shape.CenterY, shape.StartPoint.X - shape.CenterX) / Math.PI * 180);
+                    float startAngle = (float)(Math.Atan2(shape.SecondPoint.Y - shape.CenterY, shape.SecondPoint.X - shape.CenterX) / Math.PI * 180);
+                    float endAngle = (float)(Math.Atan2(shape.FirstPoint.Y - shape.CenterY, shape.FirstPoint.X - shape.CenterX) / Math.PI * 180);
                     shape.StartAngle = startAngle;
                     shape.EndAngle = endAngle;
                     shape.IsFinishedInitial = true;
-                    curPos = shape.EndPoint;
+                    curPos = shape.SecondPoint;
                 }
                 return shape;
             };
@@ -220,27 +220,27 @@ namespace Painter.Models
 
                     shape = new ArcGeo();
                     shape.IsClockwise = false;
-                    shape.StartPoint = curPos;
+                    shape.FirstPoint = curPos;
 
                     if (isRelative)
                     {
-                        shape.EndPoint = endPoint + curPos;
+                        shape.SecondPoint = endPoint + curPos;
                     }
                     else
                     {
-                        shape.EndPoint = endPoint;
+                        shape.SecondPoint = endPoint;
                     }
                     shape.Radius = (float)Math.Sqrt(offsetI * offsetI + offsetJ * offsetJ);
                     centerPoint += curPos;
                     shape.CenterX = centerPoint.X;
                     shape.CenterY = centerPoint.Y;
                     //返回角度 θ，以弧度为单位，满足 - π≤θ≤π，且 tan(θ) = y / x
-                    float startAngle = (float)(Math.Atan2(shape.StartPoint.Y - shape.CenterY, shape.StartPoint.X - shape.CenterX) / Math.PI * 180);
-                    float endAngle = (float)(Math.Atan2(shape.EndPoint.Y - shape.CenterY, shape.EndPoint.X - shape.CenterX) / Math.PI * 180);
+                    float startAngle = (float)(Math.Atan2(shape.FirstPoint.Y - shape.CenterY, shape.FirstPoint.X - shape.CenterX) / Math.PI * 180);
+                    float endAngle = (float)(Math.Atan2(shape.SecondPoint.Y - shape.CenterY, shape.SecondPoint.X - shape.CenterX) / Math.PI * 180);
                     shape.StartAngle = startAngle;
                     shape.EndAngle = endAngle;
                     shape.IsFinishedInitial = true; 
-                    curPos = shape.EndPoint;
+                    curPos = shape.SecondPoint;
                 }
                 return shape;
             };
@@ -388,8 +388,8 @@ namespace Painter.Models
                         isCutProcess = false;
                         processor = new CutGeoProcessor();
                         processor.CutGeo = cutGeo;
-                        processor.StartPoint = cutGeo.GetShapes()[0].StartPoint;
-                        processor.EndPoint = cutGeo.GetShapes()[cutGeo.GetShapes().Count - 1].EndPoint;
+                        processor.StartPoint = cutGeo.GetShapes()[0].FirstPoint;
+                        processor.EndPoint = cutGeo.GetShapes()[cutGeo.GetShapes().Count - 1].SecondPoint;
                         processor.cutSpeed = double.Parse(CalService.Input("CUTSPEED1"));
                         processor.cutDistance = double.Parse(CalService.Input("JUDGELIMITPERE"));
                         processor.cutDistanceInXDirection = double.Parse(CalService.Input("MINOUTERYGAP"));
@@ -424,11 +424,11 @@ namespace Painter.Models
             {
                 if (item is CutGeoProcessor)
                 {
-                    gCodeInterpreter.StartPoint = item.CutGeo.GetShapes()[0].StartPoint.Clone();
+                    gCodeInterpreter.StartPoint = item.CutGeo.GetShapes()[0].FirstPoint.Clone();
                     break;
                 }
             }
-            gCodeInterpreter.EndPoint = gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes()[this.gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes().Count - 1].EndPoint.Clone();
+            gCodeInterpreter.EndPoint = gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes()[this.gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes().Count - 1].SecondPoint.Clone();
             //设定循环G00
             gCodeInterpreter.SetLoopGeo();
             return true;
@@ -468,11 +468,11 @@ namespace Painter.Models
                     Geo geo = new Geo();
                     geo.AddShape(rapidLine);
                     moveGeoProcessor.CutGeo = geo;
-                    moveGeoProcessor.StartPoint = rapidLine.StartPoint;
-                    moveGeoProcessor.EndPoint = rapidLine.EndPoint;
+                    moveGeoProcessor.StartPoint = rapidLine.FirstPoint;
+                    moveGeoProcessor.EndPoint = rapidLine.SecondPoint;
                     moveGeoProcessor.cutSpeed = Settings.DEFAULT_MOVE_SPEED;
                     moveGeoProcessor.cutDistance = rapidLine.GetPerimeter();
-                    moveGeoProcessor.cutDistanceInXDirection = rapidLine.StartPoint.X - rapidLine.EndPoint.X;
+                    moveGeoProcessor.cutDistanceInXDirection = rapidLine.FirstPoint.X - rapidLine.SecondPoint.X;
                     this.gCodeInterpreter.AddGeoProcessor(moveGeoProcessor);
                     this.LinesIndexedProcessor.Add(curLineIndex, moveGeoProcessor);
                 };
@@ -482,11 +482,11 @@ namespace Painter.Models
                     Geo geo = new Geo();
                     geo.AddShape(cutLine);
                     processor.CutGeo = geo;
-                    processor.StartPoint = cutLine.StartPoint;
-                    processor.EndPoint = cutLine.EndPoint;
+                    processor.StartPoint = cutLine.FirstPoint;
+                    processor.EndPoint = cutLine.SecondPoint;
                     processor.cutSpeed = Settings.DEFAULT_CUT_SPEED;
                     processor.cutDistance = cutLine.GetPerimeter();
-                    processor.cutDistanceInXDirection = cutLine.StartPoint.X - cutLine.EndPoint.X;
+                    processor.cutDistanceInXDirection = cutLine.FirstPoint.X - cutLine.SecondPoint.X;
                     this.gCodeInterpreter.AddGeoProcessor(processor);
                     this.LinesIndexedProcessor.Add(curLineIndex, processor);
                 };
@@ -520,21 +520,21 @@ namespace Painter.Models
                         float y = float.Parse(strY);
                         PointGeo point = new PointGeo(x, y);
                         LineGeo rapidLine = new LineGeo();
-                        rapidLine.StartPoint = curPos;
+                        rapidLine.FirstPoint = curPos;
                         if (isRelative)
                         {
-                            rapidLine.EndPoint = point + curPos;
+                            rapidLine.SecondPoint = point + curPos;
                         }
                         else
                         {
-                            rapidLine.EndPoint = point;
+                            rapidLine.SecondPoint = point;
                         } 
                         if (curPos.X < 1E-3 && curPos.Y < 1E-3)
                         {
-                            curPos = rapidLine.EndPoint;
+                            curPos = rapidLine.SecondPoint;
                             return;
                         }
-                        curPos = rapidLine.EndPoint;
+                        curPos = rapidLine.SecondPoint;
                         actionAddMoveProcessor(rapidLine);
                     }
                     catch (Exception)
@@ -581,24 +581,24 @@ namespace Painter.Models
                         float y = float.Parse(strY);
                         PointGeo point = new PointGeo(x, y);
                         shape = new LineGeo();
-                        shape.StartPoint = curPos;
+                        shape.FirstPoint = curPos;
                         if (isRelative)
                         {
-                            shape.EndPoint = point + curPos;
+                            shape.SecondPoint = point + curPos;
                         }
                         else
                         {
-                            shape.EndPoint = point;
+                            shape.SecondPoint = point;
                         }
-                        shape.StartPoint = shape.StartPoint;
-                        shape.EndPoint = shape.EndPoint;
+                        shape.FirstPoint = shape.FirstPoint;
+                        shape.SecondPoint = shape.SecondPoint;
                         
                         if (curPos.X<1E-3&&curPos.Y < 1E-3)
                         {
-                            curPos = shape.EndPoint;
+                            curPos = shape.SecondPoint;
                             return;
                         }
-                        curPos = shape.EndPoint;
+                        curPos = shape.SecondPoint;
                         actionAddCutProcessor(shape);
                     }
                     catch (Exception)
@@ -646,27 +646,27 @@ namespace Painter.Models
 
                         shape = new ArcGeo();
                         shape.IsClockwise = true;
-                        shape.StartPoint = curPos;
+                        shape.FirstPoint = curPos;
 
                         if (isRelative)
                         {
-                            shape.EndPoint = endPoint + curPos;
+                            shape.SecondPoint = endPoint + curPos;
                         }
                         else
                         {
-                            shape.EndPoint = endPoint;
+                            shape.SecondPoint = endPoint;
                         }
                         shape.Radius = (float)Math.Sqrt(offsetI * offsetI + offsetJ * offsetJ);
                         centerPoint += curPos;
                         shape.CenterX = centerPoint.X;
                         shape.CenterY = centerPoint.Y;
                         //y,x 返回角度 θ，以弧度为单位，满足 - π≤θ≤π，且 tan(θ) = y / x
-                        float startAngle = (float)(Math.Atan2(shape.EndPoint.Y - shape.CenterY, shape.EndPoint.X - shape.CenterX) / Math.PI * 180);
-                        float endAngle = (float)(Math.Atan2(shape.StartPoint.Y - shape.CenterY, shape.StartPoint.X - shape.CenterX) / Math.PI * 180);
+                        float startAngle = (float)(Math.Atan2(shape.SecondPoint.Y - shape.CenterY, shape.SecondPoint.X - shape.CenterX) / Math.PI * 180);
+                        float endAngle = (float)(Math.Atan2(shape.FirstPoint.Y - shape.CenterY, shape.FirstPoint.X - shape.CenterX) / Math.PI * 180);
                         shape.StartAngle = startAngle;
                         shape.EndAngle = endAngle;
                         shape.IsFinishedInitial = true; 
-                        curPos = shape.EndPoint;
+                        curPos = shape.SecondPoint;
                         actionAddCutProcessor(shape);
                     }
                     catch (Exception)
@@ -715,27 +715,27 @@ namespace Painter.Models
 
                         shape = new ArcGeo();
                         shape.IsClockwise = false;
-                        shape.StartPoint = curPos;
+                        shape.FirstPoint = curPos;
 
                         if (isRelative)
                         {
-                            shape.EndPoint = endPoint + curPos;
+                            shape.SecondPoint = endPoint + curPos;
                         }
                         else
                         {
-                            shape.EndPoint = endPoint;
+                            shape.SecondPoint = endPoint;
                         }
                         shape.Radius = (float)Math.Sqrt(offsetI * offsetI + offsetJ * offsetJ);
                         centerPoint += curPos;
                         shape.CenterX = centerPoint.X;
                         shape.CenterY = centerPoint.Y;
                         //返回角度 θ，以弧度为单位，满足 - π≤θ≤π，且 tan(θ) = y / x
-                        float startAngle = (float)(Math.Atan2(shape.StartPoint.Y - shape.CenterY, shape.StartPoint.X - shape.CenterX) / Math.PI * 180);
-                        float endAngle = (float)(Math.Atan2(shape.EndPoint.Y - shape.CenterY, shape.EndPoint.X - shape.CenterX) / Math.PI * 180);
+                        float startAngle = (float)(Math.Atan2(shape.FirstPoint.Y - shape.CenterY, shape.FirstPoint.X - shape.CenterX) / Math.PI * 180);
+                        float endAngle = (float)(Math.Atan2(shape.SecondPoint.Y - shape.CenterY, shape.SecondPoint.X - shape.CenterX) / Math.PI * 180);
                         shape.StartAngle = startAngle;
                         shape.EndAngle = endAngle;
                         shape.IsFinishedInitial = true; 
-                        curPos = shape.EndPoint; 
+                        curPos = shape.SecondPoint; 
                         actionAddCutProcessor(shape); 
                     }
                     catch (Exception)
@@ -818,8 +818,8 @@ namespace Painter.Models
             {
                 return false;
             }
-            gCodeInterpreter.StartPoint = gCodeInterpreter.GetProcessors()[0].CutGeo.GetShapes()[0].StartPoint.Clone();
-            gCodeInterpreter.EndPoint = gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes()[this.gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes().Count - 1].EndPoint.Clone();
+            gCodeInterpreter.StartPoint = gCodeInterpreter.GetProcessors()[0].CutGeo.GetShapes()[0].FirstPoint.Clone();
+            gCodeInterpreter.EndPoint = gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes()[this.gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes().Count - 1].SecondPoint.Clone();
             gCodeInterpreter.SetLoopGeo();
             actionAddMoveProcessor((LineGeo)gCodeInterpreter.loopRapidGeo.GetShapes()[0]); 
             return true;

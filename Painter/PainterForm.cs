@@ -184,10 +184,10 @@ namespace Painter
 			meta.LineWidth = 2;
 			laserHeadCircle.SetDrawMeta(meta);
 			
-			leftSafeLine.StartPoint = new PointGeo(gCodeInterpreter1.StartPoint.X, (float)gCodeInterpreter1.MinY);
-			leftSafeLine.EndPoint = new PointGeo(gCodeInterpreter1.StartPoint.X, (float)gCodeInterpreter1.MaxY);
-			rightSafeLine.StartPoint = new PointGeo(gCodeInterpreter1.StartPoint.X +(float) Settings.MOVE_RANGE, (float)gCodeInterpreter1.MinY);
-			rightSafeLine.EndPoint = new PointGeo(gCodeInterpreter1.StartPoint.X + (float)Settings.MOVE_RANGE, (float)gCodeInterpreter1.MaxY);
+			leftSafeLine.FirstPoint = new PointGeo(gCodeInterpreter1.StartPoint.X, (float)gCodeInterpreter1.MinY);
+			leftSafeLine.SecondPoint = new PointGeo(gCodeInterpreter1.StartPoint.X, (float)gCodeInterpreter1.MaxY);
+			rightSafeLine.FirstPoint = new PointGeo(gCodeInterpreter1.StartPoint.X +(float) Settings.MOVE_RANGE, (float)gCodeInterpreter1.MinY);
+			rightSafeLine.SecondPoint = new PointGeo(gCodeInterpreter1.StartPoint.X + (float)Settings.MOVE_RANGE, (float)gCodeInterpreter1.MaxY);
 			
 			ShapeMeta safeLineStyle = new ShapeMeta();
 			safeLineStyle.IsFill = false;
@@ -203,14 +203,14 @@ namespace Painter
 			leftTextMeta.ForeColor=Color.Black;
 			leftTextMeta.TEXTFONT=new Font("宋体" ,18, FontStyle.Bold);
 			leftBorderText.SetDrawMeta(leftTextMeta);
-			leftBorderText.pos=new PointGeo(leftSafeLine.StartPoint.X,leftSafeLine.StartPoint.Y);
+			leftBorderText.pos=new PointGeo(leftSafeLine.FirstPoint.X,leftSafeLine.FirstPoint.Y);
 			this.winFormUC1.GetFixedLayerManager().Add(leftBorderText);
 		 
 			TextMeta rightTextMeta=new TextMeta("右边界");
 			rightTextMeta.ForeColor=Color.Black;
 			rightTextMeta.TEXTFONT=new Font("宋体",18, FontStyle.Bold);
 			rightBoderText.SetDrawMeta(rightTextMeta);
-			rightBoderText.pos=new PointGeo(rightSafeLine.StartPoint.X,rightSafeLine.StartPoint.Y);
+			rightBoderText.pos=new PointGeo(rightSafeLine.FirstPoint.X,rightSafeLine.FirstPoint.Y);
 			this.winFormUC1.GetFixedLayerManager().Add(rightBoderText);
 			
 			this.winFormUC1.LoadShapes(shapes);

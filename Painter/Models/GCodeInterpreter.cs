@@ -120,7 +120,7 @@ namespace Painter.Models
                     {
                         this.geoProcessors[0].CutGeo = loopRapidGeo;// 下一次循环的起点变更
                         this.geoProcessors[0].cutDistance = loopRapidGeo.GetShapes()[0].GetPerimeter();
-                        this.geoProcessors[0].cutDistanceInXDirection = loopRapidGeo.GetShapes()[0].StartPoint.X - loopRapidGeo.GetShapes()[0].EndPoint.X;
+                        this.geoProcessors[0].cutDistanceInXDirection = loopRapidGeo.GetShapes()[0].FirstPoint.X - loopRapidGeo.GetShapes()[0].SecondPoint.X;
                     }  
                 }
                 CurProcessorIndex = 0;
@@ -143,14 +143,14 @@ namespace Painter.Models
             //设定循环G00
             Geo loopRapidGeo = new Geo();
             LineGeo loopG00Line = new LineGeo();
-            loopG00Line.StartPoint = this.EndPoint;
+            loopG00Line.FirstPoint = this.EndPoint;
             if (ProgramController.Instance.IsNoWait)
             {
-                loopG00Line.EndPoint = new PointGeo((float)(this.StartPoint.X + Settings.CYCLE_LENGTH), this.StartPoint.Y);
+                loopG00Line.SecondPoint = new PointGeo((float)(this.StartPoint.X + Settings.CYCLE_LENGTH), this.StartPoint.Y);
             }
             else
             {
-                loopG00Line.EndPoint = new PointGeo((float)(this.StartPoint.X - Settings.CYCLE_LENGTH), this.StartPoint.Y);
+                loopG00Line.SecondPoint = new PointGeo((float)(this.StartPoint.X - Settings.CYCLE_LENGTH), this.StartPoint.Y);
             } 
             loopRapidGeo.AddShape(loopG00Line);
             this.loopRapidGeo = loopRapidGeo;
@@ -416,7 +416,7 @@ namespace Painter.Models
             double deltaX = nextPos.X - curPos.X;
             if (Math.Abs(_cutLength - shape.GetPerimeter()) < tickProcessLength)
             { 
-                 UpdatePositionEvent.Invoke(shape.EndPoint.X- curPos.X, shape.EndPoint.Y);
+                 UpdatePositionEvent.Invoke(shape.SecondPoint.X- curPos.X, shape.SecondPoint.Y);
                 _curShapeIndex++;
                 _cutLength = 0;
                  
@@ -720,7 +720,7 @@ namespace Painter.Models
                     curState = PROCESS_STATUS.MOVEWAIT;
                     break;
                 case PROCESS_STATUS.MOVEWAIT:
-                    if ((pos - interpreter.StartPoint.X + startRapidGeo.GetShapes()[0].GetPerimeter() / rapidSpeed * Settings.A_SHAFT_SPEED) > (startRapidGeo.GetShapes()[0].StartPoint.X - startRapidGeo.GetShapes()[0].EndPoint.X))
+                    if ((pos - interpreter.StartPoint.X + startRapidGeo.GetShapes()[0].GetPerimeter() / rapidSpeed * Settings.A_SHAFT_SPEED) > (startRapidGeo.GetShapes()[0].FirstPoint.X - startRapidGeo.GetShapes()[0].SecondPoint.X))
                     {
                         curState = PROCESS_STATUS.MOVE;
                         //OnMesssage?.BeginInvoke("开始切割轮廓[" + interpreter.CutIndex + "]...\n", null, null);

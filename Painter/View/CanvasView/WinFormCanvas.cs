@@ -458,10 +458,10 @@ namespace Painter.View.CanvasView
             Func<float, float> transXBack = (value) => (float)(value - GetFixedLayerManager().GetPainter().OffsetPoint.X) / GetFixedLayerManager().GetPainter().Scale.X;
             Func<float, float> transYBack = (value) => (float)(value - GetFixedLayerManager().GetPainter().OffsetPoint.Y) / GetFixedLayerManager().GetPainter().Scale.Y;
 
-            s.EndPoint = new PointGeo(transXBack(newPoint.X), transYBack(newPoint.Y));
+            s.SecondPoint = new PointGeo(transXBack(newPoint.X), transYBack(newPoint.Y));
             if (!s.HasDrawMeta())
             {
-                s.StartPoint = new PointGeo(transXBack(oldPoint.X), transYBack(oldPoint.Y));
+                s.FirstPoint = new PointGeo(transXBack(oldPoint.X), transYBack(oldPoint.Y));
                 ShapeMeta sm = new ShapeMeta();
                 sm.IsFill = false;//fillChecked.Checked;
                 sm.BackColor = Color.FromArgb(ShapeBackColor.A, ShapeBackColor.R, ShapeBackColor.G, ShapeBackColor.B);

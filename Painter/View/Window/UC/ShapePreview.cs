@@ -113,7 +113,6 @@ namespace Painter.View.Window.UC
             Point newPoint = ObjectToScreen(point);
             SetCanvasTranlate(new PointGeo(e.X - newPoint.X, e.Y - newPoint.Y) + this.Painter.OffsetPoint, Scale);
             Invalidate(new System.Drawing.Rectangle(0, 0, this.Width, this.Height));
-
         }
         private void SetCanvasTranlate(PointGeo offsetPoint, PointGeo scaleP)
         {

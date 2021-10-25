@@ -450,9 +450,9 @@ namespace Painter.WinFormDisplay
 			Func<float,float> transXBack = (value) => (float)(value - this.GetFixedLayerManager().GetPainter().OffsetPoint.X) / this.GetFixedLayerManager().GetPainter().Scale.X;
 			Func<float,float> transYBack = (value) => (float)(value - this.GetFixedLayerManager().GetPainter().OffsetPoint.Y) / this.GetFixedLayerManager().GetPainter().Scale.Y;
 			
-			s.EndPoint = new PointGeo(transXBack(newP.X), transYBack(newP.Y));
+			s.SecondPoint = new PointGeo(transXBack(newP.X), transYBack(newP.Y));
 			if (!s.HasDrawMeta()) {
-				s.StartPoint = new PointGeo(transXBack(oldP.X), transYBack(oldP.Y));
+				s.FirstPoint = new PointGeo(transXBack(oldP.X), transYBack(oldP.Y));
 				ShapeMeta sm = new ShapeMeta();
 				sm.IsFill = fillChecked.Checked;
 				sm.BackColor = Color.FromArgb(ShapeBackColor.A, ShapeBackColor.R, ShapeBackColor.G, ShapeBackColor.B);

@@ -22,6 +22,10 @@ namespace Painter.Models
         void Rotate();
         void Scale(PointGeo offset);
     }
+    public interface IPrintAndOperatable : IScreenPrintable, IOperationable
+    {
+
+    }
     [Serializable]
     public class PointGeo
     {
@@ -97,7 +101,7 @@ namespace Painter.Models
     }
 
     [Serializable]
-    public abstract class Shape : IOperationable, IScreenPrintable
+    public abstract class Shape : IPrintAndOperatable
     {
         public bool IsFinishedInitial = false;//减少离散点计算
         public bool IsShow = true;
@@ -111,7 +115,7 @@ namespace Painter.Models
         public string MSG { get; set; }
         private PointGeo _start = new PointGeo(0, 0);
         private PointGeo _end = new PointGeo(0, 0);
-        public PointGeo StartPoint
+        public PointGeo FirstPoint
         {
             get { return _start; }
             set
@@ -120,7 +124,7 @@ namespace Painter.Models
                 Initial();
             }
         }
-        public PointGeo EndPoint
+        public PointGeo SecondPoint
         {
             get { return _end; }
             set
@@ -132,7 +136,7 @@ namespace Painter.Models
 
         public virtual float GetMaxY()
         {
-            return Math.Max(this.StartPoint.Y, this.EndPoint.Y);
+            return Math.Max(this.FirstPoint.Y, this.SecondPoint.Y);
         }
         protected double _minX = 1E6;
         protected double _minY = 1E6;
@@ -140,15 +144,15 @@ namespace Painter.Models
         protected double _maxY;
         public virtual float GetMinY()
         {
-            return Math.Min(this.StartPoint.Y, this.EndPoint.Y);
+            return Math.Min(this.FirstPoint.Y, this.SecondPoint.Y);
         }
         public virtual float GetMaxX()
         {
-            return Math.Max(this.StartPoint.X, this.EndPoint.X);
+            return Math.Max(this.FirstPoint.X, this.SecondPoint.X);
         }
         public virtual float GetMinX()
         {
-            return Math.Min(this.StartPoint.X, this.EndPoint.X);
+            return Math.Min(this.FirstPoint.X, this.SecondPoint.X);
         }
         public int Width
         {
@@ -176,13 +180,13 @@ namespace Painter.Models
         }
         public Shape(PointGeo s, PointGeo e)
         {
-            this.StartPoint = s;
-            this.EndPoint = e;
+            this.FirstPoint = s;
+            this.SecondPoint = e;
         }
         protected virtual void Initial()
         {
-            this.Width = (int)Math.Abs(StartPoint.X - EndPoint.X);
-            this.Heigth = (int)Math.Abs(StartPoint.Y - EndPoint.Y);
+            this.Width = (int)Math.Abs(FirstPoint.X - SecondPoint.X);
+            this.Heigth = (int)Math.Abs(FirstPoint.Y - SecondPoint.Y);
         }
         public Shape SetDrawMeta(ShapeMeta dm)
         {
@@ -201,14 +205,14 @@ namespace Painter.Models
             }
             return true;
         }
-        public void Translate(PointGeo offset)
+        public virtual void Translate(PointGeo offset)
         {
             if (IsNonTrans)
             {
                 return;
             }
-            this.StartPoint = this.StartPoint + offset;
-            this.EndPoint = this.EndPoint + offset;
+            this.FirstPoint = this.FirstPoint + offset;
+            this.SecondPoint = this.SecondPoint + offset;
         }
         public void Rotate()
         {
@@ -216,8 +220,8 @@ namespace Painter.Models
         }
         public void Scale(PointGeo scale)
         {
-            this.StartPoint.Scale(scale);
-            this.EndPoint.Scale(scale);
+            this.FirstPoint.Scale(scale);
+            this.SecondPoint.Scale(scale);
         }
         public abstract void Draw();
         public void Draw(PainterBase p)
@@ -284,17 +288,20 @@ namespace Painter.Models
         public RectangeGeo()
         {
         }
+        public RectangeGeo(PointGeo s, PointGeo e):base(s,e)
+        {
+        }
         protected override void Initial()
         {
             base.Initial();
-            LeftCorner = (int)Math.Min(EndPoint.X, StartPoint.X);
-            TopCorner = (int)Math.Min(EndPoint.Y, StartPoint.Y);
+            LeftCorner = (int)Math.Min(SecondPoint.X, FirstPoint.X);
+            TopCorner = (int)Math.Min(SecondPoint.Y, FirstPoint.Y);
         }
         public override void Draw()
         {
-            float num = EndPoint.X - StartPoint.X;
-            float num2 = EndPoint.Y - StartPoint.Y;
-            MSG = String.Format("当前坐标：({0},{1})--坐标偏移量：({2},{3})", EndPoint.X, EndPoint.Y, num, num2);
+            float num = SecondPoint.X - FirstPoint.X;
+            float num2 = SecondPoint.Y - FirstPoint.Y;
+            MSG = String.Format("当前坐标：({0},{1})--坐标偏移量：({2},{3})", SecondPoint.X, SecondPoint.Y, num, num2);
             if (this.drawMata == null)
                 return;
             if (Painter != null)
@@ -329,9 +336,9 @@ namespace Painter.Models
         }
         public override void Draw()
         {
-            float num = EndPoint.X - StartPoint.X;
-            float num2 = EndPoint.Y - StartPoint.Y;
-            MSG = String.Format("当前坐标：({0},{1})--坐标偏移量：({2},{3})", EndPoint.X, EndPoint.Y, num, num2);
+            float num = SecondPoint.X - FirstPoint.X;
+            float num2 = SecondPoint.Y - FirstPoint.Y;
+            MSG = String.Format("当前坐标：({0},{1})--坐标偏移量：({2},{3})", SecondPoint.X, SecondPoint.Y, num, num2);
             if (this.drawMata == null)
                 return;
             if (Painter != null)
@@ -344,12 +351,28 @@ namespace Painter.Models
         public CircleGeo()
         {
         }
-        protected override void Initial()
+        public CircleGeo(PointGeo s, PointGeo e)  
         {
+            this.FirstPoint = s;
+            this.SecondPoint = e;
+        }
+        protected override void Initial()
+        {//是这样的，第一个点是圆心，第二个点决定半径
             base.Initial();
-            CenterX = StartPoint.X;
-            CenterY = StartPoint.Y;
-            Radius = (int)(Math.Sqrt(1.0 * (StartPoint.X - EndPoint.X) * (StartPoint.X - EndPoint.X) + 1.0 * (StartPoint.Y - EndPoint.Y) * (StartPoint.Y - EndPoint.Y)));
+            CenterX = FirstPoint.X;
+            CenterY = FirstPoint.Y;
+            Radius = (int)(Math.Sqrt(1.0 * (FirstPoint.X - SecondPoint.X) * (FirstPoint.X - SecondPoint.X) + 1.0 * (FirstPoint.Y - SecondPoint.Y) * (FirstPoint.Y - SecondPoint.Y)));
+        }
+        public override void Translate(PointGeo offset)
+        {
+            if (IsNonTrans)
+            {
+                return;
+            } 
+            this.FirstPoint += offset;//会触发Init方法，而重写的Init里面会更新CenterX
+            this.SecondPoint += offset;
+            //this.CenterX += offset.X;
+            //this.CenterY += offset.Y;
         }
         public override void Draw()
         {
@@ -361,7 +384,7 @@ namespace Painter.Models
             }
             if (Painter != null)
                 Painter.DrawCircle(this);
-            MSG = String.Format("圆心坐标：({0},{1})--半径：{2}", StartPoint.X, StartPoint.Y, Radius);
+            MSG = String.Format("圆心坐标：({0},{1})--半径：{2}", FirstPoint.X, FirstPoint.Y, Radius);
         }
 
         public override void DispersedStartWithRightSide()
@@ -539,7 +562,7 @@ namespace Painter.Models
         {
             return Radius * (EndAngle - StartAngle) / 180 * Math.PI;
         }
-        public new void Translate(PointGeo offset)
+        public override void Translate(PointGeo offset)
         {
             if (IsNonTrans)
             {
@@ -547,8 +570,8 @@ namespace Painter.Models
             }
             //this.StartPoint += offset;
             //this.EndPoint += offset;
-            this.StartPoint += offset;
-            this.EndPoint += offset;
+            this.FirstPoint += offset;
+            this.SecondPoint += offset;
             this.CenterX += offset.X;
             this.CenterY += offset.Y;
         }
@@ -574,23 +597,23 @@ namespace Painter.Models
         }
         public new void Translate(PointGeo offset)
         {
-            this.StartPoint += offset;
-            this.EndPoint += offset;
+            this.FirstPoint += offset;
+            this.SecondPoint += offset;
         }
         public static float MAX_SLOP = 66666;
         public static float INF = 1E20f;
         public float GetK()
         {
-            if (Math.Abs(StartPoint.X - EndPoint.X) < 0.001)
+            if (Math.Abs(FirstPoint.X - SecondPoint.X) < 0.001)
                 return MAX_SLOP;
-            float tmpK = (EndPoint.Y - StartPoint.Y) / (EndPoint.X - StartPoint.X);
+            float tmpK = (SecondPoint.Y - FirstPoint.Y) / (SecondPoint.X - FirstPoint.X);
             return Math.Abs(tmpK) > MAX_SLOP ? MAX_SLOP : tmpK;
         }
         public double GetB()
         {
             if (Math.Abs(GetK() - MAX_SLOP) < Math.Abs(GetK() / 1000))
                 return INF;
-            return StartPoint.Y + GetK() * (0 - StartPoint.X);
+            return FirstPoint.Y + GetK() * (0 - FirstPoint.X);
 
         }
         public static int DISPERSED_COUNT = 500;
@@ -598,11 +621,11 @@ namespace Painter.Models
         {
             dispersedPoints.Clear();
             PerimeterList.Clear();
-            PointGeo tmp = StartPoint.Clone();
+            PointGeo tmp = FirstPoint.Clone();
             for (int i = 0; i < DISPERSED_COUNT; i++)
             {
-                tmp.X = StartPoint.X - (EndPoint.X - StartPoint.X) * i / DISPERSED_COUNT;
-                tmp.Y = StartPoint.Y - (EndPoint.Y - StartPoint.Y) * i / DISPERSED_COUNT;
+                tmp.X = FirstPoint.X - (SecondPoint.X - FirstPoint.X) * i / DISPERSED_COUNT;
+                tmp.Y = FirstPoint.Y - (SecondPoint.Y - FirstPoint.Y) * i / DISPERSED_COUNT;
                 this.dispersedPoints.Add(tmp.Clone());
                 this.PerimeterList.Add(this.GetLineLength() / DISPERSED_COUNT * i);
             }
@@ -615,20 +638,20 @@ namespace Painter.Models
             if (Painter != null)
             {
                 Painter.DrawLine(this);
-                MSG = String.Format("按住Shift 画垂直水平线; Ctrl 连续画线，线条长度： {0}， dx={1} ,dy={2}, 角度={3}", GetLineLength().ToString("F2"), (EndPoint.X - StartPoint.X).ToString("F2"), (EndPoint.Y - StartPoint.Y).ToString("F2"), (Math.Atan(GetK()) / Math.PI * 180).ToString("f2"));
+                MSG = String.Format("按住Shift 画垂直水平线; Ctrl 连续画线，线条长度： {0}， dx={1} ,dy={2}, 角度={3}", GetLineLength().ToString("F2"), (SecondPoint.X - FirstPoint.X).ToString("F2"), (SecondPoint.Y - FirstPoint.Y).ToString("F2"), (Math.Atan(GetK()) / Math.PI * 180).ToString("f2"));
                 //OnUpdateMessage(msg);
             }
         }
 
         private double GetLineLength()
         {
-            return Math.Sqrt((StartPoint.X - EndPoint.X) * (StartPoint.X - EndPoint.X) + (StartPoint.Y - EndPoint.Y) * (StartPoint.Y - EndPoint.Y));
+            return Math.Sqrt((FirstPoint.X - SecondPoint.X) * (FirstPoint.X - SecondPoint.X) + (FirstPoint.Y - SecondPoint.Y) * (FirstPoint.Y - SecondPoint.Y));
         }
 
         public override PointGeo GetXDirectionAtLength(float length)
         {
-            return new PointGeo((float)(StartPoint.X + (EndPoint.X - StartPoint.X) * length / GetLineLength()),
-                (float)(StartPoint.Y + (EndPoint.Y - StartPoint.Y) * length / GetLineLength()));
+            return new PointGeo((float)(FirstPoint.X + (SecondPoint.X - FirstPoint.X) * length / GetLineLength()),
+                (float)(FirstPoint.Y + (SecondPoint.Y - FirstPoint.Y) * length / GetLineLength()));
         }
 
         internal override double GetPerimeter()

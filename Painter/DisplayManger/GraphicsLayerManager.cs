@@ -68,6 +68,13 @@ namespace Painter.DisplayManger
             return this.drawList;
         }
         private object LockObj = new object();
+        public void AddRange(List<IScreenPrintable> isps)
+        {
+            foreach (var item in isps)
+            {
+                Add(item);
+            }
+        }
         public void Add(IScreenPrintable ips)
         {
             lock(lockObj)

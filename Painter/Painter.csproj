@@ -74,6 +74,15 @@
     <Compile Include="FileDealForm.Designer.cs">
       <DependentUpon>FileDealForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GameJumpFrm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GameJumpFrm.Designer.cs">
+      <DependentUpon>GameJumpFrm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Paint\CanvasModel.cs" />
+    <Compile Include="Models\Paint\SceneObject.cs" />
+    <Compile Include="Models\Paint\Scene.cs" />
     <Compile Include="PainterForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -162,6 +171,9 @@
     </Compile>
     <EmbeddedResource Include="FileDealForm.resx">
       <DependentUpon>FileDealForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GameJumpFrm.resx">
+      <DependentUpon>GameJumpFrm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PainterForm.resx">
       <DependentUpon>PainterForm.cs</DependentUpon>
