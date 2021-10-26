@@ -1,10 +1,12 @@
 ﻿using Painter.Models;
 using Painter.Models.Paint;
+using Painter.Models.PhysicalModel;
 using Painter.Painters;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -35,6 +37,8 @@ namespace Painter
                 {
                     this.canvasModel.Clear();
                 }
+                timer.Stop();
+                physicalField.Dispose();
             };
             canvasModel.Invalidate += this.Invalidate;
         }
@@ -47,7 +51,7 @@ namespace Painter
             }
             canvasModel.OnLoad(sender, e);
         }
-
+       
         private void OnSizeChanged(object sender, EventArgs e)
         {
             if (canvasModel == null)
@@ -106,12 +110,15 @@ namespace Painter
             switch(keyData)
             {
                 case Keys.Right:
-                    character.Move( new PointGeo(10, 0)); 
+                    character.Speed.X = 5;
+                    //character.Move( new PointGeo(10, 0)); 
                     break;
                 case Keys.Left:
-                    character.Move(new PointGeo(-10, 0));
+                    character.Speed.X = -5; 
+                    //character.Move(new PointGeo(-10, 0));
                     break;
                 case Keys.Up:
+                    character.Speed.Y = 2;
                     break;
                 case Keys.Down:
                     break;
@@ -141,6 +148,8 @@ namespace Painter
         }
         Scene scene;
         Character character = new Character();
+        PhysicalField physicalField = new PhysicalField();
+        Timer timer = new Timer();
         private void btnStart_Click(object sender, EventArgs e)
         {
             if (scene != null)
@@ -148,20 +157,55 @@ namespace Painter
                 scene.Clear();
             }
             scene = new Scene(canvasModel.GetHoldLayerManager(),canvasModel.GetFreshLayerManager());
-            Init();
+            InitScene();
+            physicalField.AddScene(scene);
+            physicalField.Rules += (sceneObject) => { 
+                 
+            };
+            physicalField.ApplyField();
+            btnStart.Visible = false;
             this.Focus();
             Invalidate();
+            timer.Interval = 15;
+            timer.Tick += Timer_Tick;
+            timer.Start();
         }
-        private void Init()
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            this.Invalidate();
+            Debug.Print(character.Speed.Y + "");
+        }
+
+        private void InitScene()
         {
             SceneObject groundObj = new SceneObject();
             RectangeGeo groundRec = new RectangeGeo(new PointGeo(0, 0), new PointGeo(1200, 100));
-            groundRec.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2 });
-            groundObj.Add(groundRec);  
-            character.Move(new PointGeo(100, 100));
+            groundRec.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2,IsFill=false,BackColor=Color.BlueViolet });
+            groundObj.Add(groundRec);
+
+            SceneObject groundObj2 = new SceneObject();
+            RectangeGeo groundRec2 = new RectangeGeo(new PointGeo(1500, 0), new PointGeo(2700, 100));
+            groundRec2.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
+            groundObj2.Add(groundRec2);
+
+            character.Move(new PointGeo(100, 200));
  
             scene.AddObject(groundObj);
+            scene.AddObject(groundObj2);
             scene.AddObject(character);
+        }
+        bool isPause = false;
+        private void btnPause_Click(object sender, EventArgs e)
+        {
+            isPause = !isPause;
+            if (isPause)
+            {
+                physicalField.Pause();
+            }else
+            {
+                physicalField.Start();
+            }
         }
     }
 }

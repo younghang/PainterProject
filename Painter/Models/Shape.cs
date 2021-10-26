@@ -374,6 +374,22 @@ namespace Painter.Models
             //this.CenterX += offset.X;
             //this.CenterY += offset.Y;
         }
+        public override float GetMaxX()
+        {
+            return (float)CenterX+Radius;
+        }
+        public override float GetMaxY()
+        {
+            return (float)CenterY + Radius;
+        }
+        public override float GetMinX()
+        {
+            return (float)CenterX - Radius;
+        }
+        public override float GetMinY()
+        {
+            return (float)CenterY - Radius;
+        }
         public override void Draw()
         {
             if (this.drawMata == null)

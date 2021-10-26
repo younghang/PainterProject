@@ -80,9 +80,10 @@
     <Compile Include="GameJumpFrm.Designer.cs">
       <DependentUpon>GameJumpFrm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\Paint\CanvasModel.cs" />
-    <Compile Include="Models\Paint\SceneObject.cs" />
-    <Compile Include="Models\Paint\Scene.cs" />
+    <Compile Include="Models\PhysicalModel\CanvasModel.cs" />
+    <Compile Include="Models\PhysicalModel\PhysicalField.cs" />
+    <Compile Include="Models\PhysicalModel\SceneObject.cs" />
+    <Compile Include="Models\PhysicalModel\Scene.cs" />
     <Compile Include="PainterForm.cs">
       <SubType>Form</SubType>
     </Compile>
