@@ -100,9 +100,9 @@ namespace Painter
                 return;
             }
             canvasModel.OnKeyDown(sender, e);
-            if (e.KeyCode==Keys.Left)
+            if (e.KeyCode==Keys.Enter)
             {
-               
+                
             }
         }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -118,9 +118,19 @@ namespace Painter
                     //character.Move(new PointGeo(-10, 0));
                     break;
                 case Keys.Up:
+                    if (character.Status==SCENE_OBJECT_STATUS.IN_GROUND)
+                    {
+                        character.Speed.Y = 2; 
+                    }
+                    break;
+                case Keys.Space:
                     character.Speed.Y = 2;
                     break;
+                case Keys.Enter:
+                    Pause_Click();
+                    break;
                 case Keys.Down:
+                    character.Move(new PointGeo(0,-10));
                     break;
             }
             canvasModel.OnInvalidate();
@@ -145,9 +155,13 @@ namespace Painter
                 //this.contextMenuStrip1.Show(new Point(e.X + this.Left, e.Y + this.Top + 20));
             }
             canvasModel.OnMouseDown(sender, e);
+            if (e.Button == MouseButtons.Left&&character != null && character.CurrenScene != null)
+            {
+                character.OnFire(canvasModel.ClickPoint); 
+            }
         }
         Scene scene;
-        Character character = new Character();
+        MainCharacter character = new MainCharacter();
         PhysicalField physicalField = new PhysicalField();
         Timer timer = new Timer();
         private void btnStart_Click(object sender, EventArgs e)
@@ -174,29 +188,40 @@ namespace Painter
         private void Timer_Tick(object sender, EventArgs e)
         {
             this.Invalidate();
-            Debug.Print(character.Speed.Y + "");
+            //Debug.Print(character.Speed.Y + "");
         }
 
         private void InitScene()
         {
-            SceneObject groundObj = new SceneObject();
+            GroundObject groundObj = new GroundObject();
             RectangeGeo groundRec = new RectangeGeo(new PointGeo(0, 0), new PointGeo(1200, 100));
             groundRec.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2,IsFill=false,BackColor=Color.BlueViolet });
             groundObj.Add(groundRec);
+            groundObj.ReflectResistance = 1E-6f;
 
-            SceneObject groundObj2 = new SceneObject();
+            GroundObject groundObj2 = new GroundObject();
             RectangeGeo groundRec2 = new RectangeGeo(new PointGeo(1500, 0), new PointGeo(2700, 100));
             groundRec2.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
             groundObj2.Add(groundRec2);
 
+            GroundObject groundObj3 = new GroundObject();
+            RectangeGeo groundRec3 = new RectangeGeo(new PointGeo(1500, 300), new PointGeo(2700, 400));
+            groundRec3.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
+            groundObj3.Add(groundRec3);
+
             character.Move(new PointGeo(100, 200));
- 
+
+            Enemy enemy = new Enemy();
+            enemy.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble()*5, (float) new Random(System.DateTime.UtcNow.Millisecond).NextDouble()*5);
+            enemy.Move(enemy.Speed*100);
             scene.AddObject(groundObj);
             scene.AddObject(groundObj2);
-            scene.AddObject(character);
+            scene.AddObject(groundObj3);
+            scene.AddObject(enemy, true); 
+            scene.AddObject(character,true);
         }
         bool isPause = false;
-        private void btnPause_Click(object sender, EventArgs e)
+        private void Pause_Click()
         {
             isPause = !isPause;
             if (isPause)
@@ -206,6 +231,11 @@ namespace Painter
             {
                 physicalField.Start();
             }
+        }
+
+        private void GameJumpFrm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -430,7 +430,7 @@ namespace Painter.WinFormDisplay
 			
 			#endregion
 			e.Graphics.DrawImage((freshLayerManager.GetPainter() as WinFormPainter).GetCanvas(), new PointF(0, 0));
-			moveableLayerManager.GetPainter().Clear();
+			moveableLayerManager.GetPainter().Clear(Color.Transparent);
 			moveableLayerManager.Draw();
 			e.Graphics.DrawImage((moveableLayerManager.GetPainter() as WinFormPainter).GetCanvas(), new PointF(0, 0));
 			holdLayerManager.Draw();

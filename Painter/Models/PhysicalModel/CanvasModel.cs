@@ -38,7 +38,7 @@ namespace Painter.Models
             IsYUpDirection = true;
             //数据区域
             MinX = 0;
-            MaxX = 1200;
+            MaxX = 2400;
             MinY = 0;
             MaxY = 600;
         }
@@ -78,7 +78,7 @@ namespace Painter.Models
             {
                 lock (lockObj)
                 {
-                    layer.GetPainter().Clear();
+                    layer.GetPainter().Clear(Color.Transparent);
                     layer.Draw();
                     Image image = (layer.GetPainter() as WinFormPainter).GetCanvas();
                     graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -87,12 +87,13 @@ namespace Painter.Models
                     graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
                     graphics.DrawImage(image, 0, 0, image.Width, image.Height);
                 }
-            };
-            onPanit(this.fixedLayerManager);
+            };  
+            //onPanit(this.fixedLayerManager);
+            (this.fixedLayerManager.GetPainter() as WinFormPainter).graphics.FillRectangle(new SolidBrush(Color.FromArgb(50, System.Drawing.Color.White)),0,0,this.Width,this.Height);
+            this.fixedLayerManager.Draw();
+            graphics.DrawImage((this.fixedLayerManager.GetPainter() as WinFormPainter).GetCanvas(), 0, 0);
+
             onPanit(this.freshLayerManager);
-            //this.freshLayerManager.GetPainter().Clear();
-            //this.freshLayerManager.Draw();
-            //graphics.DrawImage((this.freshLayerManager.GetPainter() as WinFormPainter).GetCanvas(), 0, 0);
         }
         private void SetLayerManagerGraphic(ref GraphicsLayerManager layerGraphic)
         {
@@ -227,6 +228,7 @@ namespace Painter.Models
         PointGeo oldPoint = new PointGeo(0, 0);
         PointGeo newPoint = new PointGeo(0, 0);
         PointGeo oldOffsetPoint = new PointGeo(0, 0);
+        public PointGeo ClickPoint = new PointGeo();
         public void OnMouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Middle)
@@ -235,6 +237,7 @@ namespace Painter.Models
                 oldPoint.Y = e.Y;
                 oldOffsetPoint = this.fixedLayerManager.GetPainter().OffsetPoint.Clone();
             }
+            ClickPoint = ScreenToObjectPos(e.X, e.Y);
         }
         public void OnMouseWheel(object sender, MouseEventArgs e)
         {

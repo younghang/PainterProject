@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -80,6 +83,69 @@ namespace Utils
             public int green;
             public int blue;
         }
+        public static void PointRotateAroundOrigin(float degree, ref float x, ref float y)
+        {
+            double rad = degree / 180 * Math.PI;
+            float tempX,tempY;
+            tempX = (float)(x * Math.Cos(rad) - y * Math.Sin(rad));
+            tempY = (float)(x * Math.Sin(rad) + y * Math.Cos(rad));
+            x = tempX;
+            y = tempY;
+        }
+        /// <summary>
+        /// Clones the specified list.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="List">The list.</param>
+        /// <returns>List{``0}.</returns>
+        public static List<T> Clone<T>(object List)
+        {
+            using (Stream objectStream = new MemoryStream())
+            {
+                IFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(objectStream, List);
+                objectStream.Seek(0, SeekOrigin.Begin);
+                return formatter.Deserialize(objectStream) as List<T>;
+            }
+        }
+        public static T CloneObject<T>(object obj)
+        {
+            using (Stream objectStream = new MemoryStream())
+            {
+                IFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(objectStream, obj);
+                objectStream.Seek(0, SeekOrigin.Begin);
+                return (T)formatter.Deserialize(objectStream);
+            }
+        }
+        /// <summary>
+        /// 返回类似00:00.000s的时间差
+        /// </summary>
+        /// <param name="EndTime"></param>
+        /// <param name="StartTime"></param>
+        /// <returns></returns>
+        public static string GetTimeSpan(DateTime EndTime, DateTime StartTime,double rate=1)
+        {
+            double seconds = (EndTime - StartTime).TotalMilliseconds / 1000 * rate;
+            int minue = (int)(seconds / 60);
+            string strMin = "" + minue;
+
+            if (minue < 10)
+            {
+                strMin = "0" + minue;
+            }
+            int sec = (int)(seconds - minue * 60);
+            string strSecond = "" + sec;
+            if (sec < 10)
+            {
+                strSecond = "0" + sec;
+            }
+            double milliseconds = (seconds - minue * 60 - sec) * 1000;
+            string strMilli = ((int)milliseconds).ToString("000");//ToString("D3")
+            string totalTime = strMin + ":" + strSecond + "." + strMilli;
+            return totalTime;
+        }
+ 
     }
 
 }

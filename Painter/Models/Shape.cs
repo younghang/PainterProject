@@ -7,9 +7,11 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using Painter.Painters;
+ 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Utils;
 
 namespace Painter.Models
 {
@@ -19,7 +21,7 @@ namespace Painter.Models
     public interface IOperationable
     {
         void Translate(PointGeo offset);
-        void Rotate();
+        void Rotate(float degree,PointGeo center=null);
         void Scale(PointGeo offset);
     }
     public interface IPrintAndOperatable : IScreenPrintable, IOperationable
@@ -73,7 +75,7 @@ namespace Painter.Models
         public static PointGeo operator /(float num, PointGeo p1)
         {
             return new PointGeo(num / p1.X, num / p1.Y);
-        }
+        } 
         public PointGeo Clone()
         {
             return new PointGeo(this.X, this.Y);
@@ -84,11 +86,16 @@ namespace Painter.Models
             this.Y += p.Y;
             return this;
         }
+        public PointGeo (PointGeo p)
+        {
+            this.X  = p.X;
+            this.Y  = p.Y; 
+        }
 
         internal void Scale(PointGeo p)
         {
             this.X *= p.X;
-            this.Y *= p.Y; ;
+            this.Y *= p.Y;  
         }
         public PointGeo GetAbs()
         {
@@ -138,6 +145,12 @@ namespace Painter.Models
         {
             return Math.Max(this.FirstPoint.Y, this.SecondPoint.Y);
         }
+
+        public virtual bool IsOverlap(Shape other)
+        {
+            return false;
+        }
+
         protected double _minX = 1E6;
         protected double _minY = 1E6;
         protected double _maxX;
@@ -214,9 +227,9 @@ namespace Painter.Models
             this.FirstPoint = this.FirstPoint + offset;
             this.SecondPoint = this.SecondPoint + offset;
         }
-        public void Rotate()
+        public virtual void Rotate(float degree,PointGeo center)
         {
-            throw new NotImplementedException();
+             
         }
         public void Scale(PointGeo scale)
         {
@@ -307,7 +320,23 @@ namespace Painter.Models
             if (Painter != null)
                 Painter.DrawRectangle(this);
         }
-
+        public override bool IsOverlap(Shape other)
+        { 
+            if (other is RectangeGeo)
+            {
+                RectangeGeo otherRec = other as RectangeGeo;
+                PointGeo leftTop1 = new PointGeo(this.GetMinX(), this.GetMinY());
+                PointGeo leftTop2 = new PointGeo(otherRec.GetMinX(), otherRec.GetMinY());
+                if (Math.Abs((leftTop1.X+this.Width/2)-(leftTop2.X+otherRec.Width/2))<(this.Width+otherRec.Width)/2)
+                {
+                    if (Math.Abs((leftTop1.Y + this.Heigth / 2) - (leftTop2.Y + otherRec.Heigth / 2)) < (this.Heigth + otherRec.Heigth) / 2)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
 
         public override void DispersedStartWithRightSide()
@@ -377,6 +406,10 @@ namespace Painter.Models
         public override float GetMaxX()
         {
             return (float)CenterX+Radius;
+        }
+        public override void Rotate(float degree, PointGeo center)
+        {
+            
         }
         public override float GetMaxY()
         {
@@ -611,11 +644,29 @@ namespace Painter.Models
         {
 
         }
-        public new void Translate(PointGeo offset)
+        public override void Translate(PointGeo offset)
         {
             this.FirstPoint += offset;
             this.SecondPoint += offset;
         }
+        public override void Rotate(float degree, PointGeo center=null)
+        {
+            if (center == null)
+            {
+                center = FirstPoint.Clone();
+            }
+            float x = FirstPoint.X-center.X;
+            float y = FirstPoint.Y - center.Y;
+            CommonUtils.PointRotateAroundOrigin(degree, ref x, ref y);
+            FirstPoint.X = x + center.X;
+            FirstPoint.Y = y + center.Y;
+            x = SecondPoint.X - center.X;
+            y = SecondPoint.Y - center.Y;
+            CommonUtils.PointRotateAroundOrigin(degree, ref x, ref y);
+            SecondPoint.X = x + center.X;
+            SecondPoint.Y = y + center.Y;
+        }
+
         public static float MAX_SLOP = 66666;
         public static float INF = 1E20f;
         public float GetK()
@@ -724,7 +775,7 @@ namespace Painter.Models
         } 
     }
     [Serializable]
-    public class RandomLines : IScreenPrintable
+    public class RandomLines : IPrintAndOperatable
     {
         public void ResetPoints()
         {
@@ -733,10 +784,14 @@ namespace Painter.Models
                 element.IsNeedDraw = true;
             }
         }
-
+        public bool IsShow = true;
         public int MaxCount = -1;
         public virtual void Draw(PainterBase Painter)
         {
+            if (!IsShow)
+            {
+                return;
+            }
             if (pointsMeta == null)
             {
                 pointsMeta = new ShapeMeta();
@@ -794,6 +849,22 @@ namespace Painter.Models
         {
             this.points = ps;
         }
+
+        public void Translate(PointGeo offset)
+        {
+             
+        }
+
+        public void Rotate(float degree, PointGeo center = null)
+        {
+             
+        }
+
+        public void Scale(PointGeo offset)
+        {
+             
+        }
+
         public List<PointGeo> points = new List<PointGeo>();
     }
     [Serializable]
@@ -834,9 +905,9 @@ namespace Painter.Models
             this.pos.Offset(offset);
         }
 
-        public void Rotate()
+        public virtual void Rotate(float degree,PointGeo center )
         {
-            throw new NotImplementedException();
+
         }
 
         public void Scale(PointGeo p)

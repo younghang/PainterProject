@@ -26,7 +26,7 @@ namespace Painter.Painters
 
         }
 
-        public virtual void Clear()
+        public virtual void Clear(System.Drawing.Color color)
         {
 
         }
@@ -183,12 +183,12 @@ namespace Painter.Painters
             SetCanvas(b);
         }
         private object lockObj = new object();
-        public override void Clear()
+        public override void Clear(System.Drawing.Color color)
         {
             lock (lockObj)
             {
-                base.Clear();
-                this.graphics.Clear(System.Drawing.Color.Transparent);
+                base.Clear(color);
+                this.graphics.Clear(color);
             }
 
         }

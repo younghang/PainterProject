@@ -134,7 +134,7 @@
     <Compile Include="View\Window\SettingForm.Designer.cs">
       <DependentUpon>SettingForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Utils\CommonUtils.cs" />
+    <Compile Include="Utils\MyUtils.cs" />
     <Compile Include="Utils\FileUtils.cs" />
     <Compile Include="View\CanvasView\WinFormCanvas.cs">
       <SubType>UserControl</SubType>
@@ -237,6 +237,10 @@
     <ProjectReference Include="..\CalculatorDll\CalculatorDll.csproj">
       <Project>{504F7DA7-0B18-41F7-86C5-CE231001F735}</Project>
       <Name>CalculatorDll</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Utils\Utils.csproj">
+      <Project>{a173bc18-5c0e-4d18-91d8-2dd408cc73a6}</Project>
+      <Name>Utils</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

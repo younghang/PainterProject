@@ -401,7 +401,7 @@ namespace Painter.View.CanvasView
             lock (lockObj)
             {
                 //先绘制底层移动部分
-                moveableLayerManager.GetPainter().Clear();
+                moveableLayerManager.GetPainter().Clear(Color.Transparent);
                 moveableLayerManager.Draw();
                 e.Graphics.DrawImage((moveableLayerManager.GetPainter() as WinFormPainter).GetCanvas(), new PointF(0, 0));
 
@@ -484,7 +484,7 @@ namespace Painter.View.CanvasView
                 this.moveableLayerManager.LoadShape(shapes);
             }
             this.ips = null;
-            moveableLayerManager.GetPainter().Clear();
+            moveableLayerManager.GetPainter().Clear(Color.Transparent);
             moveableLayerManager.Draw();
             this.Invalidate();
         }
@@ -551,7 +551,7 @@ namespace Painter.View.CanvasView
                     pm.ForeColor = Color.FromArgb(ShapeForeColor.A, ShapeForeColor.R, ShapeForeColor.G, ShapeForeColor.B);
                     pm.LineWidth = 1;//float.Parse(txtLineWidth.Text);
                     rl.SetDrawMeta(pm);
-                    List<PointGeo> listP= CommonUtils.Clone<PointGeo>(points);
+                    List<PointGeo> listP= MyUtils.Clone<PointGeo>(points);
                     for (int i = 0; i < listP.Count; i++)
                     {
                         listP[i] = ScreenToObjectPos((int)listP[i].X,(int)listP[i].Y);

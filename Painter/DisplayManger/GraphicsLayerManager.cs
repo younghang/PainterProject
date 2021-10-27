@@ -100,7 +100,7 @@ namespace Painter.DisplayManger
             int size = Math.Min(CurrentPos, this.drawList.Count);
             for (int i = 0; i < size; i++)
             {
-                drawList[i].Draw(Painter);
+                drawList[i].Draw(Painter); 
             }
         }
         private object lockObj = new object();
@@ -110,11 +110,10 @@ namespace Painter.DisplayManger
             {
                 drawList.Clear();
                 CurrentPos = 0;
-                this.Painter.Clear();
+                this.Painter.Clear(Color.Transparent);
                 if (this.Invalidate != null)
                     Invalidate();
-            }
-           
+            } 
         }
         public void Undo( )
         {

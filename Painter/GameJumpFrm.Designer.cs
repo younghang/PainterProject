@@ -30,39 +30,30 @@ namespace Painter
         private void InitializeComponent()
         {
             this.btnStart = new System.Windows.Forms.Button();
-            this.btnPause = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(569, 48);
+            this.btnStart.Location = new System.Drawing.Point(759, 60);
+            this.btnStart.Margin = new System.Windows.Forms.Padding(4);
             this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(133, 51);
+            this.btnStart.Size = new System.Drawing.Size(177, 64);
             this.btnStart.TabIndex = 0;
             this.btnStart.Text = "开始";
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
-            // btnPause
-            // 
-            this.btnPause.Location = new System.Drawing.Point(801, 48);
-            this.btnPause.Name = "btnPause";
-            this.btnPause.Size = new System.Drawing.Size(115, 62);
-            this.btnPause.TabIndex = 1;
-            this.btnPause.Text = "暂停";
-            this.btnPause.UseVisualStyleBackColor = true;
-            this.btnPause.Click += new System.EventHandler(this.btnPause_Click);
-            // 
             // GameJumpFrm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 561);
-            this.Controls.Add(this.btnPause);
+            this.ClientSize = new System.Drawing.Size(1579, 701);
             this.Controls.Add(this.btnStart);
             this.KeyPreview = true;
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "GameJumpFrm";
             this.Text = "蹦蹦跳";
+            this.Load += new System.EventHandler(this.GameJumpFrm_Load);
             this.ResumeLayout(false);
 
         }
@@ -70,6 +61,5 @@ namespace Painter
         #endregion
 
         private System.Windows.Forms.Button btnStart;
-        private System.Windows.Forms.Button btnPause;
     }
 }

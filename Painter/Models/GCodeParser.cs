@@ -270,7 +270,7 @@ namespace Painter.Models
                 }
                 if (isSeperatorLine)
                 {
-                    strProcessCmdLines.Add(CommonUtils.Clone<string>(code));
+                    strProcessCmdLines.Add(MyUtils.Clone<string>(code));
                     code.Clear();
                 }
                 else
@@ -280,7 +280,7 @@ namespace Painter.Models
             }
             if (code.Count > 0)
             {
-                strProcessCmdLines.Add(CommonUtils.Clone<string>(code));
+                strProcessCmdLines.Add(MyUtils.Clone<string>(code));
                 code.Clear();
             }
             return this;

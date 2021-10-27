@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Painter.Utils
 {
-    class CommonUtils
+    class MyUtils
     {
 
         /// <summary>

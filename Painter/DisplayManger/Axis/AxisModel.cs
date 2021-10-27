@@ -169,7 +169,7 @@ namespace Painter.DisplayManger.Axis
                {
                    lock (lockObj)
                    {
-                       layer.GetPainter().Clear();
+                       layer.GetPainter().Clear(Color.Transparent);
                        layer.Draw();
                        Image image = (layer.GetPainter() as WinFormPainter).GetCanvas();
                        graphics.SmoothingMode = SmoothingMode.HighQuality;
@@ -180,7 +180,7 @@ namespace Painter.DisplayManger.Axis
                    }
                };
             onPanit(this.fixedLayerManager);
-            this.graphicLayerManager.GetPainter().Clear();
+            this.graphicLayerManager.GetPainter().Clear(Color.Transparent);
             this.graphicLayerManager.Draw();
             graphics.DrawImage((this.graphicLayerManager.GetPainter() as WinFormPainter).GetCanvas(), 0, 0);
         }
