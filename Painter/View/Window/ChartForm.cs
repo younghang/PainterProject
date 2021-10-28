@@ -1,4 +1,4 @@
-﻿using Painter.DisplayManger.Axis;
+﻿ 
 using Painter.Models;
 using Painter.Utils;
 using System;
@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Utils;
+using Utils.DisplayManger.Axis;
 
 namespace Painter
 {

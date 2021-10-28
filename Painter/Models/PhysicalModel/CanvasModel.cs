@@ -213,6 +213,7 @@ namespace Painter.Models
                     this.Invalidate(); 
                 }
             }
+            CurObjectPoint = ScreenToObjectPos(e.X, e.Y);
         }
         public void OnMouseUp(object sender, MouseEventArgs e)
         {
@@ -228,7 +229,7 @@ namespace Painter.Models
         PointGeo oldPoint = new PointGeo(0, 0);
         PointGeo newPoint = new PointGeo(0, 0);
         PointGeo oldOffsetPoint = new PointGeo(0, 0);
-        public PointGeo ClickPoint = new PointGeo();
+        public PointGeo CurObjectPoint = new PointGeo();
         public void OnMouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Middle)
@@ -237,7 +238,7 @@ namespace Painter.Models
                 oldPoint.Y = e.Y;
                 oldOffsetPoint = this.fixedLayerManager.GetPainter().OffsetPoint.Clone();
             }
-            ClickPoint = ScreenToObjectPos(e.X, e.Y);
+            CurObjectPoint = ScreenToObjectPos(e.X, e.Y);
         }
         public void OnMouseWheel(object sender, MouseEventArgs e)
         {

@@ -83,14 +83,14 @@ namespace Utils
             public int green;
             public int blue;
         }
-        public static void PointRotateAroundOrigin(float degree, ref float x, ref float y)
+        public static void PointRotateAroundOrigin(float degree, ref float deltax, ref float deltay,float originx=0,float originy=0)
         {
             double rad = degree / 180 * Math.PI;
             float tempX,tempY;
-            tempX = (float)(x * Math.Cos(rad) - y * Math.Sin(rad));
-            tempY = (float)(x * Math.Sin(rad) + y * Math.Cos(rad));
-            x = tempX;
-            y = tempY;
+            tempX = (float)((deltax) * Math.Cos(rad) - (deltay) * Math.Sin(rad));
+            tempY = (float)((deltax) * Math.Sin(rad) + (deltay) * Math.Cos(rad));
+            deltax = tempX+originx;
+            deltay = tempY+originy;
         }
         /// <summary>
         /// Clones the specified list.

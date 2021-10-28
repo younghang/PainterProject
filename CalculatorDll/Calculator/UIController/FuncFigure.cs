@@ -32,8 +32,8 @@ namespace CalculatorDll.Calculator.UIController
 			Pen p = new Pen(Color.Black, 2);//定义了一个蓝色,宽度为的画笔
 											//			int leftbottom=0;
 			int size = 150;
-			string xlable = "X";
-			string ylable = "Y";
+			//string xlable = "X";
+			//string ylable = "Y";
 
 			int righttop = size;
 

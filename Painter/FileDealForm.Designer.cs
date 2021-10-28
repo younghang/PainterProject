@@ -35,9 +35,9 @@ namespace Painter
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(26, 154);
+            this.btnOK.Location = new System.Drawing.Point(26, 245);
             this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(417, 66);
+            this.btnOK.Size = new System.Drawing.Size(746, 66);
             this.btnOK.TabIndex = 0;
             this.btnOK.Text = "button1";
             this.btnOK.UseVisualStyleBackColor = true;
@@ -48,14 +48,14 @@ namespace Painter
             this.textBox1.Location = new System.Drawing.Point(26, 60);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(417, 54);
+            this.textBox1.Size = new System.Drawing.Size(746, 138);
             this.textBox1.TabIndex = 1;
             // 
             // FileDealForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(800, 334);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.btnOK);
             this.Name = "FileDealForm";

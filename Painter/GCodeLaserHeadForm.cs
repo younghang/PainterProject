@@ -11,11 +11,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Painter.Controller;
 using Painter.DisplayManger;
-using Painter.DisplayManger.Axis;
+ 
 using Painter.Models;
 using Painter.Painters;
 using Painter.Utils;
 using Painter.View.Window;
+using Utils;
+using Utils.DisplayManger.Axis;
 
 namespace Painter
 {

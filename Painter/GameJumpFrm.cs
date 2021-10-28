@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Utils;
 
 namespace Painter
 {
@@ -76,6 +77,7 @@ namespace Painter
                 return;
             }
             canvasModel.OnMouseMove(sender, e);
+            this.Text = canvasModel.CurObjectPoint.ToString();
         }
         private void OnMouseUp(object sender, MouseEventArgs e)
         {
@@ -157,15 +159,16 @@ namespace Painter
             canvasModel.OnMouseDown(sender, e);
             if (e.Button == MouseButtons.Left&&character != null && character.CurrenScene != null)
             {
-                character.OnFire(canvasModel.ClickPoint); 
+                character.OnFire(canvasModel.CurObjectPoint); 
             }
         }
         Scene scene;
         MainCharacter character = new MainCharacter();
+        DrawableText text = new DrawableText();
         PhysicalField physicalField = new PhysicalField();
         Timer timer = new Timer();
         private void btnStart_Click(object sender, EventArgs e)
-        {
+        { 
             if (scene != null)
             {
                 scene.Clear();
@@ -202,23 +205,46 @@ namespace Painter
             GroundObject groundObj2 = new GroundObject();
             RectangeGeo groundRec2 = new RectangeGeo(new PointGeo(1500, 0), new PointGeo(2700, 100));
             groundRec2.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
-            groundObj2.Add(groundRec2);
+            groundObj2.Add(groundRec2); 
 
             GroundObject groundObj3 = new GroundObject();
             RectangeGeo groundRec3 = new RectangeGeo(new PointGeo(1500, 300), new PointGeo(2700, 400));
             groundRec3.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
             groundObj3.Add(groundRec3);
 
+            GroundObject groundObj4 = new GroundObject();
+            RectangeGeo groundRec4 = new RectangeGeo(new PointGeo(0, 1000), new PointGeo(1200, 1100));
+            groundRec4.Angle = 30;
+            groundRec4.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
+            groundObj4.Add(groundRec4);
+
+            Obstacle obstacleTex = new Obstacle();
+            
+            text.pos = new PointGeo(2000, 1000);
+            text.SetDrawMeta(new TextMeta("Score:") { ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 24f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
+            RectangeGeo rect = new RectangeGeo(text.pos, text.pos-new PointGeo(100,100));
+            obstacleTex.Add(rect); 
+            obstacleTex.Add(text);
+
             character.Move(new PointGeo(100, 200));
+            character.HitEnemyEvent += () => {
+                text.GetTextMeta().Text = "Score: "+character.HitCount*10;
+            };
 
             Enemy enemy = new Enemy();
+            RectangeGeo rectange = new RectangeGeo(new PointGeo(0, 0), new PointGeo(100, 100));
+            rectange.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
+            enemy.Add(rectange);
             enemy.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble()*5, (float) new Random(System.DateTime.UtcNow.Millisecond).NextDouble()*5);
             enemy.Move(enemy.Speed*100);
+
             scene.AddObject(groundObj);
             scene.AddObject(groundObj2);
             scene.AddObject(groundObj3);
+            scene.AddObject(groundObj4);
             scene.AddObject(enemy, true); 
-            scene.AddObject(character,true);
+            scene.AddObject(character,false);
+            scene.AddObject(obstacleTex, true);
         }
         bool isPause = false;
         private void Pause_Click()

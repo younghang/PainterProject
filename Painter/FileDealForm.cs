@@ -10,9 +10,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Utils;
 
 namespace Painter
 {
+    //统计项目行号
     public partial class FileDealForm : Form
     {
         public FileDealForm()
@@ -27,9 +29,14 @@ namespace Painter
             {
                 return;
             }
+            string FileName = "this.txt";
+            if (File.Exists(FileName))
+            {
+                File.Delete(FileName);
+            }
             Func<FileInfo, bool> func = (file) =>
                {
-                   if (file.Extension==".cs")
+                   if (file.Extension == ".cs"||file.Extension == ".xaml")
                    {
                        return true;
                    }
@@ -37,13 +44,14 @@ namespace Painter
                };
             Action<FileInfo> action = (file) => {
                 Debug.Print(file.FullName + "\n");
-                using (FileStream fs=new FileStream("this.txt",FileMode.Append))
+                using (FileStream fs=new FileStream(FileName,FileMode.Append))
                 {
                     byte[] buffer = Encoding.UTF8.GetBytes(File.ReadAllText(file.FullName));
                     fs.Write(buffer, 0, buffer.Length);
-                }
+                } 
             };
             FileUtils.FindFiles(filePath, func, action);
+            MessageBox.Show("this.txt 文件生成完成");
         }
     }
 }

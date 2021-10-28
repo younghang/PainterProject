@@ -1,4 +1,5 @@
-﻿using Painter.Models;
+﻿using Painter.DisplayManger;
+using Painter.Models;
 using Painter.Painters;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Painter.DisplayManger.Axis
+namespace Utils.DisplayManger.Axis
 {
     /// <summary>
     /// 就是基本的chart绘图,基于Bitmap的（双缓存）

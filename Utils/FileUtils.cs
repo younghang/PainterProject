@@ -6,10 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Utils;
 
-namespace Painter.Utils
+namespace Utils
 {
-    class FileUtils
+    public class FileUtils
     {
         public static void SavePoints(List<PointGeo> track,string fileName="head_track.txt")
         {
@@ -22,7 +23,7 @@ namespace Painter.Utils
             }
         }
 
-        internal static void SaveFile(string name, string str)
+        public static void SaveFile(string name, string str)
         {
             File.WriteAllText(name, str);
         }
@@ -52,16 +53,15 @@ namespace Painter.Utils
             }
         }
         public static bool SelectFilePath(ref string FilePath)
-        {
-            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-            folderBrowserDialog.ShowNewFolderButton = false;
-            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+        { 
+            FilePathSelectDialog folderBrowserDialog = new FilePathSelectDialog();
+            if (folderBrowserDialog.ShowDialog(null) == DialogResult.OK)
             {
-                if (!Directory.Exists(folderBrowserDialog.SelectedPath))
+                if (!Directory.Exists(folderBrowserDialog.DirectoryPath))
                 {
                     return false;
                 }
-                FilePath = folderBrowserDialog.SelectedPath;
+                FilePath = folderBrowserDialog.DirectoryPath;
                 return true;
             }
             else

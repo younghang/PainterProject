@@ -44,7 +44,7 @@ namespace Painter.Models.PhysicalModel
                             character.Speed.X = 0;
                             if (character is Enemy)
                             {
-                                character.Speed.X = ((float)new Random().NextDouble() * 2 - 1) * 10;
+                                (character as Enemy).OnStopOnGround();
                             }
                         } 
                     } 

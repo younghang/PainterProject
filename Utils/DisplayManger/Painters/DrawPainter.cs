@@ -250,10 +250,14 @@ namespace Painter.Painters
             {
                 ShapeMeta sm = (ShapeMeta)rect.GetDrawMeta();
                 pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
-                graphics.DrawRectangle(pen, TransformX(rect.GetMinX()), TransformY(rect.GetMaxY()), Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
+                GraphicsState state= graphics.Save();
+                graphics.TranslateTransform(TransformX(rect.GetMinX()), TransformY(rect.GetMaxY()));
+                graphics.RotateTransform(rect.Angle);
+                graphics.DrawRectangle(pen,0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
                 if (sm.IsFill)
                     //graphics.FillRectangle(new SolidBrush(Color.FromArgb(200, 255, 255, 255)), x, y, width, height);
-                    graphics.FillRectangle(new SolidBrush(sm.BackColor), TransformX(rect.GetMinX()), TransformY(rect.GetMaxY()), Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
+                    graphics.FillRectangle(new SolidBrush(sm.BackColor),0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
+                graphics.Restore(state);
             }
         }
         public override void DrawLine(LineGeo line)

@@ -98,9 +98,25 @@ namespace Painter.DisplayManger
         public void Draw()
         { 
             int size = Math.Min(CurrentPos, this.drawList.Count);
-            for (int i = 0; i < size; i++)
+            for (int i = size-1; i >=0; i--)
             {
-                drawList[i].Draw(Painter); 
+                drawList[i].Draw(Painter);
+                if (drawList[i] is Shape)
+                {
+                    if ((drawList[i] as Shape).IsShow==false)
+                    {
+                        drawList.RemoveAt(i);
+                        CurrentPos--;
+                    }
+                }
+                else if (drawList[i] is RandomLines)
+                {
+                    if ((drawList[i] as RandomLines).IsShow == false)
+                    {
+                        drawList.RemoveAt(i);
+                        CurrentPos--;
+                    }
+                }
             }
         }
         private object lockObj = new object();

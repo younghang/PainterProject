@@ -49,7 +49,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChooseFilePathDialog.cs" />
     <Compile Include="CommonUtils.cs" />
+    <Compile Include="DisplayManger\Axis\AxisModel.cs" />
+    <Compile Include="DisplayManger\GraphicsLayerManager.cs" />
+    <Compile Include="DisplayManger\Painters\DrawPainter.cs" />
+    <Compile Include="FileUtils.cs" />
+    <Compile Include="Geometry\Shape.cs" />
     <Compile Include="MVVM\MyCommandT.cs" />
     <Compile Include="MVVM\MyEventCommand.cs" />
     <Compile Include="MVVM\NotifyObject.cs" />

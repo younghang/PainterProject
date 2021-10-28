@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 using Painter.Utils;
+using Utils;
 
 namespace Painter
 {
