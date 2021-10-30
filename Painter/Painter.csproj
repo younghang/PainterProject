@@ -79,7 +79,7 @@
       <DependentUpon>GameJumpFrm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\CameraModel\Camera.cs" />
-    <Compile Include="Models\ControlUtils\InputCmds.cs" />
+    <Compile Include="Models\CmdControl\InputCmds.cs" />
     <Compile Include="Models\Render\CanvasModel.cs" />
     <Compile Include="Models\PhysicalModel\PhysicalField.cs" />
     <Compile Include="Models\StageModel\FirstStageScene.cs" />

@@ -5,26 +5,32 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms; 
 
-namespace Painter.Models.ControlUtils
+namespace Painter.Models.CmdControl
 {
-    public enum CMDS { NONE,AUTO_FOCUS,DISABLE_FOCUS}
+    public enum CMDS { NONE,AUTO_FOCUS,DISABLE_FOCUS,INTERFER_ON,INTERFER_OFF,MOMENTA_ON,MOMENTA_OFF,TRACK_ON,TRACK_OFF}
 
     class InputCmds
     {
         CMDS curCMD = CMDS.NONE;
-        static List<string> cmds = new List<string>() { "NONE","FOCUS","DEFOCUS" };
+        static List<string> cmds = new List<string>() { "NONE","FOCUS","DEFOCUS","INTERFER","DEINTERFER","MOMENTA","DEMOMENTA","TRACK","DETRACK"};
         string strWords = "";
         bool isTyping = false;
         public event Action<CMDS> CMDEvent;
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode==Keys.Escape)
+            {
+                strWords = "";
+                return;
+            }
             strWords += (char)e.KeyValue;
             isTyping = false;
             for (int i = 0; i < cmds.Count; i++)
             {
                 if (strWords==cmds[i])
                 {
-                    curCMD=(CMDS)i;
+                    strWords = "";
+                    curCMD =(CMDS)i;
                     CMDEvent?.Invoke(curCMD);
                     return;
                 }

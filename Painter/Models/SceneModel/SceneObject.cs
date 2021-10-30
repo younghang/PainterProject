@@ -1,5 +1,6 @@
 ﻿//2021.10.26 yanghang
 using Painter.Models.PhysicalModel;
+using Painter.Models.StageModel;
 using Painter.Painters;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,8 @@ namespace Painter.Models.Paint
         public SCENE_OBJECT_STATUS Status;
         public SCENE_OBJECT_INTERFER Interfer;
         public float Mass = 1;
-        public bool DisableCheckInterfer = true;
+        public bool EnableCheckInterfer = true;
+        public bool EnableCheckCollision = true;//启用与Role对象碰撞
         public bool IsHaveTrack = false;
         public PointGeo GetCenter()
         {
@@ -51,6 +53,10 @@ namespace Painter.Models.Paint
         }
         public virtual bool CheckCollision(SceneObject sceneObject)
         {
+            if (!this.EnableCheckCollision)
+            {
+                return false;
+            }
             Shape shapeSelf = GetOutShape();
             Shape other = sceneObject.GetOutShape();
             if (shapeSelf.IsOverlap(other))
@@ -234,7 +240,7 @@ namespace Painter.Models.Paint
 
         internal void CheckInterfer(SceneObject sceneObject)
         {
-            if (!sceneObject.DisableCheckInterfer)
+            if (!sceneObject.EnableCheckInterfer)
             {
                 return;
             }
@@ -247,6 +253,8 @@ namespace Painter.Models.Paint
                         enemy.CalMaxMin();
                         if (CheckCollision(enemy))
                         {
+                            if (StageController.EnableMomenta)
+                            { 
                             //if (this is MainCharacter)
                             //{
                                 //和Enemy对象发生碰撞了 动量计算
@@ -263,7 +271,8 @@ namespace Painter.Models.Paint
                                 this.Speed.X = speed.X + enemy.Speed.X;
                                 CommonUtils.PointRotateAroundOrigin(-angle, ref this.Speed.X, ref this.Speed.Y);
                                 CommonUtils.PointRotateAroundOrigin(-angle, ref enemy.Speed.X, ref enemy.Speed.Y);
-                            //}
+                                //}
+                            }
                         }
 
                     }
@@ -749,7 +758,7 @@ namespace Painter.Models.Paint
             {
                 return;
             }
-            if (!sceneObject.DisableCheckInterfer)
+            if (!sceneObject.EnableCheckInterfer)
             {
                 return;
             }

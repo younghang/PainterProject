@@ -1,6 +1,6 @@
 ﻿using Painter.Models;
 using Painter.Models.CameraModel;
-using Painter.Models.ControlUtils;
+using Painter.Models.CmdControl;
 using Painter.Models.Paint;
 using Painter.Models.PhysicalModel; 
 using Painter.Models.StageModel;
@@ -47,7 +47,10 @@ namespace Painter
                 {
                     this.canvasModel.Clear();
                 }
-                stageController.Stop();
+                if (stageController!=null)
+                {
+                    stageController.Stop();
+                } 
             };
             canvasModel.Invalidate += this.Invalidate;
            
@@ -111,10 +114,14 @@ namespace Painter
                 return;
             }
             canvasModel.OnKeyDown(sender, e);
-            inputs.OnKeyDown(sender, e); 
-            if (e.KeyCode==Keys.Enter)//无效 这里接收不到命令按键
+            inputs.OnKeyDown(sender, e);
+            if (e.KeyCode == Keys.Enter)//无效 这里接收不到命令按键
             {
-                
+
+            }
+            if (e.KeyCode == Keys.Q)//无效 这里接收不到命令按键
+            {
+               ( scene as FirstStageScene).LoadEnemys();
             }
         }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -178,10 +185,10 @@ namespace Painter
             {
                 scene.Clear();
             }
-            stageController = new StageController(scene.CreateScene(), this.canvasModel);
-            stageController.Invalidate += this.Invalidate;
             btnStart.Visible = false;
             this.Focus();
+            stageController = new StageController(scene.CreateScene(), this.canvasModel);
+            stageController.Invalidate += this.Invalidate; 
             stageController.Start();
             camera = new Camera(canvasModel);
             camera.SetFocusObject(character); 
@@ -217,6 +224,24 @@ namespace Painter
                     break;
                 case CMDS.DISABLE_FOCUS:
                     camera.EnableFucus = false; 
+                    break;
+                case CMDS.INTERFER_ON:
+                    character.EnableCheckCollision = true;
+                    break;
+                case CMDS.INTERFER_OFF:
+                    character.EnableCheckCollision = false;
+                    break;
+                case CMDS.MOMENTA_ON:
+                    StageController.EnableMomenta = true;
+                    break;
+                case CMDS.MOMENTA_OFF:
+                    StageController.EnableMomenta = false;
+                    break;
+                case CMDS.TRACK_ON:
+                    CanvasModel.EnableTrack = true;
+                    break;
+                case CMDS.TRACK_OFF:
+                    CanvasModel.EnableTrack = false; 
                     break;
                 default:
                     break;

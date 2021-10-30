@@ -81,7 +81,7 @@ namespace Painter.Models
             IsYUpDirection = true;
             //数据区域
             MinX = 0;
-            MaxX = 3000;
+            MaxX = 2400;
             MinY = 0;
             MaxY = 600;
         }
@@ -114,6 +114,7 @@ namespace Painter.Models
             }
 
         }
+        public static bool EnableTrack = false;
         private object lockObj = new object();
         public void DrawOnCanvas(Graphics graphics)
         {
@@ -132,7 +133,14 @@ namespace Painter.Models
                 }
             };
             //onPanit(this.fixedLayerManager);
-            (this.fixedLayerManager.GetPainter() as WinFormPainter).graphics.FillRectangle(new SolidBrush(Color.FromArgb(50, System.Drawing.Color.White)), 0, 0, this.Width, this.Height);
+            if (EnableTrack)
+            {
+                (this.fixedLayerManager.GetPainter() as WinFormPainter).graphics.FillRectangle(new SolidBrush(Color.FromArgb(50, System.Drawing.Color.White)), 0, 0, this.Width, this.Height);
+            }
+            else
+            {
+                (this.fixedLayerManager.GetPainter() as WinFormPainter).graphics.Clear(Color.Transparent);
+            }
             this.fixedLayerManager.Draw();
             graphics.DrawImage((this.fixedLayerManager.GetPainter() as WinFormPainter).GetCanvas(), 0, 0);
 

@@ -19,6 +19,7 @@ namespace Painter.Models.StageModel
             this.render = canvasModel;
         }
         PhysicalField physicalField = new PhysicalField();
+        public static bool EnableMomenta = false;
         Timer timer = new Timer();
         public static double TIME_SPAN=15;
         Scene curScene;

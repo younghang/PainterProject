@@ -24,8 +24,9 @@ namespace Painter.Models.StageModel
             this.scene.Clear();
         }
         MainCharacter character = new MainCharacter();
-        DrawableText text = new DrawableText();
-        Scene scene= new Scene();
+        DrawableText scoreText = new DrawableText();
+        DrawableText illustrateText = new DrawableText(); 
+        Scene scene = new Scene();
         //获取场景中的键鼠操作对象
         public MainCharacter GetMainCharacter()
         {
@@ -61,23 +62,33 @@ namespace Painter.Models.StageModel
 
             Obstacle obstacleTex = new Obstacle();
 
-            text.pos = new PointGeo(1350, 1000);
-            text.SetDrawMeta(new TextMeta("Score:") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
-            RectangeGeo rect = new RectangeGeo(text.pos, text.pos - new PointGeo(100, 100));
+            scoreText.pos = new PointGeo(1350, 1000);
+            scoreText.SetDrawMeta(new TextMeta("Score:") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
+            RectangeGeo rect = new RectangeGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
             obstacleTex.Add(rect);
-            obstacleTex.Add(text);
+            obstacleTex.Add(scoreText);
+
+            Obstacle obstacleIllustionTex = new Obstacle();
+
+            illustrateText.pos = new PointGeo(1700, 1000);
+            illustrateText.SetDrawMeta(new TextMeta("Illustation:") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 16f), stringFormat = new StringFormat() { Alignment = StringAlignment.Near } });
+            RectangeGeo rectTxt = new RectangeGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
+            obstacleIllustionTex.Add(rectTxt);
+            obstacleIllustionTex.Add(illustrateText);
+            illustrateText.GetTextMeta().Text += "\n\tMove: ↑↓←→";
+            illustrateText.GetTextMeta().Text += "\n\tJump: Space";
+            illustrateText.GetTextMeta().Text += "\n\tLoad Enemys: Q";
+            illustrateText.GetTextMeta().Text += "\n\tPause/Resume: Enter";
+            illustrateText.GetTextMeta().Text += "\n\t Command \"TRACK/DETRACK\" enable/disable move track";
+            illustrateText.GetTextMeta().Text += "\n\t Command \"FOCUS/DEFOCUS\" enable/disable camera following";
+            illustrateText.GetTextMeta().Text += "\n\t Command \"MOMENTA/DEMOMENTA\" enable/disable object collision";
+            illustrateText.GetTextMeta().Text += "\n\t Command \"INTERFER/DEINTERFER\" enable/disable main character collision";
 
             character.Move(new PointGeo(100, 200));
             character.HitEnemyEvent += () => {
-                text.GetTextMeta().Text = "Score: " + (character.HitCount).ToString("f1");
+                scoreText.GetTextMeta().Text = "Score: " + (character.HitCount).ToString("f1");
             };
-
-            Enemy enemy = new Enemy();
-            RectangeGeo rectange = new RectangeGeo(new PointGeo(0, 0), new PointGeo(100, 100));
-            rectange.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
-            enemy.Add(rectange);
-            enemy.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() * 5, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
-            enemy.Move(enemy.Speed * 100);
+            character.EnableCheckCollision = false; 
 
             GroundObject groundObj5 = new GroundObject();
             RectangeGeo groundRec5 = new RectangeGeo(new PointGeo(3000, 0), new PointGeo(4000, 100));
@@ -111,10 +122,22 @@ namespace Painter.Models.StageModel
             scene.AddObject(groundObj5);
             scene.AddObject(groundObj6);
             scene.AddObject(groundObj7);
-            scene.AddObject(enemy, true);
             scene.AddObject(character, false);
-            scene.AddObject(obstacleTex, true);
-            scene.AddObject(obstacle, true);
+            scene.AddObject(obstacleTex, true); 
+            scene.AddObject(obstacleIllustionTex); 
+            scene.AddObject(obstacle, true); 
+            return scene;
+        }
+        public void LoadEnemys()
+        {
+            Enemy enemy = new Enemy();
+            RectangeGeo rectange = new RectangeGeo(new PointGeo(0, 0), new PointGeo(100, 100));
+            rectange.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
+            enemy.Add(rectange);
+            enemy.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() * 5, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
+            enemy.Move(enemy.Speed * 100);
+            scene.AddObject(enemy, true);
+
             for (int i = 0; i < 6; i++)
             {
                 Enemy enemy1 = new Enemy();
@@ -122,7 +145,7 @@ namespace Painter.Models.StageModel
                 rectange2.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
                 enemy1.Add(rectange2);
                 enemy1.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() * 5, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
-                enemy1.Move(enemy.Speed * 100);
+                enemy1.Move(new PointGeo(rand.Next(200), rand.Next(200)));
                 scene.AddObject(enemy1, false);
             }
             for (int i = 0; i < 6; i++)
@@ -132,10 +155,9 @@ namespace Painter.Models.StageModel
                 rectange2.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.IndianRed, LineWidth = 3, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
                 enemy1.Add(rectange2);
                 enemy1.Speed = new PointGeo((float)rand.NextDouble() * 5, (float)rand.NextDouble() * 5);
-                enemy1.Move(enemy.Speed * 100);
+                enemy1.Move(new PointGeo(rand.Next(200), rand.Next(200))); 
                 scene.AddObject(enemy1, true);
             }
-            return scene;
         }
         static Random rand = new Random();
 
