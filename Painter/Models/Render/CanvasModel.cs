@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace Painter.Models
 {
-    class CanvasModel
+    public class CanvasModel
     {
         PointGeo offsetPoint;
         PointGeo scaleP;

@@ -15,10 +15,10 @@ using Painter.Painters;
 using System.Drawing.Text;
 
 namespace Painter.Painters
-{
+{ 
     public abstract class PainterBase
     {
-        public PointGeo Scale = new PointGeo(1, 1);
+        public PointGeo Scale = new PointGeo(1,1);
         //先缩放，后平移
         public PointGeo OffsetPoint = new PointGeo(0, 0);
         public virtual void Dispose()
@@ -173,7 +173,7 @@ namespace Painter.Painters
     {
         public static System.Drawing.Pen pen = Pens.LimeGreen;
         public Graphics graphics = null;
-        public Bitmap canvas = null;
+        public Bitmap canvas = null; 
         private Func<double, float> TransformX;
         private Func<double, float> TransformY;
 
@@ -219,22 +219,12 @@ namespace Painter.Painters
                 graphics.CompositingQuality = CompositingQuality.HighQuality;
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
-                if (t.GetTextMeta().stringFormat == null)
+                if (t.GetTextMeta().stringFormat==null)
                 {
                     t.GetTextMeta().stringFormat = new StringFormat() { Alignment = StringAlignment.Center };
                 }
-                Font font;
-                if (t.GetTextMeta().IsScaleble)
-                { 
-                    font = new Font(t.GetTextMeta().TEXTFONT.FontFamily, t.GetTextMeta().TEXTFONT.Size * (float)Math.Abs(Scale.X));
-                }
-                else
-                {
-                    font = t.GetTextMeta().TEXTFONT;
-                } 
-                graphics.DrawString(t.GetTextMeta().Text, font, new SolidBrush(t.GetTextMeta().ForeColor), TransformX(t.pos.X), TransformY(t.pos.Y), t.GetTextMeta().stringFormat);
+                graphics.DrawString(t.GetTextMeta().Text, t.GetTextMeta().TEXTFONT, new SolidBrush(t.GetTextMeta().ForeColor), TransformX(t.pos.X), TransformY(t.pos.Y), t.GetTextMeta().stringFormat);
             }
-
         }
         #region implemented abstract members of PainterBase
         public override void DrawPolygon(PolygonGeo polygonGeo)
@@ -248,8 +238,8 @@ namespace Painter.Painters
                 {
                     points[i].X = (float)TransformX(points[i].X);
                     points[i].Y = (float)TransformY(points[i].Y);
-                }
-                graphics.DrawPolygon(pen, points);
+                } 
+                graphics.DrawPolygon(pen, points);  
                 if (sm.IsFill)
                     graphics.FillPolygon(new SolidBrush(sm.BackColor), points);
             }
@@ -260,13 +250,13 @@ namespace Painter.Painters
             {
                 ShapeMeta sm = (ShapeMeta)rect.GetDrawMeta();
                 pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
-                GraphicsState state = graphics.Save();
+                GraphicsState state= graphics.Save();
                 graphics.TranslateTransform(TransformX(rect.GetMinX()), TransformY(rect.GetMaxY()));
                 graphics.RotateTransform(rect.Angle);
-                graphics.DrawRectangle(pen, 0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
+                graphics.DrawRectangle(pen,0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
                 if (sm.IsFill)
                     //graphics.FillRectangle(new SolidBrush(Color.FromArgb(200, 255, 255, 255)), x, y, width, height);
-                    graphics.FillRectangle(new SolidBrush(sm.BackColor), 0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
+                    graphics.FillRectangle(new SolidBrush(sm.BackColor),0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
                 graphics.Restore(state);
             }
         }
@@ -343,7 +333,7 @@ namespace Painter.Painters
                     graphics.DrawArc(pen, (leftcorner), (topcorner), Math.Abs((arc.Radius * 2) * Scale.X), Math.Abs((arc.Radius * 2) * Scale.Y), (float)sa, (float)(ea - sa));
                 }
                 catch (Exception)
-                {
+                { 
                     return;
                 }
             }
@@ -418,9 +408,8 @@ public class TextMeta : DrawMeta
         Text = text;
         TEXTFONT = new Font("黑体", 12, FontStyle.Bold);
         stringFormat = new StringFormat();
-        stringFormat.Alignment = StringAlignment.Center;
+        stringFormat.Alignment = StringAlignment.Center;  
     }
-    public bool IsScaleble = false;
     public StringFormat stringFormat { get; set; }
     public Font TEXTFONT { get; set; }
     public string Text { get; set; }

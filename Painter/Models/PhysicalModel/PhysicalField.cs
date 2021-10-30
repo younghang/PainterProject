@@ -1,6 +1,7 @@
 ﻿using Painter.Models.Paint;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,39 +15,40 @@ namespace Painter.Models.PhysicalModel
         {
             Rules += InitialRules;
         }
-        public static float Gravity = -9.8f / 2;
+        public static float Gravity = -9.8f/2000;
         private void ForceAnalyse(SceneObject sceneObject)
         {
             switch (sceneObject.OBJECT_TYPE)
             {
                 case SCENE_OBJECT_TYPE.ROLE:
                     Role character = sceneObject as Role;
+                    character.Force.Y = Gravity*character.Mass; 
+                    character.Force.X = 0;
                     if (character.Status==SCENE_OBJECT_STATUS.IN_AIR)
                     {
-                        character.Force.Y = Gravity;
-                        character.Force.X = -character.Speed.X * character.CurrenScene.AirFrictionRatio; 
+                        character.Force.X = -character.Speed.X * character.CurrenScene.AirFrictionRatio ; 
                     }
                     else if(character.Status == SCENE_OBJECT_STATUS.IN_GROUND)
                     {
-                        character.Force.Y = 0;
+                        //character.Force.Y = 0;
                         //if (character.Acc.Y<0&& character.Speed.Y<0)
                         //{
                         //    character.Speed.Y =-0.8f *character.Speed.Y;
                         //}
-                        if (Math.Abs(character.Speed.Y) < 0.3)
-                        {
-                            character.Speed.Y = 0;
-                        }
-                        character.Force.X = -character.Speed.X * character.CurrenScene.GroundFrictionRatio;
-                        if (Math.Abs(character.Force.X) < 0.1)
-                        {
-                            character.Force.X = 0;
-                            character.Speed.X = 0;
-                            if (character is Enemy)
-                            {
-                                (character as Enemy).OnStopOnGround();
-                            }
-                        } 
+                        //if (Math.Abs(character.Speed.Y) < 0.3)
+                        //{
+                        //    character.Speed.Y = 0;
+                        //}
+                        //character.Force.X = -character.Speed.X * character.CurrenScene.GroundFrictionRatio;
+                        //if (Math.Abs(character.Force.X) < 0.1)
+                        //{
+                        //    character.Force.X = 0;
+                        //    character.Speed.X = 0;
+                        //    if (character is Enemy)
+                        //    {
+                        //        (character as Enemy).OnStopOnGround();
+                        //    }
+                        //} 
                     } 
                     break;
                 case SCENE_OBJECT_TYPE.GROUND:
@@ -79,8 +81,7 @@ namespace Painter.Models.PhysicalModel
         }
         private void InitialRules(SceneObject sceneObject)
         {
-            ForceAnalyse(sceneObject);
-            MotionAnalyse(sceneObject);
+            ForceAnalyse(sceneObject); 
         }
         public static float TICK_TIME = 10;
         List<Scene> scenes = new List<Scene>();
@@ -90,6 +91,10 @@ namespace Painter.Models.PhysicalModel
             {
                 this.scenes.Add(scene);
             }
+        }
+        public void Clear()
+        {
+            this.scenes.Clear();
         }
 
         internal void Dispose()
@@ -119,16 +124,37 @@ namespace Painter.Models.PhysicalModel
             };
             timer.Start();
         }
+        Stopwatch timeWatcher = new Stopwatch();
+
         private void TravasalObject(Action<SceneObject> action)
         {
+            timeWatcher.Reset();
+            timeWatcher.Start(); 
             foreach (var item in this.scenes)
             {
-                item.CheckState();
-                foreach (var obj in item.GetSceneObject())
-                { 
-                    action(obj);
+                List<SceneObject> sos = item.GetSceneObject();
+                for (int i = sos.Count()-1; i >0; i--)
+                {
+                    action(sos[i]);//单物体施加物理场：重力 空气阻力 运动学  
+                } 
+                item.CheckState();//检查场景内物体间作用（干涉） 并设置枚举状态
+
+                //依据状态 设置场景内物体的显示效果
+                for (int i = item.GetSceneObject().Count - 1; i >= 0; i--)
+                {
+                    if (item.GetSceneObject()[i].IsDisposed)
+                    {
+                        item.GetSceneObject().RemoveAt(i);
+                    }
+                    else
+                    {
+                        MotionAnalyse(item.GetSceneObject()[i]);//这里做运动学计算
+                        item.GetSceneObject()[i].SetStatus();
+                    }
                 }
             }
+            timeWatcher.Stop();
+            Debug.Print(timeWatcher.ElapsedTicks + "");
         }
     }
    

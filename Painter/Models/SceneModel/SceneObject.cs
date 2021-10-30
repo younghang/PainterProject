@@ -1,4 +1,5 @@
-﻿using Painter.Models.PhysicalModel;
+﻿//2021.10.26 yanghang
+using Painter.Models.PhysicalModel;
 using Painter.Painters;
 using System;
 using System.Collections.Generic;
@@ -10,23 +11,30 @@ using Utils;
 
 namespace Painter.Models.Paint
 {
-    public enum SCENE_OBJECT_TYPE {
-        ROLE,
-        GROUND,//仅上边界有效，而且针对Y速度向下的时候
-        PICTURE,
-        OBSTACLE,
-        WEAPON,
-        EFFECT
-    };
-    public enum SCENE_OBJECT_STATUS {IN_AIR,IN_GROUND};
-    public enum SCENE_OBJECT_INTERFER {NONE,INTERFER};
-    class SceneObject
+    public enum SCENE_OBJECT_TYPE
     {
+        ROLE,//角色类 ：主角、敌人
+        GROUND,//仅边界有效，而且不仅针对Y速度向下的时候
+        PICTURE,
+        OBSTACLE,//障碍物，物体
+        WEAPON,//武器 归属Role类
+        EFFECT//效果类：粒子Particle
+    };
+    public enum SCENE_OBJECT_STATUS { IN_AIR, IN_GROUND };
+    public enum SCENE_OBJECT_INTERFER { NONE, INTERFER };
+    public class SceneObject
+    {
+        protected PointGeo Center = new PointGeo();//这个不准啊，不知为啥，GetOuterShape().GetShapeCenter()比较好
         public Scene CurrenScene;
         public SCENE_OBJECT_STATUS Status;
         public SCENE_OBJECT_INTERFER Interfer;
-        public float Mass = 1; 
+        public float Mass = 1;
         public bool DisableCheckInterfer = true;
+        public bool IsHaveTrack = false;
+        public PointGeo GetCenter()
+        {
+            return Center;
+        }
         public SceneObject()
         {
             OBJECT_TYPE = SCENE_OBJECT_TYPE.GROUND;
@@ -95,12 +103,20 @@ namespace Painter.Models.Paint
         public SCENE_OBJECT_TYPE OBJECT_TYPE;
         protected List<IPrintAndOperatable> elements = new List<IPrintAndOperatable>();
         public PointGeo Pos = new PointGeo();
-         
+        public float Area = 0;
+
         public void Add(IPrintAndOperatable ele)
         {
             if (!this.elements.Contains(ele))
             {
                 elements.Add(ele);
+                if (ele is Shape)
+                {
+                    Shape shape = ele as Shape;
+                    Center.X = (Center.X * this.Area + shape.GetShapeCenter().X * shape.GetArea()) / (this.Area + shape.GetArea());
+                    Center.Y = (Center.Y * this.Area + shape.GetShapeCenter().Y * shape.GetArea()) / (this.Area + shape.GetArea());
+                    this.Area += shape.GetArea();
+                }
             }
         }
 
@@ -112,15 +128,16 @@ namespace Painter.Models.Paint
                 temp.Add(item);
             }
             return temp;
-        } 
+        }
 
         public virtual void Move(PointGeo pos)
         {
-            Pos = pos; 
+            Pos = pos;
             foreach (var item in elements)
             {
                 item.Translate(pos);
             }
+            Center += pos;
         }
         public virtual void SetStatus()
         {
@@ -132,18 +149,18 @@ namespace Painter.Models.Paint
     class GroundObject : SceneObject
     {
         //最好定义为一个矩形
-        public float ReflectResistance=0.8f;
-        public int CarrayCount = 0; 
+        public float ReflectResistance = 0.8f;
+        public int CarrayCount = 0;
         public GroundObject()
         {
             OBJECT_TYPE = SCENE_OBJECT_TYPE.GROUND;
             ReflectionDirection = DIRECTION.UP;
         }
         private LineGeo ReflectedLine;
-        public LineGeo GetReflectionLine()
+        public LineGeo GetReflectionLine()//仅仅是用来确定一个旋转的参考点，还需结合矩形角度
         {
-            RectangeGeo rectange = elements[0] as RectangeGeo; 
-            if (ReflectedLine==null)
+            RectangeGeo rectange = elements[0] as RectangeGeo;
+            if (ReflectedLine == null)
             {
                 switch (ReflectionDirection)
                 {
@@ -157,7 +174,7 @@ namespace Painter.Models.Paint
                         ReflectedLine = new LineGeo(new PointGeo(rectange.GetMinX(), rectange.GetMinY()), new PointGeo(rectange.GetMinX(), rectange.GetMaxY()));
                         break;
                     case DIRECTION.RIGHT:
-                        ReflectedLine = new LineGeo(new PointGeo(rectange.GetMaxX(), rectange.GetMaxY()), new PointGeo(rectange.GetMaxX(), rectange.GetMaxY()));
+                        ReflectedLine = new LineGeo(new PointGeo(rectange.GetMaxX(), rectange.GetMinY()), new PointGeo(rectange.GetMaxX(), rectange.GetMaxY()));
                         break;
                     default:
                         break;
@@ -166,15 +183,19 @@ namespace Painter.Models.Paint
             return ReflectedLine;
         }
         public DIRECTION ReflectionDirection;
+
+        public float GroundFrictionRatio = 3f;
+
+
         public override void SetStatus()
         {
-            if (CarrayCount>0)
+            if (CarrayCount > 0)
             {
                 (this.GetOutShape().GetDrawMeta() as ShapeMeta).IsFill = true;
             }
             else
             {
-                (this.GetOutShape().GetDrawMeta() as ShapeMeta).IsFill = false; 
+                (this.GetOutShape().GetDrawMeta() as ShapeMeta).IsFill = false;
             }
             CarrayCount = 0;
             //if (ReflectedLine == null)
@@ -186,7 +207,7 @@ namespace Painter.Models.Paint
             //}
         }
     }
-    class Role : SceneObject
+    public class Role : SceneObject
     {
         public int LifeLength = 100;
         public int Attack = 20;
@@ -195,7 +216,7 @@ namespace Painter.Models.Paint
         public PointGeo Acc = new PointGeo();
         public PointGeo Force = new PointGeo();
         public bool IsInGround = false;
- 
+
         public override void Move(PointGeo pos)
         {
             Pos += pos;
@@ -208,6 +229,7 @@ namespace Painter.Models.Paint
             {
                 item.Translate(pos);
             }
+            Center += pos;
         }
 
         internal void CheckInterfer(SceneObject sceneObject)
@@ -216,13 +238,6 @@ namespace Painter.Models.Paint
             {
                 return;
             }
-            float flash = Math.Abs(PhysicalField.TICK_TIME * this.Speed.Y);
-            if (flash < 5)
-            {
-                flash = 5;
-            }
-            float width = this.MaxX - this.MinX;
-            width = width / 2;
             switch (sceneObject.OBJECT_TYPE)
             {
                 case SCENE_OBJECT_TYPE.ROLE:
@@ -230,7 +245,13 @@ namespace Painter.Models.Paint
                     {
                         Enemy enemy = sceneObject as Enemy;
                         enemy.CalMaxMin();
-                        this.CheckCollision(enemy);
+                        if (CheckCollision(enemy))
+                        {
+                            if (this is MainCharacter)
+                            {
+                                //(this as MainCharacter).HitCount--;
+                            }
+                        }
 
                     }
                     break;
@@ -249,29 +270,83 @@ namespace Painter.Models.Paint
                     GroundObject ground = sceneObject as GroundObject;
                     RectangeGeo rectange = ground.GetOutShape() as RectangeGeo;
                     LineGeo lineGeo = ground.GetReflectionLine();
-
-                    PointGeo checkPoint = new PointGeo((this.MaxX + this.MinX) / 2, this.MinY);
+                    float radius = (this.GetOutShape().GetMaxX() - this.GetOutShape().GetMinX()) / 2;
+                    PointGeo checkPoint = this.GetOutShape().GetShapeCenter().Clone();
                     PointGeo checkPRelativeToLine = checkPoint - lineGeo.FirstPoint;
                     PointGeo geoTemp = checkPRelativeToLine.Clone();
-                    CommonUtils.PointRotateAroundOrigin(rectange.Angle,ref checkPRelativeToLine.X,ref checkPRelativeToLine.Y);
-                    CommonUtils.PointRotateAroundOrigin(rectange.Angle,ref this.Speed.X,ref this.Speed.Y);
-                    if (Math.Abs(checkPRelativeToLine.Y)< flash)
+                    PointGeo force = this.Force.Clone();
+                    CommonUtils.PointRotateAroundOrigin(rectange.Angle, ref checkPRelativeToLine.X, ref checkPRelativeToLine.Y);
+                    CommonUtils.PointRotateAroundOrigin(rectange.Angle, ref this.Speed.X, ref this.Speed.Y);
+                    CommonUtils.PointRotateAroundOrigin(rectange.Angle, ref this.Force.X, ref this.Force.Y);
+                    float flash = Math.Abs(PhysicalField.TICK_TIME * this.Speed.Y);
+                    if (flash < 5)
                     {
-                        if (checkPRelativeToLine.X>0&& checkPRelativeToLine.X<rectange.Width)
+                        flash = 5;//不这么写，停下来的时候速度=0 flash=0,就直接穿过去了
+                    }
+                    if (Math.Abs(checkPRelativeToLine.Y - radius) < flash)
+                    {
+                        if (checkPRelativeToLine.X > 0 && checkPRelativeToLine.X < rectange.Width)
                         {
                             this.Status = SCENE_OBJECT_STATUS.IN_GROUND;
                             ground.CarrayCount++;
-                            if (this.Speed.Y < 0)
+                            if (this.Speed.Y < 0.1)// 
                             {
-                                checkPRelativeToLine.Y = 0; 
-                                CommonUtils.PointRotateAroundOrigin(-rectange.Angle, ref checkPRelativeToLine.X, ref checkPRelativeToLine.Y);
-                                this.Move(  checkPRelativeToLine-geoTemp);
+                                //考虑斜面动静摩擦的版本，比较复杂，效果也没好多少
+                                checkPRelativeToLine.Y = radius;
                                 this.Speed.Y *= -ground.ReflectResistance;
+                                CommonUtils.PointRotateAroundOrigin(-rectange.Angle, ref checkPRelativeToLine.X, ref checkPRelativeToLine.Y);
+                                this.Move(checkPRelativeToLine - geoTemp);
 
+                                if (Math.Abs(this.Speed.Y) < 0.3)
+                                {
+                                    this.Speed.Y = 0;
+                                }
+                                if (Math.Abs(this.Force.X) < 0.1)
+                                {
+                                    this.Force.X = 0;
+                                }
+                                if (Math.Abs(this.Speed.X) < 0.3)
+                                {
+                                    this.Speed.X = 0;
+                                }
+                                if (this.Force.X==0)
+                                {
+                                    if (Math.Abs(this.Speed.X)>0.01)
+                                    {
+                                        this.Force.X = -(this.Speed.X)/ Math.Abs(this.Speed.X)*  Math.Abs(Force.Y) * ground.GroundFrictionRatio;
+                                    }
+                                }
+                                else if (this.Force.X * this.Speed.X > 0)
+                                {
+                                    this.Force.X = this.Force.X + Math.Abs(Force.Y) * ground.GroundFrictionRatio;
+                                }
+                                else
+                                {
+                                    if (Math.Abs(this.Force.X) > Math.Abs(Force.Y) * ground.GroundFrictionRatio)
+                                    {
+                                        this.Force.X = this.Force.X - Math.Abs(Force.Y) * ground.GroundFrictionRatio;
+                                    }
+                                    else
+                                    {
+                                        this.Force.X = 0;
+                                    }
+                                }
+                                this.Force.Y = 0;
+                                if (Math.Abs(this.Force.X) < 0.1)
+                                {
+                                    this.Force.X = 0;
+                                    //this.Speed.X = 0;
+                                    if (this is Enemy)
+                                    {
+                                        (this as Enemy).OnStopOnGround();
+                                    }
+                                } 
                             }
                         }
                     }
                     CommonUtils.PointRotateAroundOrigin(-rectange.Angle, ref this.Speed.X, ref this.Speed.Y);
+                    CommonUtils.PointRotateAroundOrigin(-rectange.Angle, ref this.Force.X, ref this.Force.Y);
+
 
 
                     //if (this.MinY - ground.MaxY > -flash && this.MinY - ground.MaxY < flash)
@@ -306,30 +381,37 @@ namespace Painter.Models.Paint
     {
         public Enemy()
         {
-            Mass = 1000;
-            OBJECT_TYPE = SCENE_OBJECT_TYPE.ROLE; 
+            Mass = 500;
+            OBJECT_TYPE = SCENE_OBJECT_TYPE.ROLE;
         }
         public override void BeenHit(Weapon weapon)
         {
-            this.Speed.X += (float)(weapon.Speed * Math.Cos(weapon.Angle))*weapon.Mass/this.Mass;
-            this.Speed.Y += (float)(weapon.Speed * Math.Sin(weapon.Angle))*weapon.Mass/this.Mass;
+            this.Speed.X += (float)(weapon.Speed * Math.Cos(weapon.Angle)) * weapon.Mass / this.Mass;
+            this.Speed.Y += (float)(weapon.Speed * Math.Sin(weapon.Angle)) * weapon.Mass / this.Mass;
         }
         public void Reset()
         {
-            PointGeo randomP = new PointGeo((float)(new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble()-0.5) * 10, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
+            PointGeo randomP = new PointGeo((float)(new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() - 0.5) * 10, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
 
             PointGeo origin = new PointGeo((randomP.X + 5) * 200, (randomP.Y + 5) * 50);
-            
+
             foreach (var item in elements)
             {
-                item.Translate(new PointGeo(-MaxX,-MaxY)+origin);
+                item.Translate(new PointGeo(-MaxX, -MaxY) + origin);
+                if (item is Shape)
+                {
+                    Shape shape = item as Shape;
+                    Center.X = (Center.X * this.Area + shape.GetShapeCenter().X * shape.GetArea()) / (this.Area + shape.GetArea());
+                    Center.Y = (Center.Y * this.Area + shape.GetShapeCenter().Y * shape.GetArea()) / (this.Area + shape.GetArea());
+                }
             }
+
             Pos = new PointGeo();
             Speed = randomP;
         }
         public override void Move(PointGeo pos)
-        { 
-            if (MinY < -1000||MaxX>3000||MinX<-600)
+        {
+            if (MinY < -1000 || MaxX > 5000 || MinX < -600)
             {
                 Reset();
                 //pos.Y = 2000; 
@@ -343,6 +425,7 @@ namespace Painter.Models.Paint
                 {
                     item.Translate(pos);
                 }
+                Center += pos;
             }
         }
         public void OnStopOnGround()
@@ -350,22 +433,23 @@ namespace Painter.Models.Paint
             this.Speed.X = ((float)new Random().NextDouble() * 2 - 1) * 10;
         }
     }
-    class MainCharacter: Role
+    public class MainCharacter : Role
     {
-        public int HitCount;
+        public double HitCount = 0;
         public event Action HitEnemyEvent;
-        public void OnHitEnemy()
+        public event Action PositionChange;
+        public void OnHitEnemy(double score)
         {
-            HitCount++;
-            if (HitEnemyEvent!=null)
-            { 
+            HitCount += score;
+            if (HitEnemyEvent != null)
+            {
                 HitEnemyEvent();
             }
         }
         public MainCharacter()
         {
             Mass = 1000;
-            OBJECT_TYPE = SCENE_OBJECT_TYPE.ROLE; 
+            OBJECT_TYPE = SCENE_OBJECT_TYPE.ROLE;
             LineGeo lineGeo = new LineGeo(new PointGeo(0, 0), new PointGeo(100, 100));
             lineGeo.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.AliceBlue, LineWidth = 5 });
             LineGeo lineGeo2 = new LineGeo(new PointGeo(0, 0), new PointGeo(-100, 100));
@@ -374,11 +458,11 @@ namespace Painter.Models.Paint
             circle.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Aquamarine, IsFill = true, BackColor = System.Drawing.Color.Bisque, LineWidth = 4 });
             elements.Add(lineGeo2);
             elements.Add(lineGeo);
-            elements.Add(circle); 
+            elements.Add(circle);
         }
         private int StatusCount = 0;
         private int TickCount = 0;
-        
+
         public override Shape GetOutShape()
         {
             return elements[2] as Shape;
@@ -386,8 +470,8 @@ namespace Painter.Models.Paint
         }
         public override void SetStatus()
         {
-            
-            if (Status==SCENE_OBJECT_STATUS.IN_AIR)
+
+            if (Status == SCENE_OBJECT_STATUS.IN_AIR)
             {
                 TickCount++;
                 if (TickCount % 1 == 0)
@@ -401,7 +485,7 @@ namespace Painter.Models.Paint
                         line2.Rotate(-1);
                     }
                     else
-                    { 
+                    {
                         line.Rotate(-1);
                         line2.Rotate(1);
                         if (StatusCount > 40)
@@ -411,7 +495,7 @@ namespace Painter.Models.Paint
                     }
                 }
                 ((this.elements[2] as Shape).GetDrawMeta() as ShapeMeta).IsFill = false;
-            }  
+            }
             else
             {
                 ((this.elements[2] as Shape).GetDrawMeta() as ShapeMeta).IsFill = true;
@@ -424,7 +508,7 @@ namespace Painter.Models.Paint
             else
             {
                 ((this.elements[2] as Shape).GetDrawMeta() as ShapeMeta).BackColor = System.Drawing.Color.Red;
-                ((this.elements[2] as Shape).GetDrawMeta() as ShapeMeta).IsFill = true; 
+                ((this.elements[2] as Shape).GetDrawMeta() as ShapeMeta).IsFill = true;
             }
 
         }
@@ -436,17 +520,50 @@ namespace Painter.Models.Paint
         {
             Weapon weapon = new Weapon(new PointGeo(this.MaxX / 2 + this.MinX / 2, this.MaxY / 2 + this.MinY / 2), target);
             weapon.Owner = this;
+            this.Speed.X -= (float)(weapon.Speed * Math.Cos(weapon.Angle)) * weapon.Mass / this.Mass;
+            this.Speed.Y -= (float)(weapon.Speed * Math.Sin(weapon.Angle)) * weapon.Mass / this.Mass;
             this.CurrenScene.AddObject(weapon, false);
         }
+        public override void Move(PointGeo pos)
+        {
+            Pos += pos;
+            if (MinY < -1000)
+            {
+                pos.Y = 2000;
+                this.HitCount -= 100;
+                Speed.Y = 0;
+            }
+            foreach (var item in elements)
+            {
+                item.Translate(pos);
+            }
+            Center += pos;
+            PositionChange?.Invoke();
+        }
     }
-    class Obstacle:SceneObject
+    class Obstacle : SceneObject
     {
         public Obstacle()
         {
             OBJECT_TYPE = SCENE_OBJECT_TYPE.OBSTACLE;
         }
+        public override void BeenHit(Weapon weapon)
+        {
+            if (EnabledRotate)
+            {
+                if (weapon.Angle < Math.PI / 2 && weapon.Angle > -Math.PI / 2)
+                {
+                    elements[0].Rotate(-1);
+                }
+                else
+                {
+                    elements[0].Rotate(1);
+                }
+            }
+        }
+        public bool EnabledRotate = false;
     }
-    class Weapon:SceneObject
+    public class Weapon : SceneObject
     {
         public int CreateTimeTick { get; set; }
         PointGeo fromPoint;
@@ -460,7 +577,7 @@ namespace Painter.Models.Paint
             get { return particleCount; }
             set
             {
-                particleCount = value; 
+                particleCount = value;
             }
         }
         private CircleGeo HitCircle = new CircleGeo();
@@ -474,7 +591,7 @@ namespace Painter.Models.Paint
             get { return _id; }
             set { _id = value; }
         }
-        public event Action<PointGeo, int> CreateParticles;
+        public event Action<PointGeo, int> ExposedEvent;
         public double Distance
         {
             get
@@ -487,14 +604,14 @@ namespace Painter.Models.Paint
         public List<PointGeo> listPoints;
         public int Hue = 40;
         public double Angle { get { return Math.Atan2((toPoint.Y - fromPoint.Y), (toPoint.X - fromPoint.X)); } }
-         
+
         private double _speed;
         public double Speed
         {
             get { return _speed; }
             set
             {
-                _speed = value; 
+                _speed = value;
             }
         }
         private double _accelerate;
@@ -503,20 +620,20 @@ namespace Painter.Models.Paint
             get { return _accelerate; }
             set
             {
-                _accelerate = value; 
+                _accelerate = value;
             }
         }
         private int _brightness;
         public int Brightness
         {
             get { return _brightness; }
-            set { _brightness = value;  }
+            set { _brightness = value; }
         }
         private double _targetRadius;
         public double TargetRadius
         {
             get { return _targetRadius; }
-            set { _targetRadius = value;  }
+            set { _targetRadius = value; }
         }
         private static Random ran = new Random();
         public Role Owner;
@@ -540,10 +657,10 @@ namespace Painter.Models.Paint
             RandomLines randomLines = new RandomLines();
             randomLines.SetPoints(listPoints);
             var c = CommonUtils.HslToRgb(Hue, 100, Brightness);
-            randomLines.SetDrawMeta(new ShapeMeta() { LineWidth = 3, ForeColor =  System.Drawing.Color.FromArgb(c.red, c.green, c.blue) });
+            randomLines.SetDrawMeta(new ShapeMeta() { LineWidth = 3, ForeColor = System.Drawing.Color.FromArgb(c.red, c.green, c.blue) });
             randomLines.IsHold = false;
             this.elements.Add(randomLines);
-            CreateParticles += Weapon_CreateParticles; 
+            ExposedEvent += Weapon_CreateParticles;
         }
 
         private void Weapon_CreateParticles(PointGeo point, int hue)
@@ -559,14 +676,15 @@ namespace Painter.Models.Paint
         {
             return Math.Sqrt(1.0 * (x2.X - x1.X) * (x2.X - x1.X) + 1.0 * (x2.Y - x1.Y) * (x2.Y - x1.Y));
         }
+        private SceneObject hitObject;
         public override void SetStatus()
-        { 
-            if (listPoints.Count> MAX_POINTS)
+        {
+            if (listPoints.Count > MAX_POINTS)
             {
                 HitCircle.FirstPoint = listPoints[listPoints.Count - 1];
                 HitCircle.Radius = 5;
-            } 
-            
+            }
+
             if (this.listPoints.Count > 3) this.listPoints.RemoveAt(0);
             this.listPoints.Add(new PointGeo(curPoint.X, curPoint.Y));
             if (TargetRadius < 8) TargetRadius += 0.3;
@@ -578,20 +696,31 @@ namespace Painter.Models.Paint
             curPoint.Y += (float)deltaY;
             if (GetPointDistance(curPoint, fromPoint) >= MaxRange || Interfer == SCENE_OBJECT_INTERFER.INTERFER)
             {
-                if (Interfer==SCENE_OBJECT_INTERFER.INTERFER)
+                if (Interfer == SCENE_OBJECT_INTERFER.INTERFER)
                 {
                     MainCharacter ch = this.Owner as MainCharacter;
-                    if (ch!=null)
+                    if (ch != null && hitObject != null)
                     {
-                        if (IsHitEnemy)
+                        if (hitObject is Enemy)
                         {
-                            ch.OnHitEnemy(); 
+                            if (hitObject.GetOutShape() is CircleGeo)
+                            {
+                                ch.OnHitEnemy(this.Speed);
+                            }
+                            else
+                            {
+                                ch.OnHitEnemy(Math.Log(this.Speed + 1));
+                            }
+                        }
+                        else
+                        {
+                            ch.OnHitEnemy(-Math.Sqrt(this.Speed));
                         }
                     };
                 }
-                if (CreateParticles != null)
+                if (ExposedEvent != null)
                 {
-                    CreateParticles(curPoint, Hue);
+                    ExposedEvent(curPoint, Hue);
                 }
                 IsDisposed = true;
             }
@@ -600,10 +729,10 @@ namespace Painter.Models.Paint
                 (elements[0] as RandomLines).IsShow = false;
             }
         }
-        private bool IsHitEnemy = false;
+
         internal void CheckInterfer(SceneObject sceneObject)
         {
-            if (this.Owner==sceneObject)
+            if (this.Owner == sceneObject)
             {
                 return;
             }
@@ -613,26 +742,32 @@ namespace Painter.Models.Paint
             }
             switch (sceneObject.OBJECT_TYPE)
             {
-                case SCENE_OBJECT_TYPE.ROLE: 
+                case SCENE_OBJECT_TYPE.ROLE:
                     if (sceneObject.CheckCollision(this))
                     {
                         this.Interfer = SCENE_OBJECT_INTERFER.INTERFER;
-                        if (sceneObject is Enemy)
-                        {
-                            IsHitEnemy = true;
-                        }
+                        hitObject = sceneObject;
                         sceneObject.BeenHit(this);
-                    }    
+                    }
                     break;
                 case SCENE_OBJECT_TYPE.GROUND:
                     if (sceneObject.CheckCollision(this))
+                    {
                         this.Interfer = SCENE_OBJECT_INTERFER.INTERFER;
+                        hitObject = sceneObject;
+                        sceneObject.BeenHit(this);
+                    }
+
                     break;
                 case SCENE_OBJECT_TYPE.PICTURE:
                     break;
                 case SCENE_OBJECT_TYPE.OBSTACLE:
                     if (sceneObject.CheckCollision(this))
+                    {
                         this.Interfer = SCENE_OBJECT_INTERFER.INTERFER;
+                        hitObject = sceneObject;
+                        sceneObject.BeenHit(this);
+                    }
                     break;
                 case SCENE_OBJECT_TYPE.WEAPON:
                     break;
@@ -641,9 +776,9 @@ namespace Painter.Models.Paint
                 default:
                     break;
             }
-        } 
+        }
     }
-    class Spark:SceneObject
+    class Spark : SceneObject
     {
         PointGeo curPos;
         List<PointGeo> listPoints;
@@ -655,20 +790,20 @@ namespace Painter.Models.Paint
         double Alpha = 1;
         int Hue;
         double Decay;
-        static int MAX_COUNT = 5; 
+        static int MAX_COUNT = 5;
         public Spark(PointGeo p, int hue)
         {
-            OBJECT_TYPE = SCENE_OBJECT_TYPE.EFFECT; 
+            OBJECT_TYPE = SCENE_OBJECT_TYPE.EFFECT;
             this.curPos = p.Clone();
             listPoints = new List<PointGeo>(MAX_COUNT);
             Angle = ran.NextDouble() * Math.PI * 2;
-            
+
             Speed = ran.NextDouble() * 10;//产生的随机数是一样的
             //Debug.Print("Speed" + this.Speed);
             Hue = ran.Next(hue - 30, hue + 30);
             Brightness = ran.Next(60, 100);
             Decay = ran.NextDouble() * 0.0045 + 0.0045;
-            gravity = -0.98/2; 
+            gravity = -0.98 / 2;
             RandomLines randomLines = new RandomLines();
             randomLines.SetPoints(listPoints);
             var c = CommonUtils.HslToRgb(Hue, 100, Brightness);
@@ -678,13 +813,13 @@ namespace Painter.Models.Paint
         }
         static Random ran = new Random(DateTime.Now.Millisecond);
         public override void SetStatus()
-        { 
+        {
             if (IsDisposed)
             {
                 (elements[0] as RandomLines).IsShow = false;
                 listPoints.Clear();
-                return; 
-            } 
+                return;
+            }
             if (this.listPoints.Count > MAX_COUNT) listPoints.RemoveAt(0);
             listPoints.Add(new PointGeo(curPos.X, curPos.Y));
             Speed *= friction;
@@ -701,7 +836,7 @@ namespace Painter.Models.Paint
             var color = CommonUtils.HslToRgb(Hue, 100, Brightness);
             System.Drawing.Color c = System.Drawing.Color.FromArgb(color.red, color.green, color.blue);
             (elements[0] as RandomLines).GetDrawMeta().ForeColor = c;
-        } 
+        }
     }
 
 }

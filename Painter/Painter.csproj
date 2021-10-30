@@ -78,10 +78,14 @@
     <Compile Include="GameJumpFrm.Designer.cs">
       <DependentUpon>GameJumpFrm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\PhysicalModel\CanvasModel.cs" />
+    <Compile Include="Models\CameraModel\Camera.cs" />
+    <Compile Include="Models\Render\CanvasModel.cs" />
     <Compile Include="Models\PhysicalModel\PhysicalField.cs" />
-    <Compile Include="Models\PhysicalModel\SceneObject.cs" />
-    <Compile Include="Models\PhysicalModel\Scene.cs" />
+    <Compile Include="Models\StageModel\FirstStageScene.cs" />
+    <Compile Include="Models\SceneModel\SceneObject.cs" />
+    <Compile Include="Models\SceneModel\Scene.cs" />
+    <Compile Include="Models\StageModel\StageController.cs" />
+    <Compile Include="Models\StageModel\StageManager.cs" />
     <Compile Include="PainterForm.cs">
       <SubType>Form</SubType>
     </Compile>
