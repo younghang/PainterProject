@@ -17,7 +17,7 @@ namespace Painter.Models.Paint
         GROUND,//仅边界有效，而且不仅针对Y速度向下的时候
         PICTURE,
         OBSTACLE,//障碍物，物体
-        WEAPON,//武器 归属Role类
+        WEAPON,//武器 归属Role类对象所有
         EFFECT//效果类：粒子Particle
     };
     public enum SCENE_OBJECT_STATUS { IN_AIR, IN_GROUND };
@@ -247,10 +247,23 @@ namespace Painter.Models.Paint
                         enemy.CalMaxMin();
                         if (CheckCollision(enemy))
                         {
-                            if (this is MainCharacter)
-                            {
-                                //(this as MainCharacter).HitCount--;
-                            }
+                            //if (this is MainCharacter)
+                            //{
+                                //和Enemy对象发生碰撞了 动量计算
+                                PointGeo thisCenter = this.GetOutShape().GetShapeCenter();
+                                PointGeo enemyCenter = enemy.GetOutShape().GetShapeCenter();
+                                LineGeo line = new LineGeo(enemyCenter, this.Center);
+                                PointGeo delta = this.Center - enemyCenter;
+                                float angle = line.GetRad();
+                                CommonUtils.PointRotateAroundOrigin(angle,ref delta.X,ref delta.Y);
+                                CommonUtils.PointRotateAroundOrigin(angle,ref this.Speed.X,ref this.Speed.Y);
+                                CommonUtils.PointRotateAroundOrigin(angle, ref enemy.Speed.X, ref enemy.Speed.Y);
+                                PointGeo speed =enemy.Speed -this.Speed  ;
+                                enemy.Speed.X=((enemy.Mass - this.Mass) * enemy.Speed.X + 2 * this.Mass * this.Speed.X) / (this.Mass+enemy.Mass);
+                                this.Speed.X = speed.X + enemy.Speed.X;
+                                CommonUtils.PointRotateAroundOrigin(-angle, ref this.Speed.X, ref this.Speed.Y);
+                                CommonUtils.PointRotateAroundOrigin(-angle, ref enemy.Speed.X, ref enemy.Speed.Y);
+                            //}
                         }
 
                     }
@@ -430,7 +443,7 @@ namespace Painter.Models.Paint
         }
         public void OnStopOnGround()
         {
-            this.Speed.X = ((float)new Random().NextDouble() * 2 - 1) * 10;
+            this.Speed.X = ((float)new Random().NextDouble() * 2 - 1) * 8;
         }
     }
     public class MainCharacter : Role

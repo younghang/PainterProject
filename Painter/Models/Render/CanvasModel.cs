@@ -2,6 +2,7 @@
 using Painter.Painters;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -13,15 +14,57 @@ namespace Painter.Models
 {
     public class CanvasModel
     {
-        PointGeo offsetPoint;
-        PointGeo scaleP;
+        private PointGeo offset = new PointGeo();
+        private PointGeo scale = new PointGeo();
+        public PointGeo OffsetPoint
+        {
+            get
+            {
+                if (this.fixedLayerManager != null)
+                {
+                    offset = this.fixedLayerManager.GetPainter().OffsetPoint;
+                }
+                return offset;
+            }
+            set
+            {
+                //Debug.Print(offset.ToString());
+                offset = value;
+                if (this.fixedLayerManager != null)
+                {
+                    this.fixedLayerManager.GetPainter().OffsetPoint = offset;
+                    this.freshLayerManager.GetPainter().OffsetPoint = offset;
+                }
+            }
+        }
+        public PointGeo Scale
+        {
+            get
+            {
+                if (this.fixedLayerManager != null)
+                {
+                    scale = this.fixedLayerManager.GetPainter().Scale;
+                }
+                return scale; 
+            }
+            set
+            {
+                scale = value;
+                if (this.fixedLayerManager != null)
+                {
+                    this.fixedLayerManager.GetPainter().Scale = scale;
+                    this.freshLayerManager.GetPainter().Scale = scale;
+                }
+            }
+        }
+
         public float Width { get; set; }
         public float Height { get; set; }
         public event Action Invalidate;
         public GraphicsLayerManager GetHoldLayerManager()
         {
             return fixedLayerManager;
-        } 
+        }
         public GraphicsLayerManager GetFreshLayerManager()
         {
             return freshLayerManager;
@@ -38,7 +81,7 @@ namespace Painter.Models
             IsYUpDirection = true;
             //数据区域
             MinX = 0;
-            MaxX = 2400;
+            MaxX = 3000;
             MinY = 0;
             MaxY = 600;
         }
@@ -52,13 +95,13 @@ namespace Painter.Models
         public void Clear()
         {
             this.fixedLayerManager.Clear();
-            this.freshLayerManager.Clear(); 
+            this.freshLayerManager.Clear();
         }
         public void Init()
-        { 
+        {
             SetLayerManagerGraphic(ref fixedLayerManager);
             SetLayerManagerGraphic(ref freshLayerManager);
-            SetCanvasTranlate(this.Width, this.Height); 
+            SetCanvasTranlate(this.Width, this.Height);
         }
         public void OnSizeChanged(object sender, EventArgs e)
         {
@@ -87,9 +130,9 @@ namespace Painter.Models
                     graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
                     graphics.DrawImage(image, 0, 0, image.Width, image.Height);
                 }
-            };  
+            };
             //onPanit(this.fixedLayerManager);
-            (this.fixedLayerManager.GetPainter() as WinFormPainter).graphics.FillRectangle(new SolidBrush(Color.FromArgb(50, System.Drawing.Color.White)),0,0,this.Width,this.Height);
+            (this.fixedLayerManager.GetPainter() as WinFormPainter).graphics.FillRectangle(new SolidBrush(Color.FromArgb(50, System.Drawing.Color.White)), 0, 0, this.Width, this.Height);
             this.fixedLayerManager.Draw();
             graphics.DrawImage((this.fixedLayerManager.GetPainter() as WinFormPainter).GetCanvas(), 0, 0);
 
@@ -130,7 +173,7 @@ namespace Painter.Models
                 //layerGraphic.Invalidate += this.Invalidate;
                 SetLayerManagerGraphic(ref layerGraphic);
             }
-        } 
+        }
         public bool IsYUpDirection { get; set; }
         private double _minX;
         private double _minY;
@@ -152,10 +195,8 @@ namespace Painter.Models
             {
                 return;
             }
-            this.fixedLayerManager.GetPainter().OffsetPoint = offsetPoint;
-            this.fixedLayerManager.GetPainter().Scale = scaleP;
-            this.freshLayerManager.GetPainter().OffsetPoint = offsetPoint;
-            this.freshLayerManager.GetPainter().Scale = scaleP;
+             this.OffsetPoint = offsetPoint; 
+            this.Scale = scaleP;
         }
         internal void SetCanvasTranlate(float width, float height)
         {
@@ -165,26 +206,19 @@ namespace Painter.Models
             float ratio = Math.Min(ratioY, ratioX);
             if (IsYUpDirection)
             {
-                scaleP = new PointGeo(ratio, -ratio);
+                Scale = new PointGeo(ratio, -ratio);
             }
             else
             {
-                scaleP = new PointGeo(ratio, ratio);
+                Scale = new PointGeo(ratio, ratio);
             }
             if (IsYUpDirection)
             {
-                offsetPoint = new PointGeo(-(float)this.MinX * scaleP.X + this.RectLeft, height - this.RectTop - (float)this.MinY * scaleP.Y);
+                OffsetPoint = new PointGeo(-(float)this.MinX * Scale.X + this.RectLeft, height - this.RectTop - (float)this.MinY * Scale.Y);
             }
             else
             {
-                offsetPoint = new PointGeo(-(float)this.MinX * scaleP.X + this.RectLeft, -(float)this.MinY * scaleP.Y + this.RectTop);
-            }
-            if (this.fixedLayerManager != null)
-            {
-                this.fixedLayerManager.GetPainter().OffsetPoint = offsetPoint;
-                this.fixedLayerManager.GetPainter().Scale = scaleP;
-                this.freshLayerManager.GetPainter().OffsetPoint = offsetPoint;
-                this.freshLayerManager.GetPainter().Scale = scaleP;
+                OffsetPoint = new PointGeo(-(float)this.MinX * Scale.X + this.RectLeft, -(float)this.MinY * Scale.Y + this.RectTop);
             }
         }
         public void OnLoad(object sender, EventArgs e)
@@ -197,7 +231,7 @@ namespace Painter.Models
 
         }
         public void OnPaint(object sender, PaintEventArgs e)
-        { 
+        {
             DrawOnCanvas(e.Graphics);
         }
         public void OnMouseMove(object sender, MouseEventArgs e)
@@ -206,11 +240,11 @@ namespace Painter.Models
             {
                 PointGeo newPoint = new PointGeo(e.X, e.Y);
                 PointGeo offsetPoint = newPoint - oldPoint;
-                this.GetHoldLayerManager().GetPainter().OffsetPoint = oldOffsetPoint + offsetPoint;
-                this.GetFreshLayerManager().GetPainter().OffsetPoint = oldOffsetPoint + offsetPoint;
-                if (this.Invalidate!=null)
+                this.OffsetPoint = oldOffsetPoint + offsetPoint;
+                this.OffsetPoint = oldOffsetPoint + offsetPoint;
+                if (this.Invalidate != null)
                 {
-                    this.Invalidate(); 
+                    this.Invalidate();
                 }
             }
             CurObjectPoint = ScreenToObjectPos(e.X, e.Y);

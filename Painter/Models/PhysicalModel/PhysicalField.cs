@@ -107,7 +107,10 @@ namespace Painter.Models.PhysicalModel
         }
         public void Pause()
         {
-            timer.Stop();
+            if(timer != null)
+            {
+                timer.Stop();
+            }
         }
         public void Start()
         {
@@ -154,7 +157,7 @@ namespace Painter.Models.PhysicalModel
                 }
             }
             timeWatcher.Stop();
-            Debug.Print(timeWatcher.ElapsedTicks + "");
+            //Debug.Print(timeWatcher.ElapsedTicks + "");
         }
     }
    

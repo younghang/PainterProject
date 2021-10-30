@@ -26,7 +26,7 @@ namespace Painter.Models.StageModel
         MainCharacter character = new MainCharacter();
         DrawableText text = new DrawableText();
         Scene scene= new Scene();
-        //获取场景中的操作对象
+        //获取场景中的键鼠操作对象
         public MainCharacter GetMainCharacter()
         {
             return character;
@@ -67,7 +67,7 @@ namespace Painter.Models.StageModel
             obstacleTex.Add(rect);
             obstacleTex.Add(text);
 
-            character.Move(new PointGeo(3500, 200));
+            character.Move(new PointGeo(100, 200));
             character.HitEnemyEvent += () => {
                 text.GetTextMeta().Text = "Score: " + (character.HitCount).ToString("f1");
             };
@@ -85,7 +85,7 @@ namespace Painter.Models.StageModel
             groundObj5.Add(groundRec5);
 
             GroundObject groundObj6 = new GroundObject();
-            RectangeGeo groundRec6 = new RectangeGeo(new PointGeo(3000, 400), new PointGeo(3400, 500));
+            RectangeGeo groundRec6 = new RectangeGeo(new PointGeo(3000, 300), new PointGeo(3400, 400));
             groundRec6.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
             groundRec6.Angle = 90;
             groundObj6.Add(groundRec6);
@@ -93,7 +93,7 @@ namespace Painter.Models.StageModel
             Obstacle obstacle = new Obstacle();
             RectangeGeo rectRotate = new RectangeGeo(new PointGeo(4000, 100), new PointGeo(4020, 400));
             rectRotate.Angle = 0;
-            rectRotate.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = true, BackColor = Color.Bisque });
+            rectRotate.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = true, BackColor = Color.GreenYellow });
             obstacle.Add(rectRotate);
             obstacle.EnabledRotate = true;
 

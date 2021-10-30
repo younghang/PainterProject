@@ -1,4 +1,6 @@
 ﻿using Painter.Models;
+using Painter.Models.CameraModel;
+using Painter.Models.ControlUtils;
 using Painter.Models.Paint;
 using Painter.Models.PhysicalModel; 
 using Painter.Models.StageModel;
@@ -20,6 +22,12 @@ namespace Painter
     public partial class GameJumpFrm : Form
     {
         CanvasModel canvasModel = new CanvasModel();
+        InputCmds inputs = new InputCmds();
+        Camera camera;
+        StageManager stageManager = new StageManager();//多场景下使用的
+        MainCharacter character;
+        StageController stageController;
+        IStageScene scene = new FirstStageScene();//现在只有一个场景，先不管
         public GameJumpFrm()
         {
             InitializeComponent();
@@ -103,7 +111,8 @@ namespace Painter
                 return;
             }
             canvasModel.OnKeyDown(sender, e);
-            if (e.KeyCode==Keys.Enter)
+            inputs.OnKeyDown(sender, e); 
+            if (e.KeyCode==Keys.Enter)//无效 这里接收不到命令按键
             {
                 
             }
@@ -162,23 +171,20 @@ namespace Painter
             {
                 character.OnFire(canvasModel.CurObjectPoint); 
             }
-        } 
-        StageManager stageManager = new StageManager();//多场景下使用的
-        MainCharacter character ; 
-        StageController stageController;
-        IStageScene scene =new FirstStageScene();//现在只有一个场景，先不管
+        }  
         private void btnStart_Click(object sender, EventArgs e)
         { 
             if (scene != null)
             {
                 scene.Clear();
-            } 
-            stageController = new StageController(scene.CreateScene(),this.canvasModel);
+            }
+            stageController = new StageController(scene.CreateScene(), this.canvasModel);
             stageController.Invalidate += this.Invalidate;
-            character = scene.GetMainCharacter();
             btnStart.Visible = false;
             this.Focus();
             stageController.Start();
+            camera = new Camera(canvasModel);
+            camera.SetFocusObject(character); 
         } 
         private bool isPause = false;
         private void Pause_Click()
@@ -195,8 +201,26 @@ namespace Painter
         }
 
         private void GameJumpFrm_Load(object sender, EventArgs e)
-        {
+        { 
+            character = scene.GetMainCharacter();
+            inputs.CMDEvent += Inputs_CMDEvent;
+        }
 
+        private void Inputs_CMDEvent(CMDS cmd)
+        {
+            switch (cmd)
+            {
+                case CMDS.NONE:
+                    break;
+                case CMDS.AUTO_FOCUS:
+                    camera.EnableFucus = true;
+                    break;
+                case CMDS.DISABLE_FOCUS:
+                    camera.EnableFucus = false; 
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
