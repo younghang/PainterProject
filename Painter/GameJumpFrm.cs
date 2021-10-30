@@ -123,6 +123,10 @@ namespace Painter
             {
                ( scene as FirstStageScene).LoadEnemys();
             }
+            if (e.KeyCode == Keys.W)//无效 这里接收不到命令按键
+            {
+                (scene as FirstStageScene).LoadFallingObstacles();
+            }
         }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {

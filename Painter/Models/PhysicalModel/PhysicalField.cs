@@ -75,6 +75,13 @@ namespace Painter.Models.PhysicalModel
                     break;
                 case SCENE_OBJECT_TYPE.PICTURE:
                     break;
+                case SCENE_OBJECT_TYPE.OBSTACLE:
+                    if (sceneObject is FallingObstacle)
+                    {
+                        FallingObstacle fallingObstacle = sceneObject as FallingObstacle;
+                        sceneObject.Move(fallingObstacle.Speed * TICK_TIME / 2);  
+                    }
+                    break;
                 default:
                     break;
             }
@@ -144,16 +151,13 @@ namespace Painter.Models.PhysicalModel
 
                 //依据状态 设置场景内物体的显示效果
                 for (int i = item.GetSceneObject().Count - 1; i >= 0; i--)
-                {
+                { 
+                    MotionAnalyse(item.GetSceneObject()[i]);//这里做运动学计算
+                    item.GetSceneObject()[i].SetStatus();
                     if (item.GetSceneObject()[i].IsDisposed)
                     {
                         item.GetSceneObject().RemoveAt(i);
-                    }
-                    else
-                    {
-                        MotionAnalyse(item.GetSceneObject()[i]);//这里做运动学计算
-                        item.GetSceneObject()[i].SetStatus();
-                    }
+                    } 
                 }
             }
             timeWatcher.Stop();

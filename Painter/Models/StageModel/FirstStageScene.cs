@@ -78,6 +78,7 @@ namespace Painter.Models.StageModel
             illustrateText.GetTextMeta().Text += "\n\tMove: ↑↓←→";
             illustrateText.GetTextMeta().Text += "\n\tJump: Space";
             illustrateText.GetTextMeta().Text += "\n\tLoad Enemys: Q";
+            illustrateText.GetTextMeta().Text += "\n\tLoad Falling Obstacle: W";
             illustrateText.GetTextMeta().Text += "\n\tPause/Resume: Enter";
             illustrateText.GetTextMeta().Text += "\n\t Command \"TRACK/DETRACK\" enable/disable move track";
             illustrateText.GetTextMeta().Text += "\n\t Command \"FOCUS/DEFOCUS\" enable/disable camera following";
@@ -127,6 +128,18 @@ namespace Painter.Models.StageModel
             scene.AddObject(obstacleIllustionTex); 
             scene.AddObject(obstacle, true); 
             return scene;
+        }
+        public void LoadFallingObstacles()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                FallingObstacle enemy1 = new FallingObstacle();
+                CircleGeo rectange2 = new CircleGeo(new PointGeo(0, 0), new PointGeo(20, 20));
+                rectange2.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Transparent, LineWidth = 1, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
+                enemy1.Add(rectange2); 
+                enemy1.Move(new PointGeo(rand.Next(3000),1500));
+                scene.AddObject(enemy1, false);
+            }
         }
         public void LoadEnemys()
         {

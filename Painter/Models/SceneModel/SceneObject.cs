@@ -254,20 +254,20 @@ namespace Painter.Models.Paint
                         if (CheckCollision(enemy))
                         {
                             if (StageController.EnableMomenta)
-                            { 
-                            //if (this is MainCharacter)
-                            //{
+                            {
+                                //if (this is MainCharacter)
+                                //{
                                 //和Enemy对象发生碰撞了 动量计算
                                 PointGeo thisCenter = this.GetOutShape().GetShapeCenter();
                                 PointGeo enemyCenter = enemy.GetOutShape().GetShapeCenter();
                                 LineGeo line = new LineGeo(enemyCenter, this.Center);
                                 PointGeo delta = this.Center - enemyCenter;
                                 float angle = line.GetRad();
-                                CommonUtils.PointRotateAroundOrigin(angle,ref delta.X,ref delta.Y);
-                                CommonUtils.PointRotateAroundOrigin(angle,ref this.Speed.X,ref this.Speed.Y);
+                                CommonUtils.PointRotateAroundOrigin(angle, ref delta.X, ref delta.Y);
+                                CommonUtils.PointRotateAroundOrigin(angle, ref this.Speed.X, ref this.Speed.Y);
                                 CommonUtils.PointRotateAroundOrigin(angle, ref enemy.Speed.X, ref enemy.Speed.Y);
-                                PointGeo speed =enemy.Speed -this.Speed  ;
-                                enemy.Speed.X=((enemy.Mass - this.Mass) * enemy.Speed.X + 2 * this.Mass * this.Speed.X) / (this.Mass+enemy.Mass);
+                                PointGeo speed = enemy.Speed - this.Speed;
+                                enemy.Speed.X = ((enemy.Mass - this.Mass) * enemy.Speed.X + 2 * this.Mass * this.Speed.X) / (this.Mass + enemy.Mass);
                                 this.Speed.X = speed.X + enemy.Speed.X;
                                 CommonUtils.PointRotateAroundOrigin(-angle, ref this.Speed.X, ref this.Speed.Y);
                                 CommonUtils.PointRotateAroundOrigin(-angle, ref enemy.Speed.X, ref enemy.Speed.Y);
@@ -284,6 +284,11 @@ namespace Painter.Models.Paint
                     {
                         if (this.CheckCollision(obstacle))
                         {
+                            if (obstacle is FallingObstacle)
+                            {
+                                (this as MainCharacter).OnHitEnemy(-50);
+                                obstacle.IsDisposed = true;
+                            }
 
                         }
                     }
@@ -331,11 +336,11 @@ namespace Painter.Models.Paint
                                 {
                                     this.Speed.X = 0;
                                 }
-                                if (this.Force.X==0)
+                                if (this.Force.X == 0)
                                 {
-                                    if (Math.Abs(this.Speed.X)>0.01)
+                                    if (Math.Abs(this.Speed.X) > 0.01)
                                     {
-                                        this.Force.X = -(this.Speed.X)/ Math.Abs(this.Speed.X)*  Math.Abs(Force.Y) * ground.GroundFrictionRatio;
+                                        this.Force.X = -(this.Speed.X) / Math.Abs(this.Speed.X) * Math.Abs(Force.Y) * ground.GroundFrictionRatio;
                                     }
                                 }
                                 else if (this.Force.X * this.Speed.X > 0)
@@ -362,7 +367,7 @@ namespace Painter.Models.Paint
                                     {
                                         (this as Enemy).OnStopOnGround();
                                     }
-                                } 
+                                }
                             }
                         }
                     }
@@ -563,8 +568,107 @@ namespace Painter.Models.Paint
             PositionChange?.Invoke();
         }
     }
+    class FallingObstacle : Obstacle
+    {
+        private static Random ran = new Random();
+        private int ObNo = 0;
+        public FallingObstacle()
+        {
+            No++;
+            ObNo = No;
+            Brightness = ran.Next(60, 100);
+            Hue = ran.Next(30, 360);
+            Speed = new PointGeo(ran.Next(8) - 4, -ran.Next(5, 100) / 200.0f);
+        }
+        public override void BeenHit(Weapon weapon)
+        {
+            base.BeenHit(weapon);
+            IsDisposed = true;
+            for (int i = 0; i < elements.Count; i++)
+            {
+                (elements[i] as Shape).IsShow = false;
+            }
+        }
+        private int TickCount = 0;
+        private int Hue = 30;
+        private int Brightness = 60;
+        public override void Move(PointGeo pos)
+        {
+            if (MinY < -500)
+            {
+                pos.Y = 2000;
+                Speed = new PointGeo(ran.Next(8) - 4, -ran.Next(5, 100) / 200.0f);
+            }
+            if (MaxX < -500)
+            {
+                Speed.X = Math.Abs(Speed.X);
+            }
+            if (MaxX > 3000)
+            {
+
+                Speed.X = -Math.Abs(Speed.X);
+            }
+            foreach (var item in elements)
+            {
+                item.Translate(pos);
+            }
+            Center += pos;
+        }
+        private static int No = 0;
+        public override void SetStatus()
+        {
+            base.SetStatus();
+            if (IsDisposed)
+            {
+                for (int i = 0; i < elements.Count; i++)
+                {
+                    (elements[i] as Shape).IsShow = false;
+                }
+            }
+            TickCount++;
+            if (TickCount % 10 == 0)
+            {
+                ReciprocateValue(ref Hue, ref reverseHue, 30, 360);
+                ReciprocateValue(ref Brightness, ref reverseBrightness, 75, 100);
+            }
+            var color = CommonUtils.HslToRgb(Hue, 100, Brightness);
+            ((this.elements[0] as Shape).GetDrawMeta() as ShapeMeta).BackColor = System.Drawing.Color.FromArgb(color.red, color.green, color.blue);
+            //if (ObNo == 3)
+            //{
+            //    Debug.Print("Hue" + Hue);
+            //}
+
+        }
+        bool reverseHue = true;
+        bool reverseBrightness = true;
+        private void ReciprocateValue(ref int num, ref bool revere, int min = 0, int max = 100)
+        {
+
+            if (num > max && num < min)
+            {
+                num = new Random().Next(min, max);
+            }
+            if (num == max)
+            {
+                revere = false;
+            }
+            else if (num == min)
+            {
+                revere = true;
+            }
+            if (revere)
+            {
+                num++;
+            }
+            else
+            {
+                num--;
+            }
+        }
+    }
     class Obstacle : SceneObject
     {
+        public PointGeo Speed = new PointGeo();
         public Obstacle()
         {
             OBJECT_TYPE = SCENE_OBJECT_TYPE.OBSTACLE;
@@ -675,7 +779,6 @@ namespace Painter.Models.Paint
             Hue = ran.Next(30, 360);
             listPoints = new List<PointGeo>(MAX_POINTS);
             this.ID = CurrentID;
-
             RandomLines randomLines = new RandomLines();
             randomLines.SetPoints(listPoints);
             var c = CommonUtils.HslToRgb(Hue, 100, Brightness);
@@ -733,6 +836,10 @@ namespace Painter.Models.Paint
                             {
                                 ch.OnHitEnemy(Math.Log(this.Speed + 1));
                             }
+                        }
+                        else if (hitObject is FallingObstacle)
+                        {
+                            ch.OnHitEnemy(20);
                         }
                         else
                         {
