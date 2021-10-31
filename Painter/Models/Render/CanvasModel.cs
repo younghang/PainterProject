@@ -103,6 +103,7 @@ namespace Painter.Models
             SetLayerManagerGraphic(ref freshLayerManager);
             SetCanvasTranlate(this.Width, this.Height);
         }
+        public   Color Background = Color.White;
         public void OnSizeChanged(object sender, EventArgs e)
         {
             this.Width = (sender as Form).ClientRectangle.Width;
@@ -135,7 +136,7 @@ namespace Painter.Models
             //onPanit(this.fixedLayerManager);
             if (EnableTrack)
             {
-                (this.fixedLayerManager.GetPainter() as WinFormPainter).graphics.FillRectangle(new SolidBrush(Color.FromArgb(50, System.Drawing.Color.White)), 0, 0, this.Width, this.Height);
+                (this.fixedLayerManager.GetPainter() as WinFormPainter).graphics.FillRectangle(new SolidBrush(Color.FromArgb(50, Background)), 0, 0, this.Width, this.Height);
             }
             else
             {

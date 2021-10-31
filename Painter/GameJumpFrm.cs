@@ -27,7 +27,7 @@ namespace Painter
         StageManager stageManager = new StageManager();//多场景下使用的
         MainCharacter character;
         StageController stageController;
-        IStageScene scene = new FirstStageScene();//现在只有一个场景，先不管
+        IStageScene curStage;//现在只有一个场景 
         public GameJumpFrm()
         {
             InitializeComponent();
@@ -119,13 +119,13 @@ namespace Painter
             {
 
             }
-            if (e.KeyCode == Keys.Q)//无效 这里接收不到命令按键
+            if (e.KeyCode == Keys.Q) 
             {
-               ( scene as FirstStageScene).LoadEnemys();
+               ( curStage as FirstStageScene).LoadEnemys();
             }
-            if (e.KeyCode == Keys.W)//无效 这里接收不到命令按键
+            if (e.KeyCode == Keys.W) 
             {
-                (scene as FirstStageScene).LoadFallingObstacles();
+                (curStage as FirstStageScene).LoadFallingObstacles();
             }
         }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -185,15 +185,14 @@ namespace Painter
         }  
         private void btnStart_Click(object sender, EventArgs e)
         { 
-            if (scene != null)
+            if (curStage != null)
             {
-                scene.Clear();
+                curStage.Clear();
             }
             btnStart.Visible = false;
             this.Focus();
-            stageController = new StageController(scene.CreateScene(), this.canvasModel);
-            stageController.Invalidate += this.Invalidate; 
-            stageController.Start();
+
+            stageController.Start(curStage.CreateScene());
             camera = new Camera(canvasModel);
             camera.SetFocusObject(character); 
         } 
@@ -212,11 +211,28 @@ namespace Painter
         }
 
         private void GameJumpFrm_Load(object sender, EventArgs e)
-        { 
-            character = scene.GetMainCharacter();
+        {
+            stageController = new StageController(this.canvasModel);
+            stageController.Invalidate += this.Invalidate;
+            FirstStageScene firstScene= new FirstStageScene();
+            SecondStageScene second = new SecondStageScene(); 
+            stageManager.AddStage(firstScene);
+            stageManager.AddStage(second); 
+            curStage = stageManager.GetStageAt(0);
+            character = curStage.GetMainCharacter();
             inputs.CMDEvent += Inputs_CMDEvent;
         }
-
+        private void SetCurStage(IStageScene stage)
+        {
+            if (stage == null)
+            {
+                return;
+            }
+            curStage = stage;
+            character = curStage.GetMainCharacter();
+            stageController.Stop();
+            stageController.Start(curStage.CreateScene());
+        }
         private void Inputs_CMDEvent(CMDS cmd)
         {
             switch (cmd)
@@ -247,9 +263,18 @@ namespace Painter
                 case CMDS.TRACK_OFF:
                     CanvasModel.EnableTrack = false; 
                     break;
+                case CMDS.NEXT_SCENE:
+                    IStageScene next = stageManager.GetNextStage();
+                    SetCurStage(next);
+                    break;
+                case CMDS.FOR_SCENE:
+                    IStageScene stage = stageManager.GetPreViewStage();
+                    SetCurStage(stage);
+                    break;
                 default:
                     break;
             }
         }
     }
+    
 }

@@ -265,6 +265,10 @@ namespace Painter.Models.Paint
             {
                 return;
             }
+            if (this== sceneObject)
+            {
+                return;
+            }
             switch (sceneObject.OBJECT_TYPE)
             {
                 case SCENE_OBJECT_TYPE.ROLE:
@@ -281,9 +285,9 @@ namespace Painter.Models.Paint
                                 //和Enemy对象发生碰撞了 动量计算
                                 PointGeo thisCenter = this.GetOutShape().GetShapeCenter();
                                 PointGeo enemyCenter = enemy.GetOutShape().GetShapeCenter();
-                                LineGeo line = new LineGeo(enemyCenter, this.Center);
+                                LineGeo line = new LineGeo(enemyCenter, thisCenter);//这里不是this.Center
                                 PointGeo delta = this.Center - enemyCenter;
-                                float angle = line.GetRad();
+                                float angle = (float)(line.GetRad()/Math.PI*180);
                                 CommonUtils.PointRotateAroundOrigin(angle, ref delta.X, ref delta.Y);
                                 CommonUtils.PointRotateAroundOrigin(angle, ref this.Speed.X, ref this.Speed.Y);
                                 CommonUtils.PointRotateAroundOrigin(angle, ref enemy.Speed.X, ref enemy.Speed.Y);

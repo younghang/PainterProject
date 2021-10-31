@@ -99,13 +99,10 @@ namespace Painter.Models.PhysicalModel
                 this.scenes.Add(scene);
             }
         }
-        public void Clear()
-        {
-            this.scenes.Clear();
-        }
-
+          
         internal void Dispose()
         {
+            this.scenes.Clear();
             if (timer!=null)
             {
                 timer.Stop();

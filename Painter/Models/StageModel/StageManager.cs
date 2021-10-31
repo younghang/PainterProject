@@ -20,6 +20,7 @@ namespace Painter.Models.StageModel
         {
             if (index<this.scenes.Count&&index>-1)
             {
+                this.CurStageIndex = index;
                 return scenes[index]; 
             }
             return null;
@@ -38,6 +39,11 @@ namespace Painter.Models.StageModel
         public IStageScene GetNextStage()
         {
             return GetStageAt(++CurStageIndex);
+        }
+
+        internal IStageScene GetPreViewStage()
+        {
+            return GetStageAt(--CurStageIndex);
         }
     }
 }

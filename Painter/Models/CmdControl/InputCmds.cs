@@ -7,12 +7,12 @@ using System.Windows.Forms;
 
 namespace Painter.Models.CmdControl
 {
-    public enum CMDS { NONE,AUTO_FOCUS,DISABLE_FOCUS,INTERFER_ON,INTERFER_OFF,MOMENTA_ON,MOMENTA_OFF,TRACK_ON,TRACK_OFF}
+    public enum CMDS { NONE,AUTO_FOCUS,DISABLE_FOCUS,INTERFER_ON,INTERFER_OFF,MOMENTA_ON,MOMENTA_OFF,TRACK_ON,TRACK_OFF,NEXT_SCENE,FOR_SCENE}
 
     class InputCmds
     {
         CMDS curCMD = CMDS.NONE;
-        static List<string> cmds = new List<string>() { "NONE","FOCUS","DEFOCUS","INTERFER","DEINTERFER","MOMENTA","DEMOMENTA","TRACK","DETRACK"};
+        static List<string> cmds = new List<string>() { "NONE","FOCUS","DEFOCUS","INTERFER","DEINTERFER","MOMENTA","DEMOMENTA","TRACK","DETRACK","NEXT","FOR"};
         string strWords = "";
         bool isTyping = false;
         public event Action<CMDS> CMDEvent;

@@ -12,7 +12,7 @@ namespace Painter.Models.Paint
 {
     public class Scene
     {
-        public Scene( )
+        public Scene()
         {
  
         }

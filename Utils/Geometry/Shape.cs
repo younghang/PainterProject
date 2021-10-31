@@ -742,7 +742,7 @@ namespace Painter.Models
         }
         public float GetRad()
         {
-            return (float)Math.Atan2(FirstPoint.X - SecondPoint.X, SecondPoint.Y - FirstPoint.Y);
+            return (float)Math.Atan2(   SecondPoint.Y - FirstPoint.Y,SecondPoint.X-FirstPoint.X);
         }
         public double GetB()
         {

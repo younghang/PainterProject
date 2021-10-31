@@ -13,19 +13,21 @@ namespace Painter.Models.StageModel
     class StageController//物理场的控制及屏幕的刷新，Render是由CanvasModel做的
     {
         CanvasModel render;
-        public StageController(Scene scene,CanvasModel canvasModel)
-        {
-            this.curScene = scene;
+        public StageController(CanvasModel canvasModel)
+        { 
             this.render = canvasModel;
         }
         PhysicalField physicalField = new PhysicalField();
         public static bool EnableMomenta = false;
-        Timer timer = new Timer();
+        Timer timer ;
         public static double TIME_SPAN=15;
         Scene curScene;
         public event Action Invalidate;
-        public void Start()
+        public void Start(Scene scene)
         {
+            timer = new Timer();
+            this.curScene = scene;
+            this.render.Background = scene.Background;
             physicalField.AddScene(curScene);
             foreach (var item in curScene.GetSceneObject())
             {
@@ -85,8 +87,10 @@ namespace Painter.Models.StageModel
         public void Stop()
         {
             timer.Stop();
+            timer.Dispose();
             physicalField.Dispose();
             curScene.Clear();
+            render.Clear();
         }
     }
 }

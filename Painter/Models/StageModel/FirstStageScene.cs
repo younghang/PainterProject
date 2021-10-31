@@ -63,7 +63,7 @@ namespace Painter.Models.StageModel
             Obstacle obstacleTex = new Obstacle();
 
             scoreText.pos = new PointGeo(1350, 1000);
-            scoreText.SetDrawMeta(new TextMeta("Score:") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
+            scoreText.SetDrawMeta(new TextMeta("Score:0.0") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
             RectangeGeo rect = new RectangeGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
             obstacleTex.Add(rect);
             obstacleTex.Add(scoreText);
@@ -80,6 +80,7 @@ namespace Painter.Models.StageModel
             illustrateText.GetTextMeta().Text += "\n\tLoad Enemys: Q";
             illustrateText.GetTextMeta().Text += "\n\tLoad Falling Obstacle: W";
             illustrateText.GetTextMeta().Text += "\n\tPause/Resume: Enter";
+            illustrateText.GetTextMeta().Text += "\n\t Command \"NEXT/FOR\" switch to next/previous scene";
             illustrateText.GetTextMeta().Text += "\n\t Command \"TRACK/DETRACK\" enable/disable move track";
             illustrateText.GetTextMeta().Text += "\n\t Command \"FOCUS/DEFOCUS\" enable/disable camera following";
             illustrateText.GetTextMeta().Text += "\n\t Command \"MOMENTA/DEMOMENTA\" enable/disable object collision";
@@ -190,5 +191,40 @@ namespace Painter.Models.StageModel
         }
         static Random rand = new Random();
 
+    }
+    class SecondStageScene : IStageScene
+    {
+        public void Clear()
+        {
+            this.scene.Clear();
+            CanvasModel.EnableTrack = false;
+        }
+        MainCharacter character = new MainCharacter();
+        DrawableText scoreText = new DrawableText(); 
+        Scene scene = new Scene();
+       
+        Scene IStageScene.CreateScene()
+        {
+            CanvasModel.EnableTrack = true; 
+            scene.Background = Color.Black;
+            Obstacle TextObject = new Obstacle(); 
+            scoreText.pos = new PointGeo(1200, 500);
+            scoreText.SetDrawMeta(new TextMeta("你好呀 Hello") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
+            RectangeGeo rect = new RectangeGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
+            TextObject.Add(rect);
+            TextObject.Add(scoreText);
+            scene.AddObject(TextObject,false);
+            return scene;
+        }
+
+        MainCharacter IStageScene.GetMainCharacter()
+        {
+            return character;
+        }
+
+        Scene IStageScene.GetScene()
+        {
+            return scene;
+        }
     }
 }
