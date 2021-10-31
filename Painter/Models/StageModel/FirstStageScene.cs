@@ -126,7 +126,17 @@ namespace Painter.Models.StageModel
             scene.AddObject(character, false);
             scene.AddObject(obstacleTex, true); 
             scene.AddObject(obstacleIllustionTex); 
-            scene.AddObject(obstacle, true); 
+            scene.AddObject(obstacle, true);
+
+            Enemy enemy = new Enemy();
+            enemy.LifeLength = 200;
+            RectangeGeo rectange = new RectangeGeo(new PointGeo(0, 0), new PointGeo(100, 100));
+            rectange.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
+            enemy.Add(rectange);
+            enemy.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() * 5, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
+            enemy.Move(enemy.Speed * 100);
+            scene.AddObject(enemy, true);
+
             return scene;
         }
         public void LoadFallingObstacles()
@@ -141,6 +151,10 @@ namespace Painter.Models.StageModel
                 scene.AddObject(enemy1, false);
             }
         }
+        private void OnEnemyStop(Enemy enemy)
+        {
+            enemy.Speed.X = ((float)new Random().NextDouble() * 2 - 1) * 8;
+        }
         public void LoadEnemys()
         {
             Enemy enemy = new Enemy();
@@ -150,7 +164,7 @@ namespace Painter.Models.StageModel
             enemy.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() * 5, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
             enemy.Move(enemy.Speed * 100);
             scene.AddObject(enemy, true);
-
+            enemy.StopEvent += OnEnemyStop;
             for (int i = 0; i < 6; i++)
             {
                 Enemy enemy1 = new Enemy();
@@ -159,6 +173,7 @@ namespace Painter.Models.StageModel
                 enemy1.Add(rectange2);
                 enemy1.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() * 5, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
                 enemy1.Move(new PointGeo(rand.Next(200), rand.Next(200)));
+                enemy1.StopEvent += OnEnemyStop; 
                 scene.AddObject(enemy1, false);
             }
             for (int i = 0; i < 6; i++)
@@ -168,7 +183,8 @@ namespace Painter.Models.StageModel
                 rectange2.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.IndianRed, LineWidth = 3, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
                 enemy1.Add(rectange2);
                 enemy1.Speed = new PointGeo((float)rand.NextDouble() * 5, (float)rand.NextDouble() * 5);
-                enemy1.Move(new PointGeo(rand.Next(200), rand.Next(200))); 
+                enemy1.Move(new PointGeo(rand.Next(200), rand.Next(200)));
+                enemy1.StopEvent += OnEnemyStop; 
                 scene.AddObject(enemy1, true);
             }
         }

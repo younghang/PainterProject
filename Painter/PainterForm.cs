@@ -312,6 +312,11 @@ namespace Painter
 			CalculatorDll.Calculator.CalculatorForm cl = new CalculatorDll.Calculator.CalculatorForm();
 			cl.Show();
 		}
-	}
+
+        private void winFormUC1_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
 
 }

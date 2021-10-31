@@ -70,7 +70,29 @@ namespace Painter.Models.Paint
         {
             return elements[0] as Shape;
         }
-        public bool IsDisposed = false;
+        private bool _isDisposed = false;
+        public bool IsDisposed
+        {
+            get { return this._isDisposed; }
+            set
+            {
+                this._isDisposed = value;
+                if (_isDisposed)
+                {
+                    foreach (var item in this.elements)
+                    {
+                        if (item is Shape)
+                        {
+                            (item as Shape).IsShow = false;
+                        }
+                        else if (item is RandomLines)
+                        {
+                            (item as RandomLines).IsShow = false;
+                        }
+                    }
+                }
+            }
+        }
 
         public void CalMaxMin()
         {
@@ -146,8 +168,7 @@ namespace Painter.Models.Paint
             Center += pos;
         }
         public virtual void SetStatus()
-        {
-
+        { 
         }
     }
     public enum DIRECTION { UP, DOWN, LEFT, RIGHT }
@@ -409,12 +430,18 @@ namespace Painter.Models.Paint
         public Enemy()
         {
             Mass = 500;
+            LifeLength = 30;
             OBJECT_TYPE = SCENE_OBJECT_TYPE.ROLE;
         }
         public override void BeenHit(Weapon weapon)
         {
             this.Speed.X += (float)(weapon.Speed * Math.Cos(weapon.Angle)) * weapon.Mass / this.Mass;
             this.Speed.Y += (float)(weapon.Speed * Math.Sin(weapon.Angle)) * weapon.Mass / this.Mass;
+            this.LifeLength -= 10;
+            if (LifeLength<=0)
+            {
+                this.IsDisposed = true;
+            }
         }
         public void Reset()
         {
@@ -455,9 +482,11 @@ namespace Painter.Models.Paint
                 Center += pos;
             }
         }
+        public event Action<Enemy> StopEvent;
         public void OnStopOnGround()
         {
-            this.Speed.X = ((float)new Random().NextDouble() * 2 - 1) * 8;
+            StopEvent?.Invoke(this);
+            //this.Speed.X = ((float)new Random().NextDouble() * 2 - 1) * 8;
         }
     }
     public class MainCharacter : Role
@@ -786,6 +815,7 @@ namespace Painter.Models.Paint
             randomLines.IsHold = false;
             this.elements.Add(randomLines);
             ExposedEvent += Weapon_CreateParticles;
+            HitCircle.FirstPoint = fromPoint.Clone();
         }
 
         private void Weapon_CreateParticles(PointGeo point, int hue)
@@ -804,23 +834,40 @@ namespace Painter.Models.Paint
         private SceneObject hitObject;
         public override void SetStatus()
         {
-            if (listPoints.Count > MAX_POINTS)
+            if (listPoints.Count > 1)
             {
                 HitCircle.FirstPoint = listPoints[listPoints.Count - 1];
                 HitCircle.Radius = 5;
             }
+            #region 这样能够停在指定点 
+            if (curPoint == toPoint)
+            {
+                IsDisposed = true;//这样最后一个点能够加上去 并显示出来
+            }
+            if (IsDisposed)
+            {
+                (elements[0] as RandomLines).IsShow = false;//这样能够在Scene移除前，在canvas里面也移除掉
+                return;
+            }
+            #endregion
+            if (!IsDisposed)
+            { 
+                if (this.listPoints.Count > 3) this.listPoints.RemoveAt(0);
+                this.listPoints.Add(curPoint.Clone());
+                if (TargetRadius < 8) TargetRadius += 0.3;
+                else TargetRadius = 1;
+                Speed *= this.Accelerator;
+                double deltaX = Math.Cos(this.Angle) * Speed;
+                double deltaY = Math.Sin(this.Angle) * Speed;
+                curPoint.X += (float)deltaX;
+                curPoint.Y += (float)deltaY;
 
-            if (this.listPoints.Count > 3) this.listPoints.RemoveAt(0);
-            this.listPoints.Add(new PointGeo(curPoint.X, curPoint.Y));
-            if (TargetRadius < 8) TargetRadius += 0.3;
-            else TargetRadius = 1;
-            Speed *= this.Accelerator;
-            double deltaX = Math.Cos(this.Angle) * Speed;
-            double deltaY = Math.Sin(this.Angle) * Speed;
-            curPoint.X += (float)deltaX;
-            curPoint.Y += (float)deltaY;
+            }  
+            
             if (GetPointDistance(curPoint, fromPoint) >= MaxRange || Interfer == SCENE_OBJECT_INTERFER.INTERFER)
             {
+                toPoint = curPoint; 
+                this.listPoints.Add(curPoint.Clone());
                 if (Interfer == SCENE_OBJECT_INTERFER.INTERFER)
                 {
                     MainCharacter ch = this.Owner as MainCharacter;
@@ -850,13 +897,9 @@ namespace Painter.Models.Paint
                 if (ExposedEvent != null)
                 {
                     ExposedEvent(curPoint, Hue);
-                }
-                IsDisposed = true;
+                } 
             }
-            if (IsDisposed)
-            {
-                (elements[0] as RandomLines).IsShow = false;
-            }
+
         }
 
         internal void CheckInterfer(SceneObject sceneObject)
@@ -882,6 +925,7 @@ namespace Painter.Models.Paint
                 case SCENE_OBJECT_TYPE.GROUND:
                     if (sceneObject.CheckCollision(this))
                     {
+                        //sceneObject.CheckCollision(this);
                         this.Interfer = SCENE_OBJECT_INTERFER.INTERFER;
                         hitObject = sceneObject;
                         sceneObject.BeenHit(this);
@@ -960,6 +1004,7 @@ namespace Painter.Models.Paint
             if (Alpha < Decay)
             {
                 IsDisposed = true;
+                (elements[0] as RandomLines).IsShow = false;
                 listPoints.Clear();
             }
             var color = CommonUtils.HslToRgb(Hue, 100, Brightness);

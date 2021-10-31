@@ -313,12 +313,12 @@ namespace Painter.Models
         {
             Angle += degree;
         }
-        public float Angle = 0;//旋转的矩形,顺时针为正
+        public float Angle = 0;//定义旋转中心为左上角 旋转的矩形,顺时针为正
         protected override void Initial()
         {
             base.Initial();
             LeftCorner = (int)Math.Min(SecondPoint.X, FirstPoint.X);
-            TopCorner = (int)Math.Min(SecondPoint.Y, FirstPoint.Y);
+            TopCorner = (int)Math.Max(SecondPoint.Y, FirstPoint.Y);
         }
         public override void Draw()
         {
@@ -348,18 +348,11 @@ namespace Painter.Models
             if (other is CircleGeo)
             {
                 CircleGeo otherCircle = other as CircleGeo;
-                PointGeo leftTop1 = new PointGeo(this.GetMinX(), this.GetMinY());
-                float tempx = this.Width / 2;
-                float tempy = this.Heigth / 2;
-                CommonUtils.PointRotateAroundOrigin(-Angle, ref tempx, ref tempy, leftTop1.X, leftTop1.Y);
-                PointGeo rectCenter = new PointGeo(tempx, tempy);
-                PointGeo centerRelativeToRectCenter = new PointGeo(otherCircle.CenterX, otherCircle.CenterY) - rectCenter;
-                float x = centerRelativeToRectCenter.X;
-                float y = centerRelativeToRectCenter.Y;
-                CommonUtils.PointRotateAroundOrigin(Angle, ref x, ref y);
-                centerRelativeToRectCenter.X = x;
-                centerRelativeToRectCenter.Y = y;
+                PointGeo leftTop1 = new PointGeo(this.GetMinX(), this.GetMaxY());
+                PointGeo circleToLeftTop = new PointGeo(otherCircle.CenterX-leftTop1.X, otherCircle.CenterY-leftTop1.Y);
+                CommonUtils.PointRotateAroundOrigin(Angle, ref circleToLeftTop.X, ref circleToLeftTop.Y);
                 PointGeo nearestPointOnRectToCircle = new PointGeo();
+                PointGeo centerRelativeToRectCenter = new PointGeo(-this.Width/2,this.Heigth/2)+ circleToLeftTop;
                 //以Rect的中心为原点，矩形上离圆的最近的点必然受限制，在矩形内，即-width/2<x<width/2；
                 nearestPointOnRectToCircle.X = Math.Min(centerRelativeToRectCenter.X, this.Width / 2);
                 nearestPointOnRectToCircle.X = Math.Max(nearestPointOnRectToCircle.X, -this.Width / 2);

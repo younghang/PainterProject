@@ -15,7 +15,9 @@ namespace Painter.Models.Paint
         public Scene( )
         {
  
-        } 
+        }
+        private Color background = Color.Transparent;
+        public Color Background { get { return background; } set { this.background = value; } }
         public float AirFrictionRatio = 2f;
         public event Action<SceneObject> AddNewObjectEvent;
         List<SceneObject> sceneObjects = new List<SceneObject>();

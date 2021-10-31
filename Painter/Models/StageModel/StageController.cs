@@ -86,6 +86,7 @@ namespace Painter.Models.StageModel
         {
             timer.Stop();
             physicalField.Dispose();
+            curScene.Clear();
         }
     }
 }
