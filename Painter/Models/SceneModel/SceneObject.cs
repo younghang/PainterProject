@@ -151,10 +151,10 @@ namespace Painter.Models.Paint
         internal List<IScreenPrintable> GetElements()
         {
             List<IScreenPrintable> temp = new List<IScreenPrintable>();
-            foreach (var item in elements)
+            for (int i = 0; i < elements.Count; i++)
             {
-                temp.Add(item);
-            }
+                temp.Add(elements[i]);
+            } 
             return temp;
         }
 
@@ -246,17 +246,19 @@ namespace Painter.Models.Paint
 
         public override void Move(PointGeo pos)
         {
-            Pos += pos;
+            
             if (MinY < -1000)
             {
                 pos.Y = 2000;
                 Speed.Y = 0;
             }
-            foreach (var item in elements)
-            {
-                item.Translate(pos);
-            }
-            Center += pos;
+            base.Move(pos);
+            //Pos += pos;
+            //foreach (var item in elements)
+            //{
+            //    item.Translate(pos);
+            //}
+            //Center += pos;
         }
 
         internal void CheckInterfer(SceneObject sceneObject)
@@ -437,6 +439,7 @@ namespace Painter.Models.Paint
             LifeLength = 30;
             OBJECT_TYPE = SCENE_OBJECT_TYPE.ROLE;
         }
+        public event Action<Enemy> EnemyDisposedEvent;
         public override void BeenHit(Weapon weapon)
         {
             this.Speed.X += (float)(weapon.Speed * Math.Cos(weapon.Angle)) * weapon.Mass / this.Mass;
@@ -445,6 +448,7 @@ namespace Painter.Models.Paint
             if (LifeLength<=0)
             {
                 this.IsDisposed = true;
+                EnemyDisposedEvent?.Invoke(this);
             }
         }
         public void Reset()
@@ -478,12 +482,13 @@ namespace Painter.Models.Paint
             }
             else
             {
-                Pos += pos;
-                foreach (var item in elements)
-                {
-                    item.Translate(pos);
-                }
-                Center += pos;
+                base.Move(pos);
+                //Pos += pos;
+                //foreach (var item in elements)
+                //{
+                //    item.Translate(pos);
+                //}
+                //Center += pos;
             }
         }
         public event Action<Enemy> StopEvent;
@@ -701,6 +706,12 @@ namespace Painter.Models.Paint
     }
     class Obstacle : SceneObject
     {
+        public event Action UpdateEvent;
+        public override void SetStatus()
+        {
+            base.SetStatus();
+            UpdateEvent?.Invoke();
+        }
         public PointGeo Speed = new PointGeo();
         public Obstacle()
         {

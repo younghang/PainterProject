@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Painter.Models.StageModel
 {
@@ -15,7 +16,7 @@ namespace Painter.Models.StageModel
         Scene GetScene();
         Scene CreateScene();
         void Clear();
-
+        void OnKeyDown(Keys keyData);
     }
     class FirstStageScene: IStageScene
     {
@@ -117,6 +118,17 @@ namespace Painter.Models.StageModel
             groundObj7.Add(groundRec7);
             groundObj7.GroundFrictionRatio = 0.1f;
 
+            GroundObject groundObj8 = new GroundObject();
+            RectangeGeo groundRec8 = new RectangeGeo(new PointGeo(6500, 0), new PointGeo(10500, 100));
+            groundRec8.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Gray, LineWidth = 2, IsFill = false, BackColor = Color.BlanchedAlmond });
+            groundObj8.Add(groundRec8);
+
+            GroundObject groundObj9 = new GroundObject();
+            RectangeGeo groundRec9 = new RectangeGeo(new PointGeo(10500, 200), new PointGeo(14500, 300));
+            groundRec9.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Gray, LineWidth = 2, IsFill = false, BackColor = Color.BlanchedAlmond });
+            groundRec9.Angle = 180;
+            groundObj9.Add(groundRec9);
+
             scene.AddObject(groundObj);
             scene.AddObject(groundObj2);
             scene.AddObject(groundObj3);
@@ -124,22 +136,40 @@ namespace Painter.Models.StageModel
             scene.AddObject(groundObj5);
             scene.AddObject(groundObj6);
             scene.AddObject(groundObj7);
+            scene.AddObject(groundObj8);
+            scene.AddObject(groundObj9);
             scene.AddObject(character, false);
             scene.AddObject(obstacleTex, true); 
             scene.AddObject(obstacleIllustionTex); 
             scene.AddObject(obstacle, true);
 
             Enemy enemy = new Enemy();
-            enemy.LifeLength = 200;
+            enemy.LifeLength = 60;
             RectangeGeo rectange = new RectangeGeo(new PointGeo(0, 0), new PointGeo(100, 100));
             rectange.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
             enemy.Add(rectange);
             enemy.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() * 5, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
             enemy.Move(enemy.Speed * 100);
             scene.AddObject(enemy, true);
-
+            enemy.EnemyDisposedEvent += Enemy_EnemyDisposedEvent;
             return scene;
         }
+
+        private void Enemy_EnemyDisposedEvent(Enemy obj)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Enemy enemy1 = new Enemy();
+                RectangeGeo rectange2 = new RectangeGeo(new PointGeo(0, 0), new PointGeo(30, 30));
+                rectange2.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
+                enemy1.Add(rectange2);
+                enemy1.Speed = new PointGeo((float)rand.NextDouble() * 2, (float)rand.NextDouble() * 2);
+                enemy1.Move(new PointGeo(obj.GetOutShape().GetShapeCenter()));
+                enemy1.StopEvent += OnEnemyStop;
+                scene.AddObject(enemy1, false);
+            }
+        }
+
         public void LoadFallingObstacles()
         {
             for (int i = 0; i < 10; i++)
@@ -189,6 +219,42 @@ namespace Painter.Models.StageModel
                 scene.AddObject(enemy1, true);
             }
         }
+
+        public void OnKeyDown(Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Right:
+                    character.Speed.X = 5;
+                    //character.Move( new PointGeo(10, 0)); 
+                    break;
+                case Keys.Left:
+                    character.Speed.X = -5;
+                    //character.Move(new PointGeo(-10, 0));
+                    break;
+                case Keys.Up:
+                    if (character.Status == SCENE_OBJECT_STATUS.IN_GROUND)
+                    {
+                        character.Speed.Y = 2;
+                    }
+                    break;
+                case Keys.Space:
+                    character.Speed.Y = 2;
+                    break;
+                case Keys.Enter:
+                    break;
+                case Keys.Down:
+                    character.Move(new PointGeo(0, -10));
+                    break;
+                case Keys.Q:
+                    LoadEnemys();
+                    break;
+                case Keys.W:
+                    LoadFallingObstacles();
+                    break;
+            }
+        }
+
         static Random rand = new Random();
 
     }
@@ -225,6 +291,17 @@ namespace Painter.Models.StageModel
         Scene IStageScene.GetScene()
         {
             return scene;
+        }
+
+        public void OnKeyDown(Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Space:
+                    character.Move(new PointGeo());
+                    break;
+
+            }
         }
     }
 }

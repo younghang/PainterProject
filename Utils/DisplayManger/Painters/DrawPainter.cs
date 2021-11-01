@@ -260,6 +260,10 @@ namespace Painter.Painters
             {
                 ShapeMeta sm = (ShapeMeta)rect.GetDrawMeta();
                 pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
+                if (sm.DashLineStyle != null)
+                {
+                    pen.DashPattern = sm.DashLineStyle;
+                }
                 GraphicsState state = graphics.Save(); 
                 graphics.TranslateTransform(TransformX(rect.GetMinX()), TransformY(rect.GetMaxY()));
                 graphics.RotateTransform(rect.Angle); 

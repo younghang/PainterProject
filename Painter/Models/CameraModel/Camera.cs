@@ -21,7 +21,7 @@ namespace Painter.Models.CameraModel
             canvas = canvasModel; 
         }
         public void SetFocusObject(MainCharacter mainCharacter)
-        {
+        { 
             if (mainCharacter!=null)
             {
                 FocusObject = mainCharacter;

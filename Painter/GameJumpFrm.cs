@@ -49,7 +49,7 @@ namespace Painter
                 }
                 if (stageController!=null)
                 {
-                    stageController.Stop();
+                    stageController.Dispose();
                 } 
             };
             canvasModel.Invalidate += this.Invalidate;
@@ -118,44 +118,30 @@ namespace Painter
             if (e.KeyCode == Keys.Enter)//无效 这里接收不到命令按键
             {
 
-            }
-            if (e.KeyCode == Keys.Q) 
-            {
-               ( curStage as FirstStageScene).LoadEnemys();
-            }
-            if (e.KeyCode == Keys.W) 
-            {
-                (curStage as FirstStageScene).LoadFallingObstacles();
-            }
+            } 
         }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             switch(keyData)
             {
                 case Keys.Right:
-                    character.Speed.X = 5;
-                    //character.Move( new PointGeo(10, 0)); 
+                   
                     break;
                 case Keys.Left:
-                    character.Speed.X = -5; 
-                    //character.Move(new PointGeo(-10, 0));
+                   
                     break;
                 case Keys.Up:
-                    if (character.Status==SCENE_OBJECT_STATUS.IN_GROUND)
-                    {
-                        character.Speed.Y = 2; 
-                    }
+                   
                     break;
                 case Keys.Space:
-                    character.Speed.Y = 2;
                     break;
                 case Keys.Enter:
                     Pause_Click();
                     break;
-                case Keys.Down:
-                    character.Move(new PointGeo(0,-10));
+                case Keys.Down: 
                     break;
             }
+            curStage.OnKeyDown(keyData);
             canvasModel.OnInvalidate();
             return base.ProcessCmdKey(ref msg, keyData);
         }
@@ -215,7 +201,9 @@ namespace Painter
             stageController = new StageController(this.canvasModel);
             stageController.Invalidate += this.Invalidate;
             FirstStageScene firstScene= new FirstStageScene();
-            SecondStageScene second = new SecondStageScene(); 
+            SecondStageScene second = new SecondStageScene();
+            SnakeStage snakeStage = new SnakeStage();
+            stageManager.AddStage(snakeStage);
             stageManager.AddStage(firstScene);
             stageManager.AddStage(second); 
             curStage = stageManager.GetStageAt(0);
@@ -232,6 +220,7 @@ namespace Painter
             character = curStage.GetMainCharacter();
             stageController.Stop();
             stageController.Start(curStage.CreateScene());
+            camera.SetFocusObject(character);
         }
         private void Inputs_CMDEvent(CMDS cmd)
         {

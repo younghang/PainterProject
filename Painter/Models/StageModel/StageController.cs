@@ -19,13 +19,13 @@ namespace Painter.Models.StageModel
         }
         PhysicalField physicalField = new PhysicalField();
         public static bool EnableMomenta = false;
-        Timer timer ;
+        Timer timer=null ;
         public static double TIME_SPAN=15;
         Scene curScene;
         public event Action Invalidate;
         public void Start(Scene scene)
         {
-            timer = new Timer();
+           
             this.curScene = scene;
             this.render.Background = scene.Background;
             physicalField.AddScene(curScene);
@@ -50,8 +50,13 @@ namespace Painter.Models.StageModel
             {
                 Invalidate(); 
             }
-            timer.Interval = TIME_SPAN;
-            timer.Elapsed += Timer_Elapsed; ;
+            if (timer==null)
+            {
+                timer = new Timer();
+                timer.Interval = TIME_SPAN;
+                timer.Elapsed += Timer_Elapsed; ;
+               
+            }
             timer.Start();
         }
 
@@ -80,11 +85,22 @@ namespace Painter.Models.StageModel
             timer.Start();
         }
         public void Pause()
-        { 
-           physicalField.Pause();
-           timer.Stop();
+        {  
+            if (timer!=null)
+            {   
+                physicalField.Pause();
+                timer.Stop();
+            } 
         }
         public void Stop()
+        {
+            //timer.Stop();
+            //timer.Dispose();
+            physicalField.Dispose();
+            curScene.Clear();
+            render.Clear();
+        }
+        public void Dispose()
         {
             timer.Stop();
             timer.Dispose();
