@@ -10,13 +10,13 @@ namespace Painter.Models.StageModel
     //为多场景下准备的
     class StageManager
     {
-        List<IStageScene> scenes = new List<IStageScene>();
+        List<StageScene> scenes = new List<StageScene>();
         public int CurStageIndex = 0;
-        internal IStageScene GetCurScene()
+        internal StageScene GetCurScene()
         {
             return scenes[CurStageIndex]; 
         }
-        internal IStageScene GetStageAt(int index)
+        internal StageScene GetStageAt(int index)
         {
             if (index<this.scenes.Count&&index>-1)
             {
@@ -25,7 +25,7 @@ namespace Painter.Models.StageModel
             }
             return null;
         }
-        public void AddStage(IStageScene scene)
+        public void AddStage(StageScene scene)
         {
             if (!this.scenes.Contains(scene))
             {
@@ -36,12 +36,12 @@ namespace Painter.Models.StageModel
         {
 
         }
-        public IStageScene GetNextStage()
+        public StageScene GetNextStage()
         {
             return GetStageAt(++CurStageIndex);
         }
 
-        internal IStageScene GetPreViewStage()
+        internal StageScene GetPreViewStage()
         {
             return GetStageAt(--CurStageIndex);
         }

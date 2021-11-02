@@ -85,6 +85,7 @@
     <Compile Include="Models\StageModel\FirstStageScene.cs" />
     <Compile Include="Models\SceneModel\SceneObject.cs" />
     <Compile Include="Models\SceneModel\Scene.cs" />
+    <Compile Include="Models\StageModel\RussiaBlock.cs" />
     <Compile Include="Models\StageModel\SnakeStage.cs" />
     <Compile Include="Models\StageModel\StageController.cs" />
     <Compile Include="Models\StageModel\StageManager.cs" />

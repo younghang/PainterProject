@@ -97,13 +97,19 @@ namespace Painter.Models.StageModel
             //timer.Stop();
             //timer.Dispose();
             physicalField.Dispose();
-            curScene.Clear();
+            if (curScene!=null)
+            {
+                curScene.Clear(); 
+            }
             render.Clear();
         }
         public void Dispose()
         {
-            timer.Stop();
-            timer.Dispose();
+            if (timer!=null)
+            {
+                timer.Stop();
+                timer.Dispose(); 
+            }
             physicalField.Dispose();
             curScene.Clear();
             render.Clear();

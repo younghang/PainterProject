@@ -10,17 +10,23 @@ using System.Windows.Forms;
 
 namespace Painter.Models.StageModel
 {
-    interface IStageScene
-    {
-        MainCharacter GetMainCharacter();
-        Scene GetScene();
-        Scene CreateScene();
-        void Clear();
-        void OnKeyDown(Keys keyData);
+    public abstract class StageScene
+    { 
+        public double MaxX = 2400;
+        public double MinX = 0;
+        public double MinY = 0;
+        public double MaxY = 600;
+        public abstract MainCharacter GetMainCharacter();
+        public abstract Scene GetScene();
+        public abstract Scene CreateScene();
+        public abstract void Clear();
+        public abstract void OnKeyDown(Keys keyData);
+        public abstract int GetWidth();
+        public abstract int GetHeight();
     }
-    class FirstStageScene: IStageScene
+    class FirstStageScene: StageScene
     {
-        public void Clear()
+        public override void Clear()
         {
             this.scene.Clear();
         }
@@ -29,15 +35,15 @@ namespace Painter.Models.StageModel
         DrawableText illustrateText = new DrawableText(); 
         Scene scene = new Scene();
         //获取场景中的键鼠操作对象
-        public MainCharacter GetMainCharacter()
+        public override MainCharacter GetMainCharacter()
         {
             return character;
         }
-        public Scene GetScene()
+        public override Scene GetScene()
         {
             return this.scene;
         }
-        public Scene CreateScene()
+        public override Scene CreateScene()
         { 
             GroundObject groundObj = new GroundObject();
             RectangeGeo groundRec = new RectangeGeo(new PointGeo(0, 0), new PointGeo(1200, 100));
@@ -220,7 +226,7 @@ namespace Painter.Models.StageModel
             }
         }
 
-        public void OnKeyDown(Keys keyData)
+        public override void OnKeyDown(Keys keyData)
         {
             switch (keyData)
             {
@@ -254,13 +260,25 @@ namespace Painter.Models.StageModel
                     break;
             }
         }
+        private int width = 1200;
+        private int height = 600;
+
+        public override int GetWidth()
+        {
+            return width;
+        }
+
+        public override int GetHeight()
+        {
+            return height;
+        }
 
         static Random rand = new Random();
 
     }
-    class SecondStageScene : IStageScene
+    class SecondStageScene : StageScene
     {
-        public void Clear()
+        public override void Clear()
         {
             this.scene.Clear();
             CanvasModel.EnableTrack = false;
@@ -269,7 +287,7 @@ namespace Painter.Models.StageModel
         DrawableText scoreText = new DrawableText(); 
         Scene scene = new Scene();
        
-        Scene IStageScene.CreateScene()
+        public override Scene CreateScene()
         {
             CanvasModel.EnableTrack = true; 
             scene.Background = Color.Black;
@@ -283,17 +301,17 @@ namespace Painter.Models.StageModel
             return scene;
         }
 
-        MainCharacter IStageScene.GetMainCharacter()
+        public override MainCharacter  GetMainCharacter()
         {
             return character;
         }
 
-        Scene IStageScene.GetScene()
+        public override Scene GetScene()
         {
             return scene;
         }
 
-        public void OnKeyDown(Keys keyData)
+        public override void OnKeyDown(Keys keyData)
         {
             switch (keyData)
             {
@@ -302,6 +320,18 @@ namespace Painter.Models.StageModel
                     break;
 
             }
+        }
+
+        private int width = 1200;
+        private int height = 600;
+        public override int GetWidth()
+        {
+            return width;
+        }
+
+        public override int GetHeight()
+        {
+            return height;
         }
     }
 }

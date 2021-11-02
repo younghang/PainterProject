@@ -12,13 +12,13 @@ using Utils;
 
 namespace Painter.Models.StageModel
 {
-    class SnakeStage : IStageScene
+    class SnakeStage : StageScene
     {
         DIRECTION curDirection = DIRECTION.RIGHT;
         MainCharacter character = new MainCharacter();
         DrawableText scoreText = new DrawableText();
         Scene scene = new Scene();
-        public void Clear()
+        public override void Clear()
         {
             scene.Clear();
         }
@@ -49,30 +49,37 @@ namespace Painter.Models.StageModel
                 }
             }
         }
-        int width = 100;
+        int blockWidth = 100;
         PointGeo FoodPos = new PointGeo();
-        public Scene CreateScene()
+        public override Scene CreateScene()
         {
             Score = 0;
             IsEndGame = false;
             points.Clear();
             points.Add(new Point(rand.Next(24), rand.Next(9)));
+            if (points[0].X>12)
+            {
+                curDirection = DIRECTION.LEFT;
+            }else
+            {
+                curDirection = DIRECTION.RIGHT; 
+            }
             obstacle = new Obstacle();
             FoodPos= CreateFoodPos();
             food = new Obstacle();
-            CircleGeo circle = new CircleGeo(new PointGeo(FoodPos.X*width+width/2.0f,FoodPos.Y * width + width / 2.0f), new PointGeo( FoodPos.X * width +  width, FoodPos.Y * width + width / 2.0f));
+            CircleGeo circle = new CircleGeo(new PointGeo(FoodPos.X*blockWidth+blockWidth/2.0f,FoodPos.Y * blockWidth + blockWidth / 2.0f), new PointGeo( FoodPos.X * blockWidth +  blockWidth, FoodPos.Y * blockWidth + blockWidth / 2.0f));
             circle.SetDrawMeta(new ShapeMeta() { BackColor=System.Drawing.Color.Aquamarine,IsFill=true,ForeColor=System.Drawing.Color.AntiqueWhite,LineWidth=1 });
             food.Add(circle); 
             for (int i = 0; i < 10; i++)
             {
                 for (int j = 0; j < 25; j++)
                 {
-                    RectangeGeo rectange = new RectangeGeo(new PointGeo( j * width,i * width), new PointGeo((j + 1) * width, (i + 1) * width));
+                    RectangeGeo rectange = new RectangeGeo(new PointGeo( j * blockWidth,i * blockWidth), new PointGeo((j + 1) * blockWidth, (i + 1) * blockWidth));
                     rectange.SetDrawMeta(emptyMeta);
                     obstacle.Add(rectange);
                 }
             }
-            RectangeGeo rectangeGeo = new RectangeGeo(new PointGeo(0, 0), new PointGeo(25 * width, 10 * width));
+            RectangeGeo rectangeGeo = new RectangeGeo(new PointGeo(0, 0), new PointGeo(25 * blockWidth, 10 * blockWidth));
             rectangeGeo.SetDrawMeta(new ShapeMeta() {ForeColor=System.Drawing.Color.OrangeRed,LineWidth=3 });
             obstacle.Add(rectangeGeo);
 
@@ -161,7 +168,7 @@ namespace Painter.Models.StageModel
                 Score += 10;
                 scoreText.GetTextMeta().Text = "Score: "+ Score;
                 PointGeo newPos = CreateFoodPos();
-                food.Move(newPos*width-FoodPos*width);
+                food.Move(newPos*blockWidth-FoodPos*blockWidth);
                 this.fillMeta.BackColor = ((food.GetElements()[0] as Shape).GetDrawMeta() as ShapeMeta).BackColor;
                 int Hue = rand.Next(30, 360);
                 var color = CommonUtils.HslToRgb(Hue, 100, 100);
@@ -199,17 +206,28 @@ namespace Painter.Models.StageModel
                 }
             }
         }
-        public MainCharacter GetMainCharacter()
+        public override MainCharacter GetMainCharacter()
         {
             return character;
         }
 
-        public Scene GetScene()
+        public override Scene GetScene()
         {
             return scene; 
         }
+        private int Width = 1200;
+        private int height = 600;
 
-        public void OnKeyDown(Keys keyData)
+        public override int GetWidth()
+        {
+            return Width;
+        }
+
+        public override int GetHeight()
+        {
+            return height;
+        }
+        public override void OnKeyDown(Keys keyData)
         {
             switch (keyData)
             {

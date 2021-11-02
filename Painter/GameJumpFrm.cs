@@ -27,7 +27,7 @@ namespace Painter
         StageManager stageManager = new StageManager();//多场景下使用的
         MainCharacter character;
         StageController stageController;
-        IStageScene curStage;//现在只有一个场景 
+        StageScene curStage;//现在只有一个场景 
         public GameJumpFrm()
         {
             InitializeComponent();
@@ -63,6 +63,20 @@ namespace Painter
                 return;
             }
             canvasModel.OnLoad(sender, e);
+
+            stageController = new StageController(this.canvasModel);
+            stageController.Invalidate += this.Invalidate;
+            FirstStageScene firstScene = new FirstStageScene();
+            SecondStageScene second = new SecondStageScene();
+            SnakeStage snakeStage = new SnakeStage();
+            RussiaBlock russia = new RussiaBlock();
+            stageManager.AddStage(russia);
+            stageManager.AddStage(firstScene);
+            stageManager.AddStage(second);
+            stageManager.AddStage(snakeStage);
+            SetCurStage(russia);
+            inputs.CMDEvent += Inputs_CMDEvent;
+            isFirst = false;
         }
        
         private void OnSizeChanged(object sender, EventArgs e)
@@ -195,22 +209,12 @@ namespace Painter
                 stageController.Resume();
             } 
         }
-
+        bool isFirst = true;
         private void GameJumpFrm_Load(object sender, EventArgs e)
         {
-            stageController = new StageController(this.canvasModel);
-            stageController.Invalidate += this.Invalidate;
-            FirstStageScene firstScene= new FirstStageScene();
-            SecondStageScene second = new SecondStageScene();
-            SnakeStage snakeStage = new SnakeStage();
-            stageManager.AddStage(snakeStage);
-            stageManager.AddStage(firstScene);
-            stageManager.AddStage(second); 
-            curStage = stageManager.GetStageAt(0);
-            character = curStage.GetMainCharacter();
-            inputs.CMDEvent += Inputs_CMDEvent;
+            this.btnStart.Visible = false;
         }
-        private void SetCurStage(IStageScene stage)
+        private void SetCurStage(StageScene stage)
         {
             if (stage == null)
             {
@@ -218,9 +222,22 @@ namespace Painter
             }
             curStage = stage;
             character = curStage.GetMainCharacter();
-            stageController.Stop();
+            if (!isFirst)
+            {
+                stageController.Stop();
+            } else
+            {
+                camera = new Camera(canvasModel); 
+            }
             stageController.Start(curStage.CreateScene());
             camera.SetFocusObject(character);
+            this.canvasModel.MaxX = stage.MaxX;
+            this.canvasModel.MaxY = stage.MaxY; 
+            this.canvasModel.MinX = stage.MinX;
+            this.canvasModel.MinY = stage.MinY;
+            this.Width = stage.GetWidth();
+            this.Height= stage.GetHeight(); 
+            this.StartPosition = FormStartPosition.CenterScreen;
         }
         private void Inputs_CMDEvent(CMDS cmd)
         {
@@ -253,11 +270,11 @@ namespace Painter
                     CanvasModel.EnableTrack = false; 
                     break;
                 case CMDS.NEXT_SCENE:
-                    IStageScene next = stageManager.GetNextStage();
+                    StageScene next = stageManager.GetNextStage();
                     SetCurStage(next);
                     break;
                 case CMDS.FOR_SCENE:
-                    IStageScene stage = stageManager.GetPreViewStage();
+                    StageScene stage = stageManager.GetPreViewStage();
                     SetCurStage(stage);
                     break;
                 default:
