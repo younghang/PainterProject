@@ -21,7 +21,15 @@ namespace Painter.Models.StageModel
             if (index<this.scenes.Count&&index>-1)
             {
                 this.CurStageIndex = index;
-                return scenes[index]; 
+                return scenes[index];
+            }
+            else if (index==-1)
+            {
+                this.CurStageIndex = 0;
+            }
+            else if (index ==this.scenes.Count)
+            {
+                this.CurStageIndex = this.scenes.Count-1;
             }
             return null;
         }

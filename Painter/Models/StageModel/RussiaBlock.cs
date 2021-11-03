@@ -62,7 +62,7 @@ namespace Painter.Models.StageModel
                 for (int j = 0; j < 4; j++)
                 {
                     RectangeGeo rectange = new RectangeGeo(new PointGeo(j * blockWidth, i * blockWidth), new PointGeo((j + 1) * blockWidth, (i + 1) * blockWidth));
-                    rectange.SetDrawMeta(new ShapeMeta() { ForeColor=Color.OliveDrab,LineWidth=0.5f});
+                    rectange.SetDrawMeta(new ShapeMeta() { ForeColor=Color.WhiteSmoke,LineWidth=0.5f});
                     nextBlock.Add(rectange);
                 }
             }
@@ -202,7 +202,7 @@ namespace Painter.Models.StageModel
                             result[i].Y--;
                         }
                     }
-                    Score += 20;
+                    Score += 200;
                     scoreText.GetTextMeta().Text = "Score: " + Score; ;
                 }
             }
@@ -222,14 +222,46 @@ namespace Painter.Models.StageModel
             }
             return false;
         }
-        private void UpdatePosition()
-        {
-            CurrentBottom--;
+        List<PointGeo> TickBlock(PointGeo point)
+        { 
+            List<PointGeo> temp = new List<PointGeo>();
             for (int i = 0; i < points.Count; i++)
             {
-                PointGeo p = points[i];
-                p.Y -= 1;
+                temp.Add(points[i] + point);
             }
+            return temp; 
+        }
+        bool CheckInterfer(List<PointGeo> temp)
+        {
+            bool isInterfer = false;
+            for (int i = 0; i < temp.Count; i++)
+            {
+                PointGeo p = temp[i]; 
+                if (p.X >= 14 || p.X < 0 || p.Y < 0)
+                {
+                    isInterfer = true;
+                    break;
+                }
+                if (IsPointInResult((int)p.X, (int)p.Y))
+                {
+                    isInterfer = true;
+                    break;
+                }
+            } 
+            return isInterfer;
+        }
+        private void UpdatePosition()
+        {
+            if (Move(new PointGeo(0, -1)))
+            {
+                this.result.AddRange(CommonUtils.Clone<PointGeo>(points));
+                this.points = GenerateABlock();
+                this.nextPoints = GenerateNextBlock();
+                Score += 10;
+                scoreText.GetTextMeta().Text = "Score: " + Score; ;
+            }
+            
+           
             #region 检查游戏结束
             foreach (var item in result)
             {
@@ -245,43 +277,52 @@ namespace Painter.Models.StageModel
             }
             #endregion
             #region 碰到底
-            bool isStop = false;
-            bool isStopOnGround = false;
-            if (CurrentBottom <= 0)
-            {
-                isStopOnGround = true;
-            }
-            foreach (var point in points)
-            {
-                if (IsPointInResult((int)point.X, (int)point.Y))
-                {
-                    isStop = true;
-                }
-                if (point.Y<=0)
-                {
-                    isStopOnGround = true;
-                }
-            }
-            if (isStopOnGround)
-            {
-                this.result.AddRange(CommonUtils.Clone<PointGeo>(points));
-            }
-            else
-            if (isStop)
-            {
-                List<PointGeo> ps = CommonUtils.Clone<PointGeo>(points);
-                foreach (var item in ps)
-                {
-                    item.Y += 1;
-                }
-                this.result.AddRange(ps);
-            }
-            if (isStop || isStopOnGround)
-            {
-                this.points = GenerateABlock() ;
-                this.nextPoints = GenerateNextBlock();
-            }
-            #endregion 
+            //bool isStop = false;
+            //bool isStopOnGround = false;
+            //if (CurrentBottom <= 0)
+            //{
+            //    isStopOnGround = true;
+            //}
+            
+            //foreach (var point in points)
+            //{
+            //    if (IsPointInResult((int)point.X, (int)point.Y))
+            //    {
+            //        isStop = true;
+            //    }
+            //    if (point.Y<=0)
+            //    {
+            //        isStopOnGround = true;
+            //    }
+            //}
+            //if (isStopOnGround)
+            //{
+            //    this.result.AddRange(CommonUtils.Clone<PointGeo>(points));
+            //}
+            //else
+            //if (isStop)
+            //{
+            //    List<PointGeo> ps = CommonUtils.Clone<PointGeo>(points);
+            //    foreach (var item in ps)
+            //    {
+            //        item.Y += 1;
+            //    }
+            //    this.result.AddRange(ps);
+            //}
+            //if (isStop || isStopOnGround)
+            //{
+            //    this.points = GenerateABlock() ;
+            //    this.nextPoints = GenerateNextBlock();
+            //    Score += 10;
+            //    scoreText.GetTextMeta().Text = "Score: " + Score; ;
+            //}
+            //else
+            //{
+                
+            //}
+            #endregion
+
+           
         }
         public override MainCharacter GetMainCharacter()
         {
@@ -375,6 +416,50 @@ namespace Painter.Models.StageModel
             z2.Add(new PointGeo(1, 2));
             zs.Add(z2);
             blocks.Add(zs);
+
+            //Z条2
+            List<List<PointGeo>> zs2 = new List<List<PointGeo>>();
+            List<PointGeo> z12 = new List<PointGeo>();
+            z12.Add(new PointGeo(0, 1));
+            z12.Add(new PointGeo(1, 1));
+            z12.Add(new PointGeo(1, 0));
+            z12.Add(new PointGeo(2, 0));
+            zs2.Add(z12);
+            List<PointGeo> z22 = new List<PointGeo>();
+            z22.Add(new PointGeo(2, 1));
+            z22.Add(new PointGeo(2, 2));
+            z22.Add(new PointGeo(1, 0));
+            z22.Add(new PointGeo(1, 1));
+            zs2.Add(z22);
+            blocks.Add(zs2);
+
+            //T条
+            List<List<PointGeo>> ts = new List<List<PointGeo>>();
+            List<PointGeo> t1 = new List<PointGeo>();
+            t1.Add(new PointGeo(0, 0));
+            t1.Add(new PointGeo(1, 0));
+            t1.Add(new PointGeo(2, 0));
+            t1.Add(new PointGeo(1, 1));
+            ts.Add(t1);
+            List<PointGeo> t2 = new List<PointGeo>();
+            t2.Add(new PointGeo(1, 0));
+            t2.Add(new PointGeo(1, 1));
+            t2.Add(new PointGeo(1, 2));
+            t2.Add(new PointGeo(2, 1));
+            ts.Add(t2);
+            List<PointGeo> t3 = new List<PointGeo>();
+            t3.Add(new PointGeo(0, 1));
+            t3.Add(new PointGeo(1, 1));
+            t3.Add(new PointGeo(2, 1));
+            t3.Add(new PointGeo(1, 0));
+            ts.Add(t3);
+            List<PointGeo> t4 = new List<PointGeo>();
+            t4.Add(new PointGeo(1, 0));
+            t4.Add(new PointGeo(1, 1));
+            t4.Add(new PointGeo(1, 2));
+            t4.Add(new PointGeo(0, 1));
+            ts.Add(t4);
+            blocks.Add(ts);
         }
         private int CurrentType = 0;
         private int NextType = 0;
@@ -407,8 +492,8 @@ namespace Painter.Models.StageModel
         private List<PointGeo> TransferShape()
         {
             List<List<PointGeo>> style = blocks[CurrentType];
-            CurrentSequence = (++CurrentSequence) % style.Count;
-            List<PointGeo> temp = CommonUtils.Clone<PointGeo>(style[CurrentSequence]);
+            int t = (CurrentSequence+1) % style.Count;
+            List<PointGeo> temp = CommonUtils.Clone<PointGeo>(style[t]);
             for (int i = 0; i < temp.Count; i++)
             {
                 temp[i].Y += CurrentBottom;
@@ -418,80 +503,43 @@ namespace Painter.Models.StageModel
         }
         private object lockobj = new object();
         bool isDealing = true;
+        private bool Move(PointGeo point)
+        {
+            List<PointGeo> tempPoints = TickBlock(point);
+            bool isInterfer = CheckInterfer(tempPoints);
+            if (!isInterfer)
+            {
+                this.points = tempPoints;
+                CurrentLeft += (int)point.X;
+                CurrentBottom += (int)point.Y;
+            }
+            return isInterfer;
+        }
         public override void OnKeyDown(Keys keyData)
         { 
             if (isDealing)
             {
                 isDealing = false;
+                PointGeo point = new PointGeo();
                 switch (keyData)
                 {
                     case Keys.Right:
                         curDirection = DIRECTION.RIGHT;
-                        bool isWrong = false;
-                        int i = 0;
-                        for (i = 0; i < points.Count; i++)
-                        {
-                            PointGeo p = points[i];
-                            p.X += 1;
-                            if (p.X >= 14)
-                            {
-                                isWrong = true;
-                                break;
-                            }
-                            if (IsPointInResult((int)p.X, (int)p.Y))
-                            {
-                                isWrong = true;
-                                break;
-                            }
-                        }
-                        if (isWrong)
-                        {
-                            for (int j = 0; j <= i; j++)
-                            {
-                                PointGeo p = points[j];
-                                p.X -= 1;
-                            }
-                        }
-                        else
-                        {
-                            CurrentLeft++;
-                        }
+                        point.X = 1; 
                         break;
                     case Keys.Left:
                         curDirection = DIRECTION.LEFT;
-                        isWrong = false;
-                        for (i = 0; i < points.Count; i++)
-                        {
-                            PointGeo p = points[i];
-                            p.X -= 1;
-                            if (p.X < 0)
-                            {
-                                isWrong = true;
-                                break;
-                            }
-                            if (IsPointInResult((int)p.X, (int)p.Y))
-                            {
-                                isWrong = true;
-                                break;
-                            }
-                        }
-                        if (isWrong)
-                        {
-                            for (int j = 0; j <= i; j++)
-                            {
-                                PointGeo p = points[j];
-                                p.X += 1;
-                            }
-                        }
-                        else
-                        {
-                            CurrentLeft--;
-                        }
+                        point.X = -1; 
                         break;
-                    case Keys.Up:
-
+                    case Keys.Up: 
                         curDirection = DIRECTION.UP;
-                        points = TransferShape();
+                        List<PointGeo> temp = TransferShape(); 
+                        if (!CheckInterfer(temp))
+                        {
+                            points = temp;
+                            List<List<PointGeo>> style = blocks[CurrentType];
+                            CurrentSequence =(CurrentSequence+1) % style.Count;
+                        } 
                         break;
                     case Keys.Space:
                         break;
@@ -499,36 +547,10 @@ namespace Painter.Models.StageModel
                         break;
                     case Keys.Down:
                         curDirection = DIRECTION.DOWN;
-                        isWrong = false;
-                        for (i = 0; i < points.Count; i++)
-                        {
-                            PointGeo p = points[i];
-                            p.Y -= 1;
-                            if (p.Y < 0)
-                            {
-                                isWrong = true;
-                                break;
-                            }
-                            if (IsPointInResult((int)p.X, (int)p.Y))
-                            {
-                                isWrong = true;
-                                break;
-                            }
-                        }
-                        if (isWrong)
-                        {
-                            for (int j = 0; j <= i; j++)
-                            {
-                                PointGeo p = points[j];
-                                p.Y += 1;
-                            }
-                        }
-                        else
-                        {
-                            CurrentBottom--;
-                        }
+                        point.Y = -1;
                         break;
                 }
+                Move(point);
                 isDealing = true;
             }
         }
