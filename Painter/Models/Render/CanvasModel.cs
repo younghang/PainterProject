@@ -16,6 +16,7 @@ namespace Painter.Models
     {
         private PointGeo offset = new PointGeo();
         private PointGeo scale = new PointGeo();
+ 
         public PointGeo OffsetPoint
         {
             get
@@ -69,8 +70,13 @@ namespace Painter.Models
         {
             return freshLayerManager;
         }
+        public GraphicsLayerManager GetScreenManager()
+        {
+            return this.screenManager;
+        }
         private GraphicsLayerManager fixedLayerManager;//画静止物体，标题之类的
         private GraphicsLayerManager freshLayerManager;//需要刷新的物体
+        private GraphicsLayerManager screenManager=new GraphicsLayerManager();//本窗口自身
         public CanvasModel()
         {
             //图形区域
@@ -102,6 +108,7 @@ namespace Painter.Models
             SetLayerManagerGraphic(ref fixedLayerManager);
             SetLayerManagerGraphic(ref freshLayerManager);
             SetCanvasTranlate(this.Width, this.Height);
+            screenManager.SetPainter(new WinFormPainter()); 
         }
         public   Color Background = Color.White;
         public void OnSizeChanged(object sender, EventArgs e)
@@ -144,8 +151,10 @@ namespace Painter.Models
             }
             this.fixedLayerManager.Draw();
             graphics.DrawImage((this.fixedLayerManager.GetPainter() as WinFormPainter).GetCanvas(), 0, 0);
-
             onPanit(this.freshLayerManager);
+
+            (screenManager.GetPainter() as WinFormPainter).SetGraphics(graphics);
+            screenManager.Draw();
         }
         private void SetLayerManagerGraphic(ref GraphicsLayerManager layerGraphic)
         {
@@ -282,6 +291,61 @@ namespace Painter.Models
                 oldOffsetPoint = this.fixedLayerManager.GetPainter().OffsetPoint.Clone();
             }
             CurObjectPoint = ScreenToObjectPos(e.X, e.Y);
+            if (e.Button==MouseButtons.Left)
+            {
+                ClickTest(new Point(e.X, e.Y)); 
+            }
+        }
+        public event Action<Geo> ShapeClickEvent;
+        private static int HitRangePixel = 5;
+        private CircleGeo hitCircle = new CircleGeo();
+        Geo clickCeo = new Geo();
+        private void ClickTest(Point point)
+        {
+            clickCeo.ClearShape();
+            float HitRange = HitRangePixel / this.fixedLayerManager.GetPainter().Scale.X;
+            PointGeo objPoint=  ScreenToObjectPos(point.X, point.Y);
+            hitCircle.FirstPoint = objPoint;
+            hitCircle.SecondPoint = objPoint + new PointGeo(HitRange, HitRange);
+            foreach (var item in this.freshLayerManager.GetDatas())
+            {
+                if (item is Shape)
+                {
+                    Shape shape = item as Shape;
+                    if (shape.IsOverlap(hitCircle))
+                    {
+                        clickCeo.AddShape(shape);
+                    }
+                }
+            }
+            foreach (var item in this.fixedLayerManager.GetDatas())
+            {
+                if (item is Shape)
+                {
+                    Shape shape = item as Shape;
+                    if (shape.IsOverlap(hitCircle))
+                    {
+                        clickCeo.AddShape(shape);
+                    }
+                }
+            }
+            hitCircle.FirstPoint = new PointGeo(point.X, point.Y);
+            hitCircle.SecondPoint = hitCircle.FirstPoint + new PointGeo(HitRangePixel, HitRangePixel);
+            foreach (var item in this.screenManager.GetDatas())
+            {
+                if (item is Shape)
+                {
+                    Shape shape = item as Shape;
+                    if (shape.IsOverlap(hitCircle))
+                    {
+                        clickCeo.AddShape(shape);
+                    }
+                }
+            }
+            //if (clickCeo.GetShapes().Count!=0)
+            {
+                ShapeClickEvent?.Invoke(clickCeo);
+            }
         }
         public void OnMouseWheel(object sender, MouseEventArgs e)
         {

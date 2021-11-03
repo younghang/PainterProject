@@ -106,6 +106,7 @@ namespace Painter.Models
     {
         public bool IsFinishedInitial = false;//减少离散点计算
         public bool IsShow = true;
+        public bool IsDisposed = false;
         public bool IsNonTrans = false;//temp use, delete sooon
         protected PointGeo shapeCenter;
         [NonSerialized]
@@ -127,7 +128,7 @@ namespace Painter.Models
         public string MSG { get; set; }
         private PointGeo _start = new PointGeo(0, 0);
         private PointGeo _end = new PointGeo(0, 0);
-        public PointGeo FirstPoint
+        public PointGeo FirstPoint//这是圆心，Radius只读，写不进去的
         {
             get { return _start; }
             set
@@ -247,6 +248,10 @@ namespace Painter.Models
             //			if (this.Painter==null||this.Painter!=p) {就是这个导致没画出来图，搞了两个小时
             //
             //			}
+            if (!IsShow || IsDisposed)
+            {
+                return;
+            }
             this.Painter = p;
             this.Draw();
         }
@@ -469,10 +474,7 @@ namespace Painter.Models
         {
             if (this.drawMata == null)
                 return;
-            if (!IsShow)
-            {
-                return;
-            }
+            
             if (Painter != null)
                 Painter.DrawCircle(this);
             MSG = String.Format("圆心坐标：({0},{1})--半径：{2}", FirstPoint.X, FirstPoint.Y, Radius);
@@ -941,6 +943,8 @@ namespace Painter.Models
         }
 
         public List<PointGeo> points = new List<PointGeo>();
+
+        public bool IsDisposed = false;
     }
     [Serializable]
     public class DrawableImage : IScreenPrintable
@@ -1016,10 +1020,14 @@ namespace Painter.Models
             MinY = 1E6f;
         }
         private List<Shape> shapes = new List<Shape>();
-        public void AddShape(Shape shape)
+        public void AddShape(Shape shape,bool isReverse=false)
         {
             if (!shapes.Contains(shape))
             {
+                if (isReverse)
+                {
+                    shapes.Insert(0, shape);
+                }else
                 shapes.Add(shape);
                 if (this.MinX > shape.GetMinX())
                 {
@@ -1052,6 +1060,22 @@ namespace Painter.Models
         public List<Shape> GetShapes()
         {
             return this.shapes;
+        }
+
+        public void Show()
+        {
+            foreach (var item in this.shapes)
+            {
+                item.IsShow = true;
+            }
+        }
+
+        public void Hide()
+        {
+            foreach (var item in this.shapes)
+            {
+                item.IsShow = false;
+            }
         }
     }
 

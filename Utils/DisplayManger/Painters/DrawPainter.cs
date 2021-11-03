@@ -182,6 +182,11 @@ namespace Painter.Painters
             SetGraphics(g);
             SetCanvas(b);
         }
+
+        public WinFormPainter()
+        {
+        }
+
         private object lockObj = new object();
         public override void Clear(System.Drawing.Color color)
         {
@@ -264,9 +269,19 @@ namespace Painter.Painters
                 {
                     pen.DashPattern = sm.DashLineStyle;
                 }
-                GraphicsState state = graphics.Save(); 
-                graphics.TranslateTransform(TransformX(rect.GetMinX()), TransformY(rect.GetMaxY()));
-                graphics.RotateTransform(rect.Angle); 
+                GraphicsState state = graphics.Save();
+                if (this.Scale.Y>0)
+                {
+                    graphics.TranslateTransform(TransformX(rect.GetMinX()), TransformY(rect.GetMinY()));
+                }
+                else
+                {
+                    graphics.TranslateTransform(TransformX(rect.GetMinX()), TransformY(rect.GetMaxY()));
+                }
+                graphics.RotateTransform(rect.Angle);
+                //graphics.DrawRectangle 的X,Y 是指的屏幕的左上角，
+                //对于Y👆 ，则是minX maxY
+                //对于Y👇 ，则是minX minY
                 graphics.DrawRectangle(pen, 0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
                 if (sm.IsFill)
                     //graphics.FillRectangle(new SolidBrush(Color.FromArgb(200, 255, 255, 255)), x, y, width, height);
@@ -299,10 +314,14 @@ namespace Painter.Painters
                 graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 int leftcorner = (int)(TransformX(circle.CenterX) - circle.Radius * Math.Abs(Scale.X));
                 int topcorner = (int)(TransformY(circle.CenterY) - circle.Radius * Math.Abs(Scale.Y));
-                leftcorner = leftcorner < 0 ? 0 : leftcorner;
-                topcorner = topcorner < 0 ? 0 : topcorner;
+                //leftcorner = leftcorner < 0 ? 0 : leftcorner;
+                //topcorner = topcorner < 0 ? 0 : topcorner;
                 ShapeMeta sm = circle.GetDrawMeta() as ShapeMeta;
                 pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
+                if (sm.DashLineStyle != null)
+                {
+                    pen.DashPattern = sm.DashLineStyle;
+                }
                 graphics.DrawEllipse(pen, leftcorner, topcorner, Math.Abs((circle.Radius * 2) * Scale.X), Math.Abs((circle.Radius * 2) * Scale.Y));
                 if (sm.IsFill)
                     graphics.FillEllipse(new SolidBrush(sm.BackColor), leftcorner, topcorner, Math.Abs((circle.Radius * 2) * Scale.X), Math.Abs((circle.Radius * 2) * Scale.Y));

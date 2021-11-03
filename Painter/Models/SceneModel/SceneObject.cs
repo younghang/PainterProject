@@ -83,11 +83,11 @@ namespace Painter.Models.Paint
                     {
                         if (item is Shape)
                         {
-                            (item as Shape).IsShow = false;
+                            (item as Shape).IsDisposed = true;
                         }
                         else if (item is RandomLines)
                         {
-                            (item as RandomLines).IsShow = false;
+                            (item as RandomLines).IsDisposed = true;
                         }
                     }
                 }
@@ -624,7 +624,7 @@ namespace Painter.Models.Paint
             IsDisposed = true;
             for (int i = 0; i < elements.Count; i++)
             {
-                (elements[i] as Shape).IsShow = false;
+                (elements[i] as Shape).IsDisposed = true;
             }
         }
         private int TickCount = 0;
@@ -660,7 +660,7 @@ namespace Painter.Models.Paint
             {
                 for (int i = 0; i < elements.Count; i++)
                 {
-                    (elements[i] as Shape).IsShow = false;
+                    (elements[i] as Shape).IsDisposed = true;
                 }
             }
             TickCount++;

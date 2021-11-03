@@ -75,7 +75,7 @@ namespace Painter.DisplayManger
                 Add(item);
             }
         }
-        public void Add(IScreenPrintable ips)
+        public void Add(IScreenPrintable ips,bool isReverse=false)
         {
             lock(lockObj)
             {
@@ -85,7 +85,14 @@ namespace Painter.DisplayManger
                 }
                 if (!this.drawList.Contains(ips))
                 {
-                    this.drawList.Add(ips);
+                    if (isReverse)
+                    {
+                        this.drawList.Insert(0, ips);
+                    } 
+                    else
+                    {
+                        this.drawList.Add(ips);
+                    }
                     CurrentPos++;
                 }
             } 
@@ -97,13 +104,14 @@ namespace Painter.DisplayManger
         }
         public void Draw()
         { 
+            //倒着刷新，方便能够删除元素。
             int size = Math.Min(CurrentPos, this.drawList.Count);
             for (int i = size-1; i >=0; i--)
             {
                 drawList[i].Draw(Painter);
                 if (drawList[i] is Shape)
                 {
-                    if ((drawList[i] as Shape).IsShow==false)
+                    if ((drawList[i] as Shape).IsDisposed==true)
                     {
                         drawList.RemoveAt(i);
                         CurrentPos--;
@@ -111,7 +119,7 @@ namespace Painter.DisplayManger
                 }
                 else if (drawList[i] is RandomLines)
                 {
-                    if ((drawList[i] as RandomLines).IsShow == false)
+                    if ((drawList[i] as RandomLines).IsDisposed == true)
                     {
                         drawList.RemoveAt(i);
                         CurrentPos--;

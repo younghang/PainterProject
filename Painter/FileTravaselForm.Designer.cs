@@ -1,7 +1,7 @@
 ﻿
 namespace Painter
 {
-    partial class FileDealForm
+    partial class FileTravaselForm
     {
         /// <summary>
         /// Required designer variable.

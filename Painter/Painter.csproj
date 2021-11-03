@@ -66,11 +66,11 @@
     <Compile Include="Controller\LaserException.cs" />
     <Compile Include="Controller\ProgramController.cs" />
     <Compile Include="DisplayManger\PainterUCManager.cs" />
-    <Compile Include="FileDealForm.cs">
+    <Compile Include="FileTravaselForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FileDealForm.Designer.cs">
-      <DependentUpon>FileDealForm.cs</DependentUpon>
+    <Compile Include="FileTravaselForm.Designer.cs">
+      <DependentUpon>FileTravaselForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GameJumpFrm.cs">
       <SubType>Form</SubType>
@@ -95,10 +95,16 @@
     <Compile Include="PainterForm.Designer.cs">
       <DependentUpon>PainterForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="TestForm.cs">
+    <Compile Include="TempTest\PainterTest.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TestForm.Designer.cs">
+    <Compile Include="TempTest\PainterTest.Designer.cs">
+      <DependentUpon>PainterTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TempTest\TestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TempTest\TestForm.Designer.cs">
       <DependentUpon>TestForm.cs</DependentUpon>
     </Compile>
     <Compile Include="View\Window\ChartForm.cs">
@@ -172,8 +178,8 @@
     <Compile Include="WinFormDisplay\WinFormUC.Designer.cs">
       <DependentUpon>WinFormUC.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="FileDealForm.resx">
-      <DependentUpon>FileDealForm.cs</DependentUpon>
+    <EmbeddedResource Include="FileTravaselForm.resx">
+      <DependentUpon>FileTravaselForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GameJumpFrm.resx">
       <DependentUpon>GameJumpFrm.cs</DependentUpon>
@@ -181,7 +187,10 @@
     <EmbeddedResource Include="PainterForm.resx">
       <DependentUpon>PainterForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TestForm.resx">
+    <EmbeddedResource Include="TempTest\PainterTest.resx">
+      <DependentUpon>PainterTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TempTest\TestForm.resx">
       <DependentUpon>TestForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\Window\ChartForm.resx">

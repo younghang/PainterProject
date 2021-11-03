@@ -15,9 +15,9 @@ using Utils;
 namespace Painter
 {
     //统计项目行号
-    public partial class FileDealForm : Form
+    public partial class FileTravaselForm : Form
     {
-        public FileDealForm()
+        public FileTravaselForm()
         {
             InitializeComponent();
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Painter.TempTest;
+using System;
 using System.Windows.Forms;
 
 namespace Painter
@@ -14,7 +15,7 @@ namespace Painter
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Settings.LoadSettingFile();
-            Application.Run(new GameJumpFrm());
+            Application.Run(new PainterTest());
         }
     }
 }
