@@ -70,11 +70,11 @@ namespace Painter
             SecondStageScene second = new SecondStageScene();
             SnakeStage snakeStage = new SnakeStage();
             RussiaBlock russia = new RussiaBlock();
-            stageManager.AddStage(russia);
-            stageManager.AddStage(firstScene);
+            stageManager.AddStage(firstScene); 
+            stageManager.AddStage(russia); 
             stageManager.AddStage(second);
             stageManager.AddStage(snakeStage);
-            SetCurStage(russia);
+            SetCurStage(firstScene);
             inputs.CMDEvent += Inputs_CMDEvent;
             isFirst = false;
         }

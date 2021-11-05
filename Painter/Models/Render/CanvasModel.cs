@@ -1,4 +1,5 @@
 ﻿using Painter.DisplayManger;
+using Painter.Models.PainterModel;
 using Painter.Painters;
 using System;
 using System.Collections.Generic;
@@ -102,6 +103,9 @@ namespace Painter.Models
         {
             this.fixedLayerManager.Clear();
             this.freshLayerManager.Clear();
+
+            //geoControls.Clear();
+            //this.screenManager.Clear();
         }
         public void Init()
         {
@@ -151,9 +155,13 @@ namespace Painter.Models
             }
             this.fixedLayerManager.Draw();
             graphics.DrawImage((this.fixedLayerManager.GetPainter() as WinFormPainter).GetCanvas(), 0, 0);
-            onPanit(this.freshLayerManager);
+            onPanit(this.freshLayerManager); 
 
             (screenManager.GetPainter() as WinFormPainter).SetGraphics(graphics);
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
+            graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
             screenManager.Draw();
         }
         private void SetLayerManagerGraphic(ref GraphicsLayerManager layerGraphic)
@@ -266,6 +274,7 @@ namespace Painter.Models
                 }
             }
             CurObjectPoint = ScreenToObjectPos(e.X, e.Y);
+            MoveTest(new Point(e.X, e.Y));
         }
         public void OnMouseUp(object sender, MouseEventArgs e)
         {
@@ -300,6 +309,29 @@ namespace Painter.Models
         private static int HitRangePixel = 5;
         private CircleGeo hitCircle = new CircleGeo();
         Geo clickCeo = new Geo();
+        private List<GeoControl> geoControls = new List<GeoControl>();
+        public void AddGeoControls(GeoControl geoControl)
+        {
+            if (geoControl is GeoPanel)
+            {
+                this.geoControls.AddRange((geoControl as GeoPanel).GetControls());
+            }
+            else
+            {
+                this.geoControls.Add(geoControl);
+            } 
+            this.screenManager.AddRange(geoControl.GetElements(), true);
+        }
+        private void MoveTest(Point point)
+        {
+            hitCircle.FirstPoint = new PointGeo(point.X, point.Y);
+            hitCircle.SecondPoint = hitCircle.FirstPoint + new PointGeo(HitRangePixel, HitRangePixel);
+            foreach (var item in this.geoControls)
+            {
+                item.HitTest(hitCircle, false);
+            }
+            this.Invalidate();
+        }
         private void ClickTest(Point point)
         {
             clickCeo.ClearShape();
@@ -331,16 +363,9 @@ namespace Painter.Models
             }
             hitCircle.FirstPoint = new PointGeo(point.X, point.Y);
             hitCircle.SecondPoint = hitCircle.FirstPoint + new PointGeo(HitRangePixel, HitRangePixel);
-            foreach (var item in this.screenManager.GetDatas())
+            foreach (var item in this.geoControls)
             {
-                if (item is Shape)
-                {
-                    Shape shape = item as Shape;
-                    if (shape.IsOverlap(hitCircle))
-                    {
-                        clickCeo.AddShape(shape);
-                    }
-                }
+                item.HitTest(hitCircle, true);
             }
             //if (clickCeo.GetShapes().Count!=0)
             {

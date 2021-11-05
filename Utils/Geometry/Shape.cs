@@ -173,12 +173,12 @@ namespace Painter.Models
         {
             return Math.Min(this.FirstPoint.X, this.SecondPoint.X);
         }
-        public int Width
+        public float Width
         {
             get;
             set;
         }
-        public int Heigth
+        public float Heigth
         {
             get;
             set;
@@ -438,6 +438,8 @@ namespace Painter.Models
             }
             else
                 Radius = (int)(Math.Sqrt(1.0 * (FirstPoint.X - SecondPoint.X) * (FirstPoint.X - SecondPoint.X) + 1.0 * (FirstPoint.Y - SecondPoint.Y) * (FirstPoint.Y - SecondPoint.Y)));
+            this.Width = 2 * Radius;
+            this.Heigth = 2 * Radius;
         }
         public override void Translate(PointGeo offset)
         {
@@ -964,6 +966,10 @@ namespace Painter.Models
     {
         public void Draw(PainterBase dp)
         {
+            if (!IsShow)
+            {
+                return;
+            }
             if (this.pm == null)
                 return;
             if (dp == null)
@@ -996,6 +1002,7 @@ namespace Painter.Models
 
         public PointGeo pos { get; set; }
         private TextMeta pm;
+        public bool IsShow = true;
     }
     //连续加工的最小单位
     public class Geo

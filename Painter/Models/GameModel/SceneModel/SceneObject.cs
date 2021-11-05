@@ -521,9 +521,16 @@ namespace Painter.Models.Paint
             lineGeo2.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.AliceBlue, LineWidth = 5 });
             CircleGeo circle = new CircleGeo(new PointGeo(0, -50), new PointGeo(0, -100));
             circle.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Aquamarine, IsFill = true, BackColor = System.Drawing.Color.Bisque, LineWidth = 4 });
+            CircleGeo circle1 = new CircleGeo(new PointGeo(-40, -20), new PointGeo(-40, -50));
+            circle1.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.AntiqueWhite, IsFill = false, BackColor = System.Drawing.Color.Bisque, LineWidth = 4 });
+            CircleGeo circle2 = new CircleGeo(new PointGeo(40, -20), new PointGeo(40, -50));
+            circle2.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.AntiqueWhite, IsFill = false, BackColor = System.Drawing.Color.Bisque, LineWidth = 4 });
+
             elements.Add(lineGeo2);
             elements.Add(lineGeo);
             elements.Add(circle);
+            elements.Add(circle1);
+            elements.Add(circle2);
         }
         private int StatusCount = 0;
         private int TickCount = 0;

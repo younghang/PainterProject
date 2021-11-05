@@ -78,17 +78,18 @@
     <Compile Include="GameJumpFrm.Designer.cs">
       <DependentUpon>GameJumpFrm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\CameraModel\Camera.cs" />
+    <Compile Include="Models\GameModel\CameraModel\Camera.cs" />
     <Compile Include="Models\CmdControl\InputCmds.cs" />
+    <Compile Include="Models\PainterModel\GeoControls.cs" />
     <Compile Include="Models\Render\CanvasModel.cs" />
-    <Compile Include="Models\PhysicalModel\PhysicalField.cs" />
-    <Compile Include="Models\StageModel\FirstStageScene.cs" />
-    <Compile Include="Models\SceneModel\SceneObject.cs" />
-    <Compile Include="Models\SceneModel\Scene.cs" />
-    <Compile Include="Models\StageModel\RussiaBlock.cs" />
-    <Compile Include="Models\StageModel\SnakeStage.cs" />
-    <Compile Include="Models\StageModel\StageController.cs" />
-    <Compile Include="Models\StageModel\StageManager.cs" />
+    <Compile Include="Models\GameModel\PhysicalModel\PhysicalField.cs" />
+    <Compile Include="Models\GameModel\StageModel\FirstStageScene.cs" />
+    <Compile Include="Models\GameModel\SceneModel\SceneObject.cs" />
+    <Compile Include="Models\GameModel\SceneModel\Scene.cs" />
+    <Compile Include="Models\GameModel\StageModel\RussiaBlock.cs" />
+    <Compile Include="Models\GameModel\StageModel\SnakeStage.cs" />
+    <Compile Include="Models\GameModel\StageModel\StageController.cs" />
+    <Compile Include="Models\GameModel\StageModel\StageManager.cs" />
     <Compile Include="PainterForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -283,6 +284,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\save.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\GeoModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

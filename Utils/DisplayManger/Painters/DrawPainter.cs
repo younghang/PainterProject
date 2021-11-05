@@ -292,9 +292,7 @@ namespace Painter.Painters
         public override void DrawLine(LineGeo line)
         {
             DrawMeta dm = line.GetDrawMeta();
-            //			if (dm==null) {
-            //				return;
-            //			}
+ 
             if (graphics != null & pen != null)
             {
                 pen = new System.Drawing.Pen(dm.ForeColor, dm.LineWidth);
@@ -333,9 +331,28 @@ namespace Painter.Painters
             {
                 ShapeMeta sm = ellipse.GetDrawMeta() as ShapeMeta;
                 pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
-                graphics.DrawEllipse(pen, TransformX(ellipse.GetMaxX()), TransformY(ellipse.GetMaxY()), Math.Abs((ellipse.Width) * Scale.X), Math.Abs((ellipse.Heigth) * Scale.Y));
+                if (sm.DashLineStyle != null)
+                {
+                    pen.DashPattern = sm.DashLineStyle;
+                }
+                GraphicsState state = graphics.Save();
+                if (this.Scale.Y > 0)
+                {
+                    graphics.TranslateTransform(TransformX(ellipse.GetMinX()), TransformY(ellipse.GetMinY()));
+                }
+                else
+                {
+                    graphics.TranslateTransform(TransformX(ellipse.GetMinX()), TransformY(ellipse.GetMaxY()));
+                }
+                graphics.RotateTransform(ellipse.Angle);
+                //graphics.DrawRectangle 的X,Y 是指的屏幕的左上角，
+                //对于Y👆 ，则是minX maxY
+                //对于Y👇 ，则是minX minY
+                graphics.DrawEllipse(pen, 0, 0, Math.Abs((ellipse.Width) * Scale.X), Math.Abs((ellipse.Heigth) * Scale.Y));
                 if (sm.IsFill)
-                    graphics.FillEllipse(new SolidBrush(sm.BackColor), TransformX(ellipse.GetMaxX()), TransformY(ellipse.GetMaxY()), Math.Abs((ellipse.Width) * Scale.X), Math.Abs((ellipse.Heigth) * Scale.Y));
+                    //graphics.FillRectangle(new SolidBrush(Color.FromArgb(200, 255, 255, 255)), x, y, width, height);
+                    graphics.FillEllipse(new SolidBrush(sm.BackColor), 0, 0, Math.Abs((ellipse.Width) * Scale.X), Math.Abs((ellipse.Heigth) * Scale.Y));
+                graphics.Restore(state); 
             }
         }
         public override void DrawArc(ArcGeo arc)

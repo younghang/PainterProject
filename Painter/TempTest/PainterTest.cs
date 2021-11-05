@@ -1,4 +1,6 @@
 ﻿using Painter.Models;
+using Painter.Models.CmdControl;
+using Painter.Models.PainterModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,7 +16,7 @@ namespace Painter.TempTest
     public partial class PainterTest : Form
     {
         CanvasModel canvasModel = new CanvasModel();
-        Geo rightSide = new Geo();
+        InputCmds inputs = new InputCmds();
         public PainterTest()
         {
             InitializeComponent();
@@ -46,10 +48,41 @@ namespace Painter.TempTest
             }
             canvasModel.OnLoad(sender, e);
             canvasModel.ShapeClickEvent += CanvasModel_ShapeClickEvent;
+            inputs.CMDEvent += Inputs_CMDEvent;
             this.LoadElements();
         }
 
-       
+        private void Inputs_CMDEvent(CMDS obj)
+        {
+            switch (obj)
+            {
+                case CMDS.NONE:
+                    break;
+                case CMDS.AUTO_FOCUS:
+                    new GameJumpFrm().Show();
+                    break;
+                case CMDS.DISABLE_FOCUS:
+                    break;
+                case CMDS.INTERFER_ON:
+                    break;
+                case CMDS.INTERFER_OFF:
+                    break;
+                case CMDS.MOMENTA_ON:
+                    break;
+                case CMDS.MOMENTA_OFF:
+                    break;
+                case CMDS.TRACK_ON:
+                    break;
+                case CMDS.TRACK_OFF:
+                    break;
+                case CMDS.NEXT_SCENE:
+                    break;
+                case CMDS.FOR_SCENE:
+                    break;
+                default:
+                    break;
+            }
+        }
 
         private void OnSizeChanged(object sender, EventArgs e)
         {
@@ -67,6 +100,8 @@ namespace Painter.TempTest
                 return;
             }
             canvasModel.OnPaint(sender, e);
+            //e.Graphics.DrawString("这个", new Font("宋体", 20f), new SolidBrush(Color.Black), new PointF(300, 300));
+
         }
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
@@ -85,6 +120,7 @@ namespace Painter.TempTest
             }
             canvasModel.OnMouseUp(sender, e);
         }
+
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
             if (canvasModel == null)
@@ -92,6 +128,7 @@ namespace Painter.TempTest
                 return;
             }
             canvasModel.OnKeyUp(sender, e);
+            inputs.OnKeyDown(sender, e);
         }
         private void OnKeyDown(object sender, KeyEventArgs e)
         {
@@ -158,10 +195,10 @@ namespace Painter.TempTest
             List<Shape> shapes = obj.GetShapes();
             if (shapes.Count==0)
             {
-                rightSide.Hide();
+               
             }else
             {
-                rightSide.Show();
+                
             }
             foreach (var item in shapes)
             {
@@ -169,13 +206,13 @@ namespace Painter.TempTest
             }
             this.Invalidate();
         }
-        TextMeta info = new TextMeta("你好") { };
+        GeoLabel info = new GeoLabel(100,50,new RectangeGeo());
+      
         private void LoadElements()
         {
-            CircleGeo circleGeo = new CircleGeo() { FirstPoint = new PointGeo(500, 500), SecondPoint = new PointGeo(200, 200) };
+            CircleGeo circleGeo = new CircleGeo() { FirstPoint = new PointGeo(100, 100), SecondPoint = new PointGeo(200, 200) };
             circleGeo.SetDrawMeta(new Painters.ShapeMeta() { IsFill = true, BackColor = Color.MediumAquamarine });
-            this.canvasModel.GetScreenManager().Add(circleGeo);
-            this.canvasModel.GetFreshLayerManager().Add(circleGeo);
+            this.canvasModel.GetFreshLayerManager().Add(circleGeo); 
 
             RectangeGeo rectangeBackground = new RectangeGeo(new PointGeo(0, 0), new PointGeo(200, 500));
             rectangeBackground.SetDrawMeta(new Painters.ShapeMeta() { BackColor = Color.Aquamarine, IsFill = true });
@@ -183,21 +220,31 @@ namespace Painter.TempTest
             RectangeGeo rectangeHeaderBG = new RectangeGeo(new PointGeo(0, 0), new PointGeo(200, 100));
             rectangeHeaderBG.SetDrawMeta(new Painters.ShapeMeta() { BackColor = Color.Orange, IsFill = true });
 
-            DrawableText text = new DrawableText();
-            info.ForeColor = Color.Black;
-            info.TEXTFONT = new Font("宋体", 26f);
-            info.stringFormat = new StringFormat() {Alignment=StringAlignment.Near};
-            text.SetDrawMeta(info);
-            text.pos = new PointGeo(0, 37);
+             
+
+            GeoPanel geoPanel = new GeoPanel(500,300,new RectangeGeo());
             
-            rightSide.AddShape(rectangeBackground);
-            rightSide.AddShape(rectangeHeaderBG);  
-            for (int i = 0; i < rightSide.GetShapes().Count; i++)
-            {
-                this.canvasModel.GetScreenManager().Add(rightSide.GetShapes()[i],true); 
-            }
-            
-            this.canvasModel.GetScreenManager().Add(text, true);
+            GeoButton geoButton = new GeoButton(100, 50,new RectangeGeo()); 
+            geoButton.Text = "按钮"; 
+            geoButton.ClickEvent += () =>{
+                info.Text = "Button1 is Clicked";
+                //geoButton.IsVisible = false;
+                //MessageBox.Show("Button is Clicked");
+            };
+            GeoButton geoButton2 = new GeoButton(100, 50, new RectangeGeo());
+            geoButton2.Text = "按钮";
+            geoButton2.ClickEvent += () => {
+                info.Text = "Button2 is Clicked"; 
+            };
+            GeoButton geoButton3 = new GeoButton(50, 50, new CircleGeo());
+            GeoButton geoButton4 = new GeoButton(200, 100, new RectangeGeo());
+            geoPanel.AddControl(geoButton);
+            geoPanel.AddControl(geoButton2);
+            geoPanel.AddControl(geoButton3);
+            geoPanel.Move(new PointGeo(500, 200));
+            this.canvasModel.AddGeoControls(geoPanel);
+            this.canvasModel.AddGeoControls(geoButton4);
+
         }
     }
 }
