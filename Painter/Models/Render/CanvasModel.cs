@@ -1,4 +1,5 @@
 ﻿using Painter.DisplayManger;
+using Painter.Models.CmdControl;
 using Painter.Models.PainterModel;
 using Painter.Painters;
 using System;
@@ -13,11 +14,20 @@ using System.Windows.Forms;
 
 namespace Painter.Models
 {
+    ///负责：
+    ///1.图形绘制
+    ///2.视图操作
+    ///3.鼠标反馈
+
     public class CanvasModel
     {
         private PointGeo offset = new PointGeo();
         private PointGeo scale = new PointGeo();
- 
+        private CommandMgr CmdMgr;
+        public CommandMgr GetCmdMgr()
+        {
+            return CmdMgr;
+        }
         public PointGeo OffsetPoint
         {
             get
@@ -254,6 +264,7 @@ namespace Painter.Models
 
             SetCanvasTranlate(this.Width, this.Height);
             Init();
+            CmdMgr = new CommandMgr(this);
 
         }
         public void OnPaint(object sender, PaintEventArgs e)
@@ -275,6 +286,7 @@ namespace Painter.Models
             }
             CurObjectPoint = ScreenToObjectPos(e.X, e.Y);
             MoveTest(new Point(e.X, e.Y));
+            this.CmdMgr.OnMouseMove(sender, e);
         }
         public void OnMouseUp(object sender, MouseEventArgs e)
         {
@@ -285,7 +297,13 @@ namespace Painter.Models
         }
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
-
+            foreach (var item in this.geoControls)
+            {
+                if (item is GeoEditBox)
+                {
+                    (item as GeoEditBox).OnKeyDown(sender, e);
+                }
+            }
         }
         PointGeo oldPoint = new PointGeo(0, 0);
         PointGeo newPoint = new PointGeo(0, 0);
@@ -304,6 +322,7 @@ namespace Painter.Models
             {
                 ClickTest(new Point(e.X, e.Y)); 
             }
+            this.CmdMgr.OnMouseDown(sender, e);
         }
         public event Action<Geo> ShapeClickEvent;
         private static int HitRangePixel = 5;
@@ -334,6 +353,10 @@ namespace Painter.Models
         }
         private void ClickTest(Point point)
         {
+            foreach (var item in clickCeo.GetShapes())
+            {
+                item.GetDrawMeta().DashLineStyle = null;
+            }
             clickCeo.ClearShape();
             float HitRange = HitRangePixel / this.fixedLayerManager.GetPainter().Scale.X;
             PointGeo objPoint=  ScreenToObjectPos(point.X, point.Y);
@@ -344,7 +367,11 @@ namespace Painter.Models
                 if (item is Shape)
                 {
                     Shape shape = item as Shape;
-                    if (shape.IsOverlap(hitCircle))
+                    if (shape.IsShow==false||shape.IsInVision==false)
+                    {
+                        continue;
+                    }
+                    if (hitCircle.IsOverlap(shape))
                     {
                         clickCeo.AddShape(shape);
                     }
@@ -355,7 +382,11 @@ namespace Painter.Models
                 if (item is Shape)
                 {
                     Shape shape = item as Shape;
-                    if (shape.IsOverlap(hitCircle))
+                    if (shape.IsShow == false || shape.IsInVision == false)
+                    {
+                        continue;
+                    }
+                    if (hitCircle.IsOverlap(shape))
                     {
                         clickCeo.AddShape(shape);
                     }
@@ -363,20 +394,22 @@ namespace Painter.Models
             }
             hitCircle.FirstPoint = new PointGeo(point.X, point.Y);
             hitCircle.SecondPoint = hitCircle.FirstPoint + new PointGeo(HitRangePixel, HitRangePixel);
-            foreach (var item in this.geoControls)
-            {
-                item.HitTest(hitCircle, true);
-            }
+
             //if (clickCeo.GetShapes().Count!=0)
             {
                 ShapeClickEvent?.Invoke(clickCeo);
             }
+
+            foreach (var item in this.geoControls)
+            {
+                item.HitTest(hitCircle, true);//优先显示Controls的信息
+            }
+            this.Invalidate();
         }
         public void OnMouseWheel(object sender, MouseEventArgs e)
         {
             PointGeo point = ScreenToObjectPos(e.X, e.Y);
-            PointGeo Scale = fixedLayerManager.GetPainter().Scale;
-
+            PointGeo Scale = fixedLayerManager.GetPainter().Scale; 
             if (e.Delta > 0)
             {
                 Scale = 1.2f * Scale;
@@ -389,7 +422,7 @@ namespace Painter.Models
             }
             if (Scale.X > 1E6)
             {
-                return;
+                return;//太大会有偏移
             }
             if (Scale.X < 1E-3)
             {

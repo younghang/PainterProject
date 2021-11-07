@@ -55,6 +55,13 @@ namespace Painter.Models.PainterModel
                 baseShape.FirstPoint = new PointGeo(width/2, height/2);
                 baseShape.SecondPoint = new PointGeo(width, height/2);
             }
+            else if (shape is ArcGeo)
+            {
+                ArcGeo arc = baseShape as ArcGeo;
+                arc.FirstPoint = new PointGeo(0, height);
+                arc.SecondPoint =new PointGeo(0, 0) ;
+                arc.ThirdPoint =new PointGeo(width, height) ; 
+            }
             else if (shape is RectangeGeo || shape is EllipseGeo)
             {
                 baseShape.FirstPoint = new PointGeo(0, 0);
@@ -65,19 +72,25 @@ namespace Painter.Models.PainterModel
                 baseShape.FirstPoint = new PointGeo(0, 0);
                 baseShape.SecondPoint = new PointGeo(width, height);
             }
-            
-           
-            baseShape.SetDrawMeta(new ShapeMeta()
+
+            if (baseShape.GetDrawMeta() == null )
             {
-                BackColor = Color.Aquamarine,
-                IsFill = true
-            }); 
+                baseShape.SetDrawMeta(new ShapeMeta()
+                {
+                    BackColor = Color.Aquamarine,
+                    IsFill = true
+                });
+            } 
             this.Width = width;
             this.Height = height;
         }
         public void HitTest(CircleGeo circle,bool isMouseDown)
         {
-            if (this.baseShape.IsOverlap(circle))
+            if (this.baseShape.IsShow == false || this.baseShape.IsInVision == false)
+            {
+                return;
+            }
+            if (circle.IsOverlap(this.baseShape))
             {
                 if (isMouseDown)
                 {
@@ -106,8 +119,25 @@ namespace Painter.Models.PainterModel
             }
         } 
         public Color Background { 
-            get { return (this.baseShape.GetDrawMeta() as ShapeMeta).BackColor; }
-            set { (this.baseShape.GetDrawMeta() as ShapeMeta).BackColor = value; } 
+            get {
+                if (baseShape is LineGeo)
+                {
+                    return (this.baseShape.GetDrawMeta() as ShapeMeta).ForeColor;
+                }
+                else
+                {
+                    return (this.baseShape.GetDrawMeta() as ShapeMeta).BackColor;
+                } 
+            }
+            set {
+                if (baseShape is LineGeo)
+                {
+                    (this.baseShape.GetDrawMeta() as ShapeMeta).ForeColor = value;
+                }else
+                {
+                    (this.baseShape.GetDrawMeta() as ShapeMeta).BackColor = value;
+                }
+            } 
         }
         public PointGeo Pos = new PointGeo();
          
@@ -124,7 +154,13 @@ namespace Painter.Models.PainterModel
             } }
     }
     public class GeoLabel : GeoControl
-    { 
+    {
+        public Color TextColor
+        {
+            get { return text.GetTextMeta().ForeColor; }
+            set { text.GetTextMeta().ForeColor=value; }
+        }
+        public StringAlignment Alignment = StringAlignment.Center;
         public string Text
         {
             get { return this.text.GetTextMeta().Text; }
@@ -159,7 +195,13 @@ namespace Painter.Models.PainterModel
             if (text.GetTextMeta()!=null)
             {
                 Size size= TextRenderer.MeasureText(text.GetTextMeta().Text, text.GetTextMeta().TEXTFONT);
-                text.pos = new PointGeo((this.Width - size.Width) / 2.0f, (this.Height - size.Height) / 2.0f);
+                if (Alignment==StringAlignment.Near)
+                {
+                    text.pos = this.Pos + new PointGeo(0, (this.Height - size.Height) / 2.0f);
+                }else
+                {
+                    text.pos = this.Pos + new PointGeo((this.Width - size.Width) / 2f, (this.Height - size.Height) / 2.0f);
+                }
             } 
         }
         public Color ForeColor
@@ -175,6 +217,41 @@ namespace Painter.Models.PainterModel
             return temp;
         }
 
+    }
+    public class GeoRadio : GeoLabel
+    { 
+        public Color BackColor = Color.Aquamarine;
+        public Color CheckedColor = Color.Aqua;
+        private bool isChecked = false;
+        public bool IsChecked
+        {
+            get { return this.isChecked; }
+            set
+            {
+                this.isChecked = value;
+                if (this.isChecked)
+                {
+                    Background = CheckedColor;
+                }else
+                {
+                    Background = BackColor;
+                }
+            }
+        }
+        public GeoRadio(int width, int height, Shape shape) : base(width, height, shape)
+        {
+            Text = "";
+        }
+        public event Action CheckedEvent;
+        protected override void OnMouseClick()
+        {
+            base.OnMouseClick();
+            IsChecked = !IsChecked;
+            if (IsChecked)
+            {
+                CheckedEvent?.Invoke();
+            }
+        }
     }
     public class GeoButton: GeoLabel
     {
@@ -201,32 +278,95 @@ namespace Painter.Models.PainterModel
             Background = ClickColor;
         }
     }
+    public class GeoDrawButton : GeoButton
+    {
+        public GeoDrawButton(int width, int height, Shape shape,DrawableObject drawable) : base(width, height, shape)
+        {
+            Text = "";
+            this.Drawable = drawable;
+        }
+        protected DrawableObject Drawable;
+        public override void Move(PointGeo point)
+        {
+            base.Move(point);
+            Drawable.Translate(point);
+        }
+        public override void Update()
+        {
+            base.Update();
+            Drawable.IsShow = IsVisible;
+        }
+        public override List<IScreenPrintable> GetElements()
+        {
+            List < IScreenPrintable > temp= base.GetElements();
+            temp.Add(Drawable);
+            return temp;
+        }
+
+    }
     public class GeoEditBox : GeoButton
     {
         public GeoEditBox(int width, int height, Shape shape) : base(width, height, shape)
         {
             ClickColor = HoverColor;
+            BackColor = Color.White;
+            Background = BackColor;
+            shape.GetDrawMeta().ForeColor = Color.Orange;
+            shape.GetDrawMeta().LineWidth = 2;
+
+        }
+        public event Action<string> TextChangeEvent;
+        private bool isEditIn = true;
+        protected override void OnMouseLeave()
+        {
+            base.OnMouseLeave();
+            isEditIn = false;
         }
         protected override void OnMouseClick()
         {
+            isEditIn = true;
             base.OnMouseClick();
             text.GetTextMeta().stringFormat.Alignment = StringAlignment.Near;
+            Text ="";
         }
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
             {
-                text.GetTextMeta().stringFormat.Alignment = StringAlignment.Center;
+                text.GetTextMeta().stringFormat.Alignment = StringAlignment.Near;
+                TextChangeEvent?.Invoke(Text);
+                return;
+            }
+            if (isEditIn==false)
+            {
                 return;
             }
             else if (e.KeyCode == Keys.Back)
             {
-                Text = Text.Substring(0, Text.Length - 2); ;
+                if (Text.Length>=1)
+                {
+                    Text = Text.Substring(0, Text.Length - 1);  
+                } 
             }
             else
             {
-                Text += (char)e.KeyValue;
+                if (e.KeyCode>=Keys.NumPad0 && e.KeyCode <= Keys.NumPad9
+                    || e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9
+                    || e.KeyCode >= Keys.A && e.KeyCode <= Keys.Z
+                    )
+                {
+                    if (e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9)
+                    {
+                        Text += (e.KeyCode - Keys.NumPad0) ; 
+                    }
+                    else
+                    {
+                        Text += ((char)e.KeyValue); 
+                    }
+                }
+               
             }
+            TextChangeEvent?.Invoke(Text);
 
         }
     }
@@ -243,14 +383,32 @@ namespace Painter.Models.PainterModel
             return this.Controls;
         }
         private List<GeoControl> Controls = new List<GeoControl>();
-        FLOW_DIRECTION flowDirection = FLOW_DIRECTION.HORIZONTAL;
+        public FLOW_DIRECTION flowDirection = FLOW_DIRECTION.HORIZONTAL;
         public void AddControl(GeoControl control)
         {
             if (!Controls.Contains(control))
             {
+                if (control is GeoRadio)
+                {
+                    GeoRadio geoRadio = control as GeoRadio;
+                    geoRadio.ClickEvent += GeoRadio_ClickEvent;
+                }
                 this.Controls.Add(control);
-            }
+            } 
         }
+
+        private void GeoRadio_ClickEvent()
+        {
+            foreach (var item in this.Controls)
+            {
+                if (item is GeoRadio)
+                {
+                    GeoRadio geoRadio = item as GeoRadio;
+                    geoRadio.IsChecked=false;
+                }
+            } 
+        }
+
         public override void Move(PointGeo point)
         {
             base.Move(point); 
@@ -266,10 +424,10 @@ namespace Painter.Models.PainterModel
             get { return this.padding; }
             set {
                 this.padding = value;
-                Layout();
+            
             }
         }
-
+        //Move之后一起执行
         public void Layout()
         {
             float length = 0;
@@ -278,8 +436,8 @@ namespace Painter.Models.PainterModel
                 length = this.Controls[0].Width + padding;
                 for (int i = 1; i < this.Controls.Count; i++)
                 { 
-                    this.Controls[i].Move(new PointGeo(length ,0 ));
-                    length += this.Controls[i-1].Width + padding;
+                    this.Controls[i].Move(new PointGeo(length ,this.Height/2- this.Controls[i].Height/2));
+                    length += this.Controls[i].Width + padding;
                 }
             }else if (flowDirection == FLOW_DIRECTION.VERTICAL)
             {
@@ -298,7 +456,7 @@ namespace Painter.Models.PainterModel
             {
                 item.IsVisible = this.IsVisible;
                 item.Update();
-            }
+            } 
         }
         public override List<IScreenPrintable> GetElements()
         {

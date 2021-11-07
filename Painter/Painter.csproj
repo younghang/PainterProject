@@ -78,6 +78,7 @@
     <Compile Include="GameJumpFrm.Designer.cs">
       <DependentUpon>GameJumpFrm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\CmdControl\PaintCmd.cs" />
     <Compile Include="Models\GameModel\CameraModel\Camera.cs" />
     <Compile Include="Models\CmdControl\InputCmds.cs" />
     <Compile Include="Models\PainterModel\GeoControls.cs" />
@@ -230,6 +231,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="View\Window\UC\ShapePreview.resx">
       <DependentUpon>ShapePreview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormDisplay\WinFormUC.resx">
+      <DependentUpon>WinFormUC.cs</DependentUpon>
     </EmbeddedResource>
     <None Include=".editorconfig" />
     <None Include="Properties\Settings.settings">

@@ -608,5 +608,10 @@ namespace Painter.WinFormDisplay
 			Invalidate();
 			this.CreateGraphics().FillRectangle(b, new Rectangle(0, 0, this.Width, this.Height));
 		}
-	}
+
+        private void lblMarginColor_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 }

@@ -28,6 +28,15 @@ namespace Painter.Models
     {
 
     }
+    public abstract class DrawableObject : IPrintAndOperatable
+    {
+        public abstract void Draw(PainterBase pb);
+        public abstract void Rotate(float degree, PointGeo center = null);
+        public abstract void Scale(PointGeo offset);
+        public abstract void Translate(PointGeo offset);
+        public bool IsShow = true;
+    }
+
     [Serializable]
     public class PointGeo
     {
@@ -74,6 +83,14 @@ namespace Painter.Models
         {
             return new PointGeo(this.X, this.Y);
         }
+        public float Dot(PointGeo p)
+        {
+            return this.X * p.X + this.Y * p.Y;
+        }
+        public float Cross(PointGeo p)
+        {
+            return  this.X * p.Y - p.X * this.Y;
+        }
         public PointGeo Offset(PointGeo p)
         {
             this.X += p.X;
@@ -91,7 +108,11 @@ namespace Painter.Models
             this.X *= p.X;
             this.Y *= p.Y;
         }
-        public PointGeo GetAbs()
+        public float GetLength()
+        {
+            return (float)Math.Sqrt(this.X * this.X + this.Y * this.Y);
+        }
+        public PointGeo Abs()
         {
             return new PointGeo(Math.Abs(X), Math.Abs(Y));
         }
@@ -102,10 +123,11 @@ namespace Painter.Models
     }
 
     [Serializable]
-    public abstract class Shape : IPrintAndOperatable
+    public abstract class Shape : DrawableObject
     {
+        public bool IsInVision = true;//减少gdi刷新的图像数量，超过视野的设置为不可看见
         public bool IsFinishedInitial = false;//减少离散点计算
-        public bool IsShow = true;
+ 
         public bool IsDisposed = false;
         public bool IsNonTrans = false;//temp use, delete sooon
         protected PointGeo shapeCenter;
@@ -147,10 +169,7 @@ namespace Painter.Models
             }
         }
 
-        public virtual float GetMaxY()
-        {
-            return Math.Max(this.FirstPoint.Y, this.SecondPoint.Y);
-        }
+       
 
         public virtual bool IsOverlap(Shape other)
         {
@@ -161,6 +180,10 @@ namespace Painter.Models
         protected double _minY = 1E6;
         protected double _maxX;
         protected double _maxY;
+        public virtual float GetMaxY()
+        {
+            return Math.Max(this.FirstPoint.Y, this.SecondPoint.Y);
+        }
         public virtual float GetMinY()
         {
             return Math.Min(this.FirstPoint.Y, this.SecondPoint.Y);
@@ -204,8 +227,8 @@ namespace Painter.Models
         }
         protected virtual void Initial()
         {
-            this.Width = (int)Math.Abs(FirstPoint.X - SecondPoint.X);
-            this.Heigth = (int)Math.Abs(FirstPoint.Y - SecondPoint.Y);
+            this.Width =  Math.Abs(FirstPoint.X - SecondPoint.X);
+            this.Heigth =  Math.Abs(FirstPoint.Y - SecondPoint.Y);
         }
         public Shape SetDrawMeta(ShapeMeta dm)
         {
@@ -224,7 +247,7 @@ namespace Painter.Models
             }
             return true;
         }
-        public virtual void Translate(PointGeo offset)
+        public override void Translate(PointGeo offset)
         {
             if (IsNonTrans)
             {
@@ -233,17 +256,17 @@ namespace Painter.Models
             this.FirstPoint = this.FirstPoint + offset;
             this.SecondPoint = this.SecondPoint + offset;
         }
-        public virtual void Rotate(float degree, PointGeo center)
+        public override void Rotate(float degree, PointGeo center)
         {
 
         }
-        public void Scale(PointGeo scale)
+        public override void Scale(PointGeo scale)
         {
             this.FirstPoint.Scale(scale);
             this.SecondPoint.Scale(scale);
         }
         public abstract void Draw();
-        public void Draw(PainterBase p)
+        public override void Draw(PainterBase p)
         {
             //			if (this.Painter==null||this.Painter!=p) {就是这个导致没画出来图，搞了两个小时
             //
@@ -308,6 +331,22 @@ namespace Painter.Models
     [Serializable]
     public class RectangeGeo : Shape
     {
+        public override float GetMaxY()
+        {
+            return Math.Max(this.FirstPoint.Y, this.SecondPoint.Y);
+        }
+        public override float GetMinY()
+        {
+            return Math.Min(this.FirstPoint.Y, this.SecondPoint.Y);
+        }
+        public override float GetMaxX()
+        {
+            return Math.Max(this.FirstPoint.X, this.SecondPoint.X);
+        }
+        public override float GetMinX()
+        {
+            return Math.Min(this.FirstPoint.X, this.SecondPoint.X);
+        }
         public RectangeGeo()
         {
         }
@@ -429,15 +468,16 @@ namespace Painter.Models
         }
         protected override void Initial()
         {//是这样的，第一个点是圆心，第二个点决定半径
-            base.Initial();
+            this.Width = Math.Abs(FirstPoint.X - SecondPoint.X);
+            this.Heigth = Math.Abs(FirstPoint.Y - SecondPoint.Y);
             CenterX = FirstPoint.X;
             CenterY = FirstPoint.Y;
             if (SecondPoint.X == 0 && SecondPoint.Y == 0)
             {
-
+                //Radius自由定义
             }
             else
-                Radius = (int)(Math.Sqrt(1.0 * (FirstPoint.X - SecondPoint.X) * (FirstPoint.X - SecondPoint.X) + 1.0 * (FirstPoint.Y - SecondPoint.Y) * (FirstPoint.Y - SecondPoint.Y)));
+                Radius = (float)(Math.Sqrt(1.0 * (FirstPoint.X - SecondPoint.X) * (FirstPoint.X - SecondPoint.X) + 1.0 * (FirstPoint.Y - SecondPoint.Y) * (FirstPoint.Y - SecondPoint.Y)));
             this.Width = 2 * Radius;
             this.Heigth = 2 * Radius;
         }
@@ -448,7 +488,14 @@ namespace Painter.Models
                 return;
             }
             this.FirstPoint += offset;//会触发Init方法，而重写的Init里面会更新CenterX
-            this.SecondPoint += offset;
+            if (SecondPoint.X == 0 && SecondPoint.Y == 0)
+            {
+                //Radius自由定义
+            }else
+            {
+                //由此定义Radius
+                this.SecondPoint += offset;
+            } 
             //this.CenterX += offset.X;
             //this.CenterY += offset.Y;
         }
@@ -488,6 +535,7 @@ namespace Painter.Models
         }
         public override bool IsOverlap(Shape other)
         {
+            //注意每个分段必须return 如果不加else 的话
             if (other is RectangeGeo)
             {
                 return other.IsOverlap(this);
@@ -500,6 +548,40 @@ namespace Painter.Models
                 {
                     return true;
                 }
+                return false;
+            }
+            if (other is LineGeo)
+            {
+                LineGeo line = other as LineGeo;
+                PointGeo linevector = line.FirstPoint - line.SecondPoint;
+                PointGeo lineFirstToCenterVector = this.FirstPoint - line.FirstPoint;
+                PointGeo lineSecondToCenterVector= line.SecondPoint-this.FirstPoint ;
+                if (Math.Abs(lineSecondToCenterVector.GetLength())<Radius)
+                {
+                    return true;
+                }
+                if (Math.Abs(lineFirstToCenterVector.GetLength()) < Radius)
+                {
+                    return true;
+                }
+                float distance = Math.Abs(linevector.Cross(lineFirstToCenterVector))/ linevector.GetLength();
+                if (distance>this.Radius)
+                {
+                    return false;
+                }
+                float angle1 = linevector.Dot(-1*lineFirstToCenterVector);
+                float angle2 = -linevector.Dot(lineSecondToCenterVector);
+                if (angle1 > 0 && angle2 > 0)
+                {
+                    return true;
+                }else
+                {
+                    return false;
+                } 
+            }
+            if (other is ArcGeo)
+            {
+                return other.IsOverlap(this);
             }
             return false;
         }
@@ -512,6 +594,48 @@ namespace Painter.Models
 
         public ArcGeo()
         {
+        }
+        public override bool IsOverlap(Shape other)
+        {
+            if (other is CircleGeo)
+            {
+                CircleGeo circle = other as CircleGeo;
+                PointGeo startP= new PointGeo((float)(CenterX + Radius * Math.Cos(Math.PI / 180 * StartAngle)),
+                (float)(CenterY + Radius * Math.Sin(Math.PI / 180 * StartAngle)));
+                PointGeo endP = new PointGeo((float)(CenterX + Radius * Math.Cos(Math.PI / 180 * EndAngle)),
+                   (float)(CenterY + Radius * Math.Sin(Math.PI / 180 * EndAngle)));
+                Func<PointGeo,bool> pIsInCircle = (point) => {
+                    PointGeo ptocenter = circle.FirstPoint - point;
+                    if (ptocenter.GetLength()<circle.Radius)
+                    {
+                        return true; 
+                    }
+                    return false;
+                };
+                if (pIsInCircle(startP))
+                {
+                    return true;
+                }
+                if (pIsInCircle(endP))
+                {
+                    return true;
+                }
+                PointGeo centerToCenter = circle.FirstPoint  - new PointGeo(this.CenterX, this.CenterY);
+                if (Math.Abs(centerToCenter.GetLength()-this.Radius)> circle.Radius)
+                {
+                    return false;
+                }else
+                {
+                    double degree =180* Math.Atan2(centerToCenter.Y,centerToCenter.X )/Math.PI;
+                    if (degree>StartAngle&&degree<EndAngle)
+                    {
+                        return true;
+                    }
+                    return false;
+                } 
+            }
+            return false;
+           
         }
         public override float GetMaxX()
         {
@@ -596,13 +720,34 @@ namespace Painter.Models
                 DispersedStartWithRightSide();
             }
         }
+        private PointGeo thirdp = new PointGeo();
+        public PointGeo ThirdPoint
+        {
+            get { return thirdp; }
+            set
+            {
+                this.thirdp = value;
+                Initial();
+            }
+        }
+        protected override void Initial()
+        {
+            this.CenterX = FirstPoint.X;
+            this.CenterY = FirstPoint.Y;
+            this.Radius = (FirstPoint - SecondPoint).GetLength();
+            this.StartAngle =(float)(180/Math.PI* Math.Atan2(SecondPoint.Y - FirstPoint.Y, SecondPoint.X - FirstPoint.X));
+            this.EndAngle =(float)(180/Math.PI* Math.Atan2(ThirdPoint.Y - FirstPoint.Y, ThirdPoint.X - FirstPoint.X));
+            //纯粹为GeoControl而添加
+            this.Width = (float)(_maxX-_minX);
+            this.Heigth = (float)(_maxY - _minY);
+        }
         public override void Draw()
         {
             if (this.drawMata == null)
                 return;
             if (Painter != null)
                 Painter.DrawArc(this);
-            MSG = String.Format("圆心坐标：({0},{1})--半径：{2}", CenterX, CenterY, Radius);
+            MSG = String.Format("圆心：({0},{1})--半径：{2}，起始角{3},终止角{4},弧长{5}", CenterX, CenterY, Radius,StartAngle.ToString("f2"),EndAngle.ToString("f2"),GetPerimeter().ToString("f2"));
 
         }
         public override void DispersedStartWithRightSide()
@@ -682,8 +827,9 @@ namespace Painter.Models
             }
             //this.StartPoint += offset;
             //this.EndPoint += offset;
-            this.FirstPoint += offset;
-            this.SecondPoint += offset;
+            //this.FirstPoint += offset;
+            //this.SecondPoint += offset;
+            //this.ThirdPoint += offset;
             this.CenterX += offset.X;
             this.CenterY += offset.Y;
         }
@@ -792,7 +938,14 @@ namespace Painter.Models
             return new PointGeo((float)(FirstPoint.X + (SecondPoint.X - FirstPoint.X) * length / GetLineLength()),
                 (float)(FirstPoint.Y + (SecondPoint.Y - FirstPoint.Y) * length / GetLineLength()));
         }
-
+        public override bool IsOverlap(Shape other)
+        {
+            if (other is CircleGeo)
+            {
+                return other.IsOverlap(this);
+            }
+            return base.IsOverlap(other);
+        }
         public override double GetPerimeter()
         {
             return GetLineLength();
@@ -847,7 +1000,7 @@ namespace Painter.Models
         }
     }
     [Serializable]
-    public class RandomLines : IPrintAndOperatable
+    public class RandomLines : DrawableObject
     {
         public void ResetPoints()
         {
@@ -855,10 +1008,9 @@ namespace Painter.Models
             {
                 element.IsNeedDraw = true;
             }
-        }
-        public bool IsShow = true;
+        } 
         public int MaxCount = -1;
-        public virtual void Draw(PainterBase Painter)
+        public override void Draw(PainterBase Painter)
         {
             if (!IsShow)
             {
@@ -929,17 +1081,17 @@ namespace Painter.Models
             this.points = ps;
         }
 
-        public void Translate(PointGeo offset)
+        public override void Translate(PointGeo offset)
         {
 
         }
 
-        public void Rotate(float degree, PointGeo center = null)
+        public override void Rotate(float degree, PointGeo center = null)
         {
 
         }
 
-        public void Scale(PointGeo offset)
+        public override void Scale(PointGeo offset)
         {
 
         }
@@ -949,22 +1101,38 @@ namespace Painter.Models
         public bool IsDisposed = false;
     }
     [Serializable]
-    public class DrawableImage : IScreenPrintable
+    public class DrawableImage : DrawableObject
     {
-        public void Draw(PainterBase Painter)
+        public override void Draw(PainterBase Painter)
         {
             if (Painter != null)
             {
                 Painter.DrawImage(FilePath);
             }
         }
+          
+        public override void Rotate(float degree, PointGeo center = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Scale(PointGeo offset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Translate(PointGeo offset)
+        {
+            throw new NotImplementedException();
+        }
+
         public string FilePath;
 
     }
     [Serializable]
-    public class DrawableText : IPrintAndOperatable
+    public class DrawableText : DrawableObject
     {
-        public void Draw(PainterBase dp)
+        public override void Draw(PainterBase dp)
         {
             if (!IsShow)
             {
@@ -985,24 +1153,22 @@ namespace Painter.Models
             return this.pm;
         }
 
-        public void Translate(PointGeo offset)
+        public override void Translate(PointGeo offset)
         {
             this.pos.Offset(offset);
         }
 
-        public virtual void Rotate(float degree, PointGeo center)
+        public override void Rotate(float degree, PointGeo center)
         {
 
         }
 
-        public void Scale(PointGeo p)
+        public override void Scale(PointGeo p)
         {
             this.pos.Scale(p);
-        }
-
+        } 
         public PointGeo pos { get; set; }
-        private TextMeta pm;
-        public bool IsShow = true;
+        private TextMeta pm; 
     }
     //连续加工的最小单位
     public class Geo

@@ -230,14 +230,26 @@ namespace Painter.Painters
                 }
                 Font font;
                 if (t.GetTextMeta().IsScaleble)
-                { 
+                {
                     font = new Font(t.GetTextMeta().TEXTFONT.FontFamily, t.GetTextMeta().TEXTFONT.Size * (float)Math.Abs(Scale.X));
                 }
                 else
                 {
                     font = t.GetTextMeta().TEXTFONT;
-                } 
-                graphics.DrawString(t.GetTextMeta().Text, font, new SolidBrush(t.GetTextMeta().ForeColor), TransformX(t.pos.X), TransformY(t.pos.Y), t.GetTextMeta().stringFormat);
+                }
+                //负区域外就不显示了
+                float x = TransformX(t.pos.X);
+                float y = TransformY(t.pos.Y);
+                SizeF size = graphics.MeasureString(t.GetTextMeta().Text, font);
+                if (x+size.Width<0||y+size.Height<0) 
+                {
+                    return;
+                }
+                if (canvas != null&&( x >canvas.Width|| y >canvas.Height))
+                {
+                    return;
+                }
+                graphics.DrawString(t.GetTextMeta().Text, font, new SolidBrush(t.GetTextMeta().ForeColor),x, y, t.GetTextMeta().stringFormat);
             }
 
         }
@@ -248,15 +260,19 @@ namespace Painter.Painters
             {
                 ShapeMeta sm = (ShapeMeta)polygonGeo.GetDrawMeta();
                 pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
+                if (sm.DashLineStyle != null)
+                {
+                    pen.DashPattern = sm.DashLineStyle;
+                }
                 PointF[] points = polygonGeo.GetPointF();
                 for (int i = 0; i < points.Length; i++)
                 {
                     points[i].X = (float)TransformX(points[i].X);
                     points[i].Y = (float)TransformY(points[i].Y);
                 }
-                graphics.DrawPolygon(pen, points);
                 if (sm.IsFill)
                     graphics.FillPolygon(new SolidBrush(sm.BackColor), points);
+                graphics.DrawPolygon(pen, points);
             }
         }
         public override void DrawRectangle(RectangeGeo rect)
@@ -269,30 +285,39 @@ namespace Painter.Painters
                 {
                     pen.DashPattern = sm.DashLineStyle;
                 }
+                //负区域外就不显示了  
+                if (TransformX(rect.GetMaxX()+rect.Width+rect.Heigth) < 0    )
+                {
+                    return;
+                }
+                if (canvas != null && (TransformX(rect.GetMinX()-rect.Width-rect.Heigth) > canvas.Width  ))
+                {
+                    return;
+                }
                 GraphicsState state = graphics.Save();
-                if (this.Scale.Y>0)
+                if (this.Scale.Y > 0)
                 {
                     graphics.TranslateTransform(TransformX(rect.GetMinX()), TransformY(rect.GetMinY()));
                 }
                 else
                 {
                     graphics.TranslateTransform(TransformX(rect.GetMinX()), TransformY(rect.GetMaxY()));
-                }
+                } 
                 graphics.RotateTransform(rect.Angle);
                 //graphics.DrawRectangle 的X,Y 是指的屏幕的左上角，
                 //对于Y👆 ，则是minX maxY
                 //对于Y👇 ，则是minX minY
-                graphics.DrawRectangle(pen, 0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
                 if (sm.IsFill)
                     //graphics.FillRectangle(new SolidBrush(Color.FromArgb(200, 255, 255, 255)), x, y, width, height);
                     graphics.FillRectangle(new SolidBrush(sm.BackColor), 0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
+                graphics.DrawRectangle(pen, 0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
                 graphics.Restore(state);
             }
         }
         public override void DrawLine(LineGeo line)
         {
             DrawMeta dm = line.GetDrawMeta();
- 
+
             if (graphics != null & pen != null)
             {
                 pen = new System.Drawing.Pen(dm.ForeColor, dm.LineWidth);
@@ -301,6 +326,15 @@ namespace Painter.Painters
                 if (dm.DashLineStyle != null)
                 {
                     pen.DashPattern = dm.DashLineStyle;
+                }
+                //负区域外就不显示了  
+                if (TransformX(line.GetMaxX()) < 0  )
+                {
+                    return;
+                }
+                if (canvas != null && (TransformX(line.GetMinX()) > canvas.Width  ))
+                {
+                    return;
                 }
                 graphics.DrawLine(pen, TransformX(line.FirstPoint.X), TransformY(line.FirstPoint.Y), TransformX(line.SecondPoint.X), TransformY(line.SecondPoint.Y));
             }
@@ -314,15 +348,27 @@ namespace Painter.Painters
                 int topcorner = (int)(TransformY(circle.CenterY) - circle.Radius * Math.Abs(Scale.Y));
                 //leftcorner = leftcorner < 0 ? 0 : leftcorner;
                 //topcorner = topcorner < 0 ? 0 : topcorner;
+                //负区域外就不显示了  
+                if (leftcorner + Math.Abs((circle.Radius * 2) * Scale.X) < 0 || topcorner + Math.Abs((circle.Radius * 2) * Scale.Y) < 0)
+                {
+                    circle.IsInVision = false;
+                    return;
+                }
+                if (canvas != null && (leftcorner > canvas.Width || topcorner > canvas.Height))
+                {
+                    circle.IsInVision = false; 
+                    return;
+                }
+                circle.IsInVision = true; 
                 ShapeMeta sm = circle.GetDrawMeta() as ShapeMeta;
                 pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
                 if (sm.DashLineStyle != null)
                 {
                     pen.DashPattern = sm.DashLineStyle;
                 }
-                graphics.DrawEllipse(pen, leftcorner, topcorner, Math.Abs((circle.Radius * 2) * Scale.X), Math.Abs((circle.Radius * 2) * Scale.Y));
                 if (sm.IsFill)
                     graphics.FillEllipse(new SolidBrush(sm.BackColor), leftcorner, topcorner, Math.Abs((circle.Radius * 2) * Scale.X), Math.Abs((circle.Radius * 2) * Scale.Y));
+                graphics.DrawEllipse(pen, leftcorner, topcorner, Math.Abs((circle.Radius * 2) * Scale.X), Math.Abs((circle.Radius * 2) * Scale.Y));
             }
         }
         public override void DrawEllipse(EllipseGeo ellipse)
@@ -352,7 +398,7 @@ namespace Painter.Painters
                 if (sm.IsFill)
                     //graphics.FillRectangle(new SolidBrush(Color.FromArgb(200, 255, 255, 255)), x, y, width, height);
                     graphics.FillEllipse(new SolidBrush(sm.BackColor), 0, 0, Math.Abs((ellipse.Width) * Scale.X), Math.Abs((ellipse.Heigth) * Scale.Y));
-                graphics.Restore(state); 
+                graphics.Restore(state);
             }
         }
         public override void DrawArc(ArcGeo arc)
@@ -364,6 +410,10 @@ namespace Painter.Painters
                 int topcorner = (int)(TransformY(arc.CenterY) - arc.Radius * Math.Abs(Scale.Y));
                 ShapeMeta sm = arc.GetDrawMeta() as ShapeMeta;
                 pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
+                if (sm.DashLineStyle != null)
+                {
+                    pen.DashPattern = sm.DashLineStyle;
+                }
                 double sa = arc.StartAngle;
                 double ea = arc.EndAngle;
                 if (Scale.Y < 0)
