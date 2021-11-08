@@ -62,7 +62,7 @@ namespace Painter.Models.PainterModel
                 arc.SecondPoint =new PointGeo(0, 0) ;
                 arc.ThirdPoint =new PointGeo(width, height) ; 
             }
-            else if (shape is RectangeGeo || shape is EllipseGeo)
+            else if (shape is RectangleGeo || shape is EllipseGeo)
             {
                 baseShape.FirstPoint = new PointGeo(0, 0);
                 baseShape.SecondPoint = new PointGeo(width, height);
@@ -120,7 +120,7 @@ namespace Painter.Models.PainterModel
         } 
         public Color Background { 
             get {
-                if (baseShape is LineGeo)
+                if (baseShape is LineGeo|| baseShape.ShpaeType==Shape.SHAPE_TYPE.ARC)
                 {
                     return (this.baseShape.GetDrawMeta() as ShapeMeta).ForeColor;
                 }
@@ -130,7 +130,7 @@ namespace Painter.Models.PainterModel
                 } 
             }
             set {
-                if (baseShape is LineGeo)
+                if (baseShape is LineGeo || baseShape.ShpaeType == Shape.SHAPE_TYPE.ARC)
                 {
                     (this.baseShape.GetDrawMeta() as ShapeMeta).ForeColor = value;
                 }else
@@ -155,10 +155,23 @@ namespace Painter.Models.PainterModel
     }
     public class GeoLabel : GeoControl
     {
+        public GeoLabel(int width, int height, Shape shape, DrawableObject drawable) : base(width, height, shape)
+        {
+            this.text.SetDrawMeta(new TextMeta("123")
+            {
+                ForeColor = Color.Black,
+                TEXTFONT = new Font("Arial", baseShape.Heigth / 3),
+                stringFormat = new StringFormat() { Alignment = StringAlignment.Near }
+            });
+            ReplaceText();
+            this.Drawable = drawable;
+        }
+        protected DrawableObject Drawable=null;
+         
         public Color TextColor
         {
-            get { return text.GetTextMeta().ForeColor; }
-            set { text.GetTextMeta().ForeColor=value; }
+            get { return text.GetDrawMeta().ForeColor; }
+            set { text.GetDrawMeta().ForeColor=value; }
         }
         public StringAlignment Alignment = StringAlignment.Center;
         public string Text
@@ -172,6 +185,10 @@ namespace Painter.Models.PainterModel
         {
             base.Move(point);
             this.text.Translate(point);
+            if (this.Drawable!=null)
+            {
+                Drawable.Translate(point);
+            }
         }
         protected DrawableText text = new DrawableText();
         public override void Update()
@@ -179,6 +196,10 @@ namespace Painter.Models.PainterModel
             base.Update();
             ReplaceText();//挂到属性上去
             text.IsShow = IsVisible;
+            if (Drawable!=null)
+            {
+                Drawable.IsShow = IsVisible;
+            }
         }
         public GeoLabel(int width, int height, Shape shape) : base(width, height, shape)
         {
@@ -192,7 +213,7 @@ namespace Painter.Models.PainterModel
         }
         private void ReplaceText()
         {
-            if (text.GetTextMeta()!=null)
+            if (text.GetDrawMeta()!=null)
             {
                 Size size= TextRenderer.MeasureText(text.GetTextMeta().Text, text.GetTextMeta().TEXTFONT);
                 if (Alignment==StringAlignment.Near)
@@ -206,14 +227,18 @@ namespace Painter.Models.PainterModel
         }
         public Color ForeColor
         {
-            get { return (this.text.GetTextMeta()).ForeColor; }
-            set { (this.text.GetTextMeta()).ForeColor = value; }
+            get { return (this.text.GetDrawMeta()).ForeColor; }
+            set { (this.text.GetDrawMeta()).ForeColor = value; }
         }
+        
         public override List<IScreenPrintable> GetElements()
         {
-            List<IScreenPrintable> temp = new List<IScreenPrintable>();
-            temp.Add(baseShape); 
-            temp.Add(text); 
+            List<IScreenPrintable> temp = base.GetElements(); 
+            temp.Add(text);
+            if (Drawable!=null)
+            {
+                temp.Add(Drawable);
+            } 
             return temp;
         }
 
@@ -230,17 +255,37 @@ namespace Painter.Models.PainterModel
             {
                 this.isChecked = value;
                 if (this.isChecked)
-                {
-                    Background = CheckedColor;
+                { 
+                    if (this.Drawable != null)
+                    {
+                        (this.Drawable.GetDrawMeta() as ShapeMeta).BackColor = CheckedColor;
+                        (this.Drawable.GetDrawMeta() as ShapeMeta).ForeColor = CheckedColor;
+                    }else
+                    {
+                        Background = CheckedColor;
+                    }
                 }else
-                {
-                    Background = BackColor;
+                { 
+                    if (this.Drawable != null)
+                    {
+                        (this.Drawable.GetDrawMeta() as ShapeMeta).BackColor = BackColor;
+                        (this.Drawable.GetDrawMeta() as ShapeMeta).ForeColor = BackColor;
+                    }
+                    else
+                    {
+                        Background = BackColor;
+                    }
                 }
             }
         }
         public GeoRadio(int width, int height, Shape shape) : base(width, height, shape)
         {
             Text = "";
+        }
+        public GeoRadio(int width, int height, Shape shape,DrawableObject drawable) : base(width, height, shape, drawable)
+        {
+            Text = "";
+            Drawable = drawable;
         }
         public event Action CheckedEvent;
         protected override void OnMouseClick()

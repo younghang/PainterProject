@@ -28,6 +28,7 @@ namespace Painter.Models
     {
 
     }
+    [Serializable]
     public abstract class DrawableObject : IPrintAndOperatable
     {
         public abstract void Draw(PainterBase pb);
@@ -35,6 +36,8 @@ namespace Painter.Models
         public abstract void Scale(PointGeo offset);
         public abstract void Translate(PointGeo offset);
         public bool IsShow = true;
+        public bool IsDisposed = false;
+        public abstract  DrawMeta GetDrawMeta();
     }
 
     [Serializable]
@@ -125,10 +128,11 @@ namespace Painter.Models
     [Serializable]
     public abstract class Shape : DrawableObject
     {
+        public enum SHAPE_TYPE {SHAPE, CIRCLE,ELLIPSE,RECTANGLE,ARC,LINE}
+        public SHAPE_TYPE ShpaeType = SHAPE_TYPE.SHAPE;
         public bool IsInVision = true;//减少gdi刷新的图像数量，超过视野的设置为不可看见
-        public bool IsFinishedInitial = false;//减少离散点计算
- 
-        public bool IsDisposed = false;
+        public bool IsFinishedInitial = false;//减少离散点计算 
+       
         public bool IsNonTrans = false;//temp use, delete sooon
         protected PointGeo shapeCenter;
         [NonSerialized]
@@ -235,7 +239,7 @@ namespace Painter.Models
             this.drawMata = dm;
             return this;
         }
-        public DrawMeta GetDrawMeta()
+        public override DrawMeta GetDrawMeta()
         {
             return this.drawMata;
         }
@@ -329,7 +333,7 @@ namespace Painter.Models
 
     }
     [Serializable]
-    public class RectangeGeo : Shape
+    public class RectangleGeo : Shape
     {
         public override float GetMaxY()
         {
@@ -347,11 +351,14 @@ namespace Painter.Models
         {
             return Math.Min(this.FirstPoint.X, this.SecondPoint.X);
         }
-        public RectangeGeo()
+        public RectangleGeo()
         {
+            ShpaeType = SHAPE_TYPE.RECTANGLE;
+
         }
-        public RectangeGeo(PointGeo s, PointGeo e) : base(s, e)
+        public RectangleGeo(PointGeo s, PointGeo e) : base(s, e)
         {
+            ShpaeType = SHAPE_TYPE.RECTANGLE; 
         }
         public override void Rotate(float degree, PointGeo center)
         {
@@ -376,9 +383,9 @@ namespace Painter.Models
         }
         public override bool IsOverlap(Shape other)
         {
-            if (other is RectangeGeo)
+            if (other is RectangleGeo)
             {
-                RectangeGeo otherRec = other as RectangeGeo;
+                RectangleGeo otherRec = other as RectangleGeo;
                 PointGeo leftTop1 = new PointGeo(this.GetMinX(), this.GetMinY());
                 PointGeo leftTop2 = new PointGeo(otherRec.GetMinX(), otherRec.GetMinY());
                 if (Math.Abs((leftTop1.X + this.Width / 2) - (leftTop2.X + otherRec.Width / 2)) < (this.Width + otherRec.Width) / 2)
@@ -431,10 +438,12 @@ namespace Painter.Models
         public int TopCorner { get; set; }
     }
     [Serializable]
-    public sealed class EllipseGeo : RectangeGeo
+    public sealed class EllipseGeo : RectangleGeo
     {
         public EllipseGeo()
         {
+            ShpaeType = SHAPE_TYPE.ELLIPSE;
+
         }
         public override void Draw()
         {
@@ -452,6 +461,8 @@ namespace Painter.Models
     {
         public CircleGeo()
         {
+            ShpaeType = SHAPE_TYPE.CIRCLE;
+
         }
         public override PointGeo GetShapeCenter()
         {
@@ -536,7 +547,7 @@ namespace Painter.Models
         public override bool IsOverlap(Shape other)
         {
             //注意每个分段必须return 如果不加else 的话
-            if (other is RectangeGeo)
+            if (other is RectangleGeo)
             {
                 return other.IsOverlap(this);
             }
@@ -594,6 +605,8 @@ namespace Painter.Models
 
         public ArcGeo()
         {
+            ShpaeType = SHAPE_TYPE.ARC;
+
         }
         public override bool IsOverlap(Shape other)
         {
@@ -847,11 +860,12 @@ namespace Painter.Models
     {
         public LineGeo()
         {
+            ShpaeType = SHAPE_TYPE.LINE;
         }
         public LineGeo(PointGeo s, PointGeo e)
             : base(s, e)
         {
-
+            ShpaeType = SHAPE_TYPE.LINE; 
         }
 
         public override float GetArea()
@@ -966,6 +980,15 @@ namespace Painter.Models
                 this.pointF.Add(new PointF(point.X, point.Y));
             }
         }
+        public override void Translate(PointGeo offset)
+        { 
+            base.Translate(offset);
+            this.pointF.Clear();
+            for (int i = 0; i < this.points.Count; i++)
+            {
+                this.pointF.Add(new PointF(points[i].X, points[i].Y));
+            }
+        }
         public override void AddPoints(List<PointGeo> ps)
         {
             if (MaxCount > 0 && ps.Count > MaxCount)
@@ -980,6 +1003,10 @@ namespace Painter.Models
 
         public override void Draw(PainterBase Painter)
         {
+            if (!IsShow)
+            {
+                return;
+            }
             if (GetDrawMeta() == null)
                 return;
             Painter.DrawPolygon(this);
@@ -1059,7 +1086,7 @@ namespace Painter.Models
         {
             this.points.Clear();
         }
-        public ShapeMeta GetDrawMeta()
+        public override DrawMeta GetDrawMeta()
         {
             return this.pointsMeta;
         }
@@ -1083,7 +1110,10 @@ namespace Painter.Models
 
         public override void Translate(PointGeo offset)
         {
-
+            for (int i = 0; i < this.points.Count; i++)
+            {
+                this.points[i] += offset;
+            }
         }
 
         public override void Rotate(float degree, PointGeo center = null)
@@ -1096,9 +1126,8 @@ namespace Painter.Models
 
         }
 
-        public List<PointGeo> points = new List<PointGeo>();
-
-        public bool IsDisposed = false;
+        public List<PointGeo> points = new List<PointGeo>(); 
+    
     }
     [Serializable]
     public class DrawableImage : DrawableObject
@@ -1122,6 +1151,11 @@ namespace Painter.Models
         }
 
         public override void Translate(PointGeo offset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override DrawMeta GetDrawMeta()
         {
             throw new NotImplementedException();
         }
@@ -1152,7 +1186,10 @@ namespace Painter.Models
         {
             return this.pm;
         }
-
+        public override DrawMeta GetDrawMeta()
+        {
+            return this.pm;
+        }
         public override void Translate(PointGeo offset)
         {
             this.pos.Offset(offset);
@@ -1166,7 +1203,9 @@ namespace Painter.Models
         public override void Scale(PointGeo p)
         {
             this.pos.Scale(p);
-        } 
+        }
+
+        
         public PointGeo pos { get; set; }
         private TextMeta pm; 
     }

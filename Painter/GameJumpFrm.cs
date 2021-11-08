@@ -22,7 +22,7 @@ namespace Painter
     public partial class GameJumpFrm : Form
     {
         CanvasModel canvasModel = new CanvasModel();
-        InputCmds inputs = new InputCmds();
+        GameInputCmds inputs = new GameInputCmds();
         Camera camera;
         StageManager stageManager = new StageManager();//多场景下使用的
         MainCharacter character;
@@ -239,41 +239,41 @@ namespace Painter
             this.Height= stage.GetHeight(); 
             this.StartPosition = FormStartPosition.CenterScreen;
         }
-        private void Inputs_CMDEvent(CMDS cmd)
+        private void Inputs_CMDEvent(GAME_CMDS cmd)
         {
             switch (cmd)
             {
-                case CMDS.NONE:
+                case GAME_CMDS.NONE:
                     break;
-                case CMDS.AUTO_FOCUS:
+                case GAME_CMDS.AUTO_FOCUS:
                     camera.EnableFucus = true;
                     break;
-                case CMDS.DISABLE_FOCUS:
+                case GAME_CMDS.DISABLE_FOCUS:
                     camera.EnableFucus = false; 
                     break;
-                case CMDS.INTERFER_ON:
+                case GAME_CMDS.INTERFER_ON:
                     character.EnableCheckCollision = true;
                     break;
-                case CMDS.INTERFER_OFF:
+                case GAME_CMDS.INTERFER_OFF:
                     character.EnableCheckCollision = false;
                     break;
-                case CMDS.MOMENTA_ON:
+                case GAME_CMDS.MOMENTA_ON:
                     StageController.EnableMomenta = true;
                     break;
-                case CMDS.MOMENTA_OFF:
+                case GAME_CMDS.MOMENTA_OFF:
                     StageController.EnableMomenta = false;
                     break;
-                case CMDS.TRACK_ON:
+                case GAME_CMDS.TRACK_ON:
                     CanvasModel.EnableTrack = true;
                     break;
-                case CMDS.TRACK_OFF:
+                case GAME_CMDS.TRACK_OFF:
                     CanvasModel.EnableTrack = false; 
                     break;
-                case CMDS.NEXT_SCENE:
+                case GAME_CMDS.NEXT_SCENE:
                     StageScene next = stageManager.GetNextStage();
                     SetCurStage(next);
                     break;
-                case CMDS.FOR_SCENE:
+                case GAME_CMDS.FOR_SCENE:
                     StageScene stage = stageManager.GetPreViewStage();
                     SetCurStage(stage);
                     break;

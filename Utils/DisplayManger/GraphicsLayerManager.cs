@@ -22,7 +22,7 @@ namespace Painter.DisplayManger
                 case DRAW_TYPE.CIRCLE:
                     return new CircleGeo();
                 case DRAW_TYPE.RECTANGLE:
-                    return new RectangeGeo();
+                    return new RectangleGeo();
                 case DRAW_TYPE.LINE:
                     return new LineGeo();
                 case DRAW_TYPE.TEXT:
@@ -34,7 +34,7 @@ namespace Painter.DisplayManger
                 case DRAW_TYPE.ELLIPSE:
                     return new EllipseGeo();
                 default:
-                    return new RectangeGeo();
+                    return new RectangleGeo();
             }
         }
     }
