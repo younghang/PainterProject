@@ -72,6 +72,15 @@ namespace Painter.Models
         }
 
         public float Width { get; set; }
+
+        public void ShowPanel(bool v)
+        {
+            foreach (var item in this.geoControls)
+            {
+                item.IsVisible = v;
+            }
+        }
+
         public float Height { get; set; }
         public event Action Invalidate;
         public GraphicsLayerManager GetHoldLayerManager()
@@ -322,6 +331,7 @@ namespace Painter.Models
                     (item as GeoEditBox).OnKeyDown(sender, e);
                 }
             }
+            this.CmdMgr.OnKeyDown(sender, e);
         }
         PointGeo oldPoint = new PointGeo(0, 0);
         PointGeo newPoint = new PointGeo(0, 0);
@@ -342,16 +352,17 @@ namespace Painter.Models
             }
             this.CmdMgr.OnMouseDown(sender, e);
         }
-        public event Action<Geo> ShapeClickEvent;
+        public event Action<List<DrawableObject>> ShapeClickEvent;
         private static int HitRangePixel = 5;
         private CircleGeo hitCircle = new CircleGeo();
-        Geo clickCeo = new Geo();
+        List<DrawableObject> clickCeo = new List<DrawableObject>();
         private List<GeoControl> geoControls = new List<GeoControl>();
         public void AddGeoControls(GeoControl geoControl)
         {
             if (geoControl is GeoPanel)
             {
                 this.geoControls.AddRange((geoControl as GeoPanel).GetControls());
+                this.geoControls.Add(geoControl);
             }
             else
             {
@@ -371,11 +382,11 @@ namespace Painter.Models
         }
         private void ClickTest(Point point)
         {
-            foreach (var item in clickCeo.GetShapes())
+            foreach (var item in clickCeo)
             {
                 item.GetDrawMeta().DashLineStyle = null;
             }
-            clickCeo.ClearShape();
+            clickCeo.Clear();
             float HitRange = HitRangePixel / this.fixedLayerManager.GetPainter().Scale.X;
             PointGeo objPoint=  ScreenToObjectPos(point.X, point.Y);
             hitCircle.FirstPoint = objPoint;
@@ -391,7 +402,7 @@ namespace Painter.Models
                     }
                     if (hitCircle.IsOverlap(shape))
                     {
-                        clickCeo.AddShape(shape);
+                        clickCeo.Add(shape);
                     }
                 }
             }
@@ -406,7 +417,7 @@ namespace Painter.Models
                     }
                     if (hitCircle.IsOverlap(shape))
                     {
-                        clickCeo.AddShape(shape);
+                        clickCeo.Add(shape);
                     }
                 }
             }

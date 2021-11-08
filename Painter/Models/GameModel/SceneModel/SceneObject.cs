@@ -186,7 +186,7 @@ namespace Painter.Models.Paint
         private LineGeo ReflectedLine;
         public LineGeo GetReflectionLine()//仅仅是用来确定一个旋转的参考点，还需结合矩形角度
         {
-            RectangeGeo rectange = elements[0] as RectangeGeo;
+            RectangleGeo rectange = elements[0] as RectangleGeo;
             if (ReflectedLine == null)
             {
                 switch (ReflectionDirection)
@@ -322,7 +322,7 @@ namespace Painter.Models.Paint
                     break;
                 case SCENE_OBJECT_TYPE.GROUND:
                     GroundObject ground = sceneObject as GroundObject;
-                    RectangeGeo rectange = ground.GetOutShape() as RectangeGeo;
+                    RectangleGeo rectange = ground.GetOutShape() as RectangleGeo;
                     LineGeo lineGeo = ground.GetReflectionLine();
                     float radius = (this.GetOutShape().GetMaxX() - this.GetOutShape().GetMinX()) / 2;
                     PointGeo checkPoint = this.GetOutShape().GetShapeCenter().Clone();

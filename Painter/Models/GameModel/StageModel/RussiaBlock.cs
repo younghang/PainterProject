@@ -61,7 +61,7 @@ namespace Painter.Models.StageModel
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    RectangeGeo rectange = new RectangeGeo(new PointGeo(j * blockWidth, i * blockWidth), new PointGeo((j + 1) * blockWidth, (i + 1) * blockWidth));
+                    RectangleGeo rectange = new RectangleGeo(new PointGeo(j * blockWidth, i * blockWidth), new PointGeo((j + 1) * blockWidth, (i + 1) * blockWidth));
                     rectange.SetDrawMeta(new ShapeMeta() { ForeColor=Color.WhiteSmoke,LineWidth=0.5f});
                     nextBlock.Add(rectange);
                 }
@@ -71,19 +71,19 @@ namespace Painter.Models.StageModel
             {
                 for (int j = 0; j < 14; j++)
                 {
-                    RectangeGeo rectange = new RectangeGeo(new PointGeo(j * blockWidth, i * blockWidth), new PointGeo((j + 1) * blockWidth, (i + 1) * blockWidth));
+                    RectangleGeo rectange = new RectangleGeo(new PointGeo(j * blockWidth, i * blockWidth), new PointGeo((j + 1) * blockWidth, (i + 1) * blockWidth));
                     rectange.SetDrawMeta(emptyMeta);
                     obstacle.Add(rectange);
                 }
             }
-            RectangeGeo rectangeGeo = new RectangeGeo(new PointGeo(0, 0), new PointGeo(14 * blockWidth, 27 * blockWidth));
+            RectangleGeo rectangeGeo = new RectangleGeo(new PointGeo(0, 0), new PointGeo(14 * blockWidth, 27 * blockWidth));
             rectangeGeo.SetDrawMeta(new ShapeMeta() { ForeColor = System.Drawing.Color.OrangeRed, LineWidth = 3 });
             obstacle.Add(rectangeGeo);
 
             Obstacle obstacleTex = new Obstacle();
             scoreText.pos = new PointGeo(1800, 2000);
             scoreText.SetDrawMeta(new TextMeta("Score: 0") { IsScaleble = true, ForeColor = Color.Goldenrod, TEXTFONT = new Font("Consolas Bold", 62f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
-            RectangeGeo rect = new RectangeGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
+            RectangleGeo rect = new RectangleGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
             obstacleTex.Add(rect);
             obstacleTex.Add(scoreText);
 
@@ -314,7 +314,7 @@ namespace Painter.Models.StageModel
             //    this.points = GenerateABlock() ;
             //    this.nextPoints = GenerateNextBlock();
             //    Score += 10;
-            //    scoreText.GetTextMeta().Text = "Score: " + Score; ;
+            //    scoreText.GetDrawMeta().Text = "Score: " + Score; ;
             //}
             //else
             //{

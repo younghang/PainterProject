@@ -46,23 +46,23 @@ namespace Painter.Models.StageModel
         public override Scene CreateScene()
         { 
             GroundObject groundObj = new GroundObject();
-            RectangeGeo groundRec = new RectangeGeo(new PointGeo(0, 0), new PointGeo(1200, 100));
+            RectangleGeo groundRec = new RectangleGeo(new PointGeo(0, 0), new PointGeo(1200, 100));
             groundRec.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.BlueViolet });
             groundObj.Add(groundRec);
             groundObj.ReflectResistance = 1E-6f;
 
             GroundObject groundObj2 = new GroundObject();
-            RectangeGeo groundRec2 = new RectangeGeo(new PointGeo(1500, 0), new PointGeo(2700, 100));
+            RectangleGeo groundRec2 = new RectangleGeo(new PointGeo(1500, 0), new PointGeo(2700, 100));
             groundRec2.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
             groundObj2.Add(groundRec2);
 
             GroundObject groundObj3 = new GroundObject();
-            RectangeGeo groundRec3 = new RectangeGeo(new PointGeo(1500, 300), new PointGeo(2700, 400));
+            RectangleGeo groundRec3 = new RectangleGeo(new PointGeo(1500, 300), new PointGeo(2700, 400));
             groundRec3.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
             groundObj3.Add(groundRec3);
 
             GroundObject groundObj4 = new GroundObject();
-            RectangeGeo groundRec4 = new RectangeGeo(new PointGeo(0, 1000), new PointGeo(1200, 1100));
+            RectangleGeo groundRec4 = new RectangleGeo(new PointGeo(0, 1000), new PointGeo(1200, 1100));
             groundRec4.Angle = 30;
             groundRec4.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
             groundObj4.Add(groundRec4);
@@ -71,7 +71,7 @@ namespace Painter.Models.StageModel
 
             scoreText.pos = new PointGeo(1350, 1000);
             scoreText.SetDrawMeta(new TextMeta("Score:0.0") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
-            RectangeGeo rect = new RectangeGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
+            RectangleGeo rect = new RectangleGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
             obstacleTex.Add(rect);
             obstacleTex.Add(scoreText);
 
@@ -79,7 +79,7 @@ namespace Painter.Models.StageModel
 
             illustrateText.pos = new PointGeo(1700, 1000);
             illustrateText.SetDrawMeta(new TextMeta("Illustation:") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 16f), stringFormat = new StringFormat() { Alignment = StringAlignment.Near } });
-            RectangeGeo rectTxt = new RectangeGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
+            RectangleGeo rectTxt = new RectangleGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
             obstacleIllustionTex.Add(rectTxt);
             obstacleIllustionTex.Add(illustrateText);
             illustrateText.GetTextMeta().Text += "\n\tMove: ↑↓←→";
@@ -100,37 +100,37 @@ namespace Painter.Models.StageModel
             character.EnableCheckCollision = false; 
 
             GroundObject groundObj5 = new GroundObject();
-            RectangeGeo groundRec5 = new RectangeGeo(new PointGeo(3000, 0), new PointGeo(4000, 100));
+            RectangleGeo groundRec5 = new RectangleGeo(new PointGeo(3000, 0), new PointGeo(4000, 100));
             groundRec5.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
             groundObj5.Add(groundRec5);
 
             GroundObject groundObj6 = new GroundObject();
-            RectangeGeo groundRec6 = new RectangeGeo(new PointGeo(3000, 300), new PointGeo(3400, 400));
+            RectangleGeo groundRec6 = new RectangleGeo(new PointGeo(3000, 300), new PointGeo(3400, 400));
             groundRec6.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = false, BackColor = Color.Gray });
             groundRec6.Angle = 90;
             groundObj6.Add(groundRec6);
 
             Obstacle obstacle = new Obstacle();
-            RectangeGeo rectRotate = new RectangeGeo(new PointGeo(4000, 100), new PointGeo(4020, 400));
+            RectangleGeo rectRotate = new RectangleGeo(new PointGeo(4000, 100), new PointGeo(4020, 400));
             rectRotate.Angle = 0;
             rectRotate.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = true, BackColor = Color.GreenYellow });
             obstacle.Add(rectRotate);
             obstacle.EnabledRotate = true;
 
             GroundObject groundObj7 = new GroundObject();
-            RectangeGeo groundRec7 = new RectangeGeo(new PointGeo(4000, 0), new PointGeo(6500, 100));
+            RectangleGeo groundRec7 = new RectangleGeo(new PointGeo(4000, 0), new PointGeo(6500, 100));
             groundRec7.Angle = -20;
             groundRec7.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Gray, LineWidth = 2, IsFill = false, BackColor = Color.BlanchedAlmond });
             groundObj7.Add(groundRec7);
             groundObj7.GroundFrictionRatio = 0.1f;
 
             GroundObject groundObj8 = new GroundObject();
-            RectangeGeo groundRec8 = new RectangeGeo(new PointGeo(6500, 0), new PointGeo(10500, 100));
+            RectangleGeo groundRec8 = new RectangleGeo(new PointGeo(6500, 0), new PointGeo(10500, 100));
             groundRec8.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Gray, LineWidth = 2, IsFill = false, BackColor = Color.BlanchedAlmond });
             groundObj8.Add(groundRec8);
 
             GroundObject groundObj9 = new GroundObject();
-            RectangeGeo groundRec9 = new RectangeGeo(new PointGeo(10500, 200), new PointGeo(14500, 300));
+            RectangleGeo groundRec9 = new RectangleGeo(new PointGeo(10500, 200), new PointGeo(14500, 300));
             groundRec9.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Gray, LineWidth = 2, IsFill = false, BackColor = Color.BlanchedAlmond });
             groundRec9.Angle = 180;
             groundObj9.Add(groundRec9);
@@ -151,7 +151,7 @@ namespace Painter.Models.StageModel
 
             Enemy enemy = new Enemy();
             enemy.LifeLength = 60;
-            RectangeGeo rectange = new RectangeGeo(new PointGeo(0, 0), new PointGeo(100, 100));
+            RectangleGeo rectange = new RectangleGeo(new PointGeo(0, 0), new PointGeo(100, 100));
             rectange.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
             enemy.Add(rectange);
             enemy.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() * 5, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
@@ -166,7 +166,7 @@ namespace Painter.Models.StageModel
             for (int i = 0; i < 4; i++)
             {
                 Enemy enemy1 = new Enemy();
-                RectangeGeo rectange2 = new RectangeGeo(new PointGeo(0, 0), new PointGeo(30, 30));
+                RectangleGeo rectange2 = new RectangleGeo(new PointGeo(0, 0), new PointGeo(30, 30));
                 rectange2.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
                 enemy1.Add(rectange2);
                 enemy1.Speed = new PointGeo((float)rand.NextDouble() * 2, (float)rand.NextDouble() * 2);
@@ -195,7 +195,7 @@ namespace Painter.Models.StageModel
         public void LoadEnemys()
         {
             Enemy enemy = new Enemy();
-            RectangeGeo rectange = new RectangeGeo(new PointGeo(0, 0), new PointGeo(100, 100));
+            RectangleGeo rectange = new RectangleGeo(new PointGeo(0, 0), new PointGeo(100, 100));
             rectange.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
             enemy.Add(rectange);
             enemy.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() * 5, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
@@ -205,7 +205,7 @@ namespace Painter.Models.StageModel
             for (int i = 0; i < 6; i++)
             {
                 Enemy enemy1 = new Enemy();
-                RectangeGeo rectange2 = new RectangeGeo(new PointGeo(0, 0), new PointGeo(50, 50));
+                RectangleGeo rectange2 = new RectangleGeo(new PointGeo(0, 0), new PointGeo(50, 50));
                 rectange2.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
                 enemy1.Add(rectange2);
                 enemy1.Speed = new PointGeo((float)new Random(System.DateTime.UtcNow.Millisecond + 10).NextDouble() * 5, (float)new Random(System.DateTime.UtcNow.Millisecond).NextDouble() * 5);
@@ -294,7 +294,7 @@ namespace Painter.Models.StageModel
             Obstacle TextObject = new Obstacle(); 
             scoreText.pos = new PointGeo(1200, 500);
             scoreText.SetDrawMeta(new TextMeta("你好呀 Hello") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
-            RectangeGeo rect = new RectangeGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
+            RectangleGeo rect = new RectangleGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
             TextObject.Add(rect);
             TextObject.Add(scoreText);
             scene.AddObject(TextObject,false);

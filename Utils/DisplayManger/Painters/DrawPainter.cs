@@ -30,7 +30,7 @@ namespace Painter.Painters
         {
 
         }
-        public abstract void DrawRectangle(RectangeGeo rect);
+        public abstract void DrawRectangle(RectangleGeo rect);
         public abstract void DrawLine(LineGeo line);
         public abstract void DrawCircle(CircleGeo circle);
         public abstract void DrawEllipse(EllipseGeo ellipse);
@@ -88,7 +88,7 @@ namespace Painter.Painters
             throw new NotImplementedException();
         }
 
-        public override void DrawRectangle(RectangeGeo rect)
+        public override void DrawRectangle(RectangleGeo rect)
         {
             return;
         }
@@ -142,7 +142,7 @@ namespace Painter.Painters
             }
         }
 
-        public override void DrawRectangle(RectangeGeo rect)
+        public override void DrawRectangle(RectangleGeo rect)
         {
             throw new NotImplementedException();
         }
@@ -249,7 +249,7 @@ namespace Painter.Painters
                 {
                     return;
                 }
-                graphics.DrawString(t.GetTextMeta().Text, font, new SolidBrush(t.GetTextMeta().ForeColor),x, y, t.GetTextMeta().stringFormat);
+                graphics.DrawString(t.GetTextMeta().Text, font, new SolidBrush(t.GetDrawMeta().ForeColor),x, y, t.GetTextMeta().stringFormat);
             }
 
         }
@@ -275,7 +275,7 @@ namespace Painter.Painters
                 graphics.DrawPolygon(pen, points);
             }
         }
-        public override void DrawRectangle(RectangeGeo rect)
+        public override void DrawRectangle(RectangleGeo rect)
         {
             if (graphics != null & pen != null)
             {
@@ -329,9 +329,11 @@ namespace Painter.Painters
                 catch (Exception)
                 {
                     rect.IsDisposed = true;
+                    graphics.Restore(state);
                     throw;
                 } 
-                graphics.Restore(state); 
+                graphics.Restore(state);
+                rect.IsInVision = true;
             }
         }
         public override void DrawLine(LineGeo line)
@@ -350,12 +352,15 @@ namespace Painter.Painters
                 //负区域外就不显示了  
                 if (TransformX(line.GetMaxX()) < 0  )
                 {
+                    line.IsInVision = false;
                     return;
                 }
                 if (canvas != null && (TransformX(line.GetMinX()) > canvas.Width  ))
                 {
+                    line.IsInVision = false; 
                     return;
                 }
+                line.IsInVision = true; 
                 graphics.DrawLine(pen, TransformX(line.FirstPoint.X), TransformY(line.FirstPoint.Y), TransformX(line.SecondPoint.X), TransformY(line.SecondPoint.Y));
             }
         }
@@ -383,8 +388,7 @@ namespace Painter.Painters
                 {
                     circle.IsInVision = false;
                     return;
-                }
-                circle.IsInVision = true; 
+                } 
                 ShapeMeta sm = circle.GetDrawMeta() as ShapeMeta;
                 pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
                 if (sm.DashLineStyle != null)
@@ -402,7 +406,7 @@ namespace Painter.Painters
                     circle.IsDisposed = true;
                     throw;
                 }
-                
+                circle.IsInVision = true; 
             }
         }
         public override void DrawEllipse(EllipseGeo ellipse)
@@ -468,7 +472,7 @@ namespace Painter.Painters
                 }
                 catch (Exception)
                 {
-                    return;
+                    throw;
                 }
             }
         }
