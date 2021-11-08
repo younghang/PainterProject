@@ -288,10 +288,22 @@ namespace Painter.Painters
                 //负区域外就不显示了  
                 if (TransformX(rect.GetMaxX()+rect.Width+rect.Heigth) < 0    )
                 {
+                    rect.IsInVision = false;
                     return;
                 }
                 if (canvas != null && (TransformX(rect.GetMinX()-rect.Width-rect.Heigth) > canvas.Width  ))
                 {
+                    rect.IsInVision = false; 
+                    return;
+                }
+                if (canvas != null && (TransformX(rect.GetMinX() - rect.Width - rect.Heigth) <0&& TransformX(rect.GetMaxX() - rect.Width - rect.Heigth) > canvas.Width))
+                {
+                    rect.IsInVision = false;
+                    return;
+                }
+                if (Math.Abs((rect.Width) * Scale.X)<1|| Math.Abs((rect.Heigth) * Scale.Y)<1)
+                {
+                    rect.IsInVision = false;
                     return;
                 }
                 GraphicsState state = graphics.Save();
@@ -307,11 +319,19 @@ namespace Painter.Painters
                 //graphics.DrawRectangle 的X,Y 是指的屏幕的左上角，
                 //对于Y👆 ，则是minX maxY
                 //对于Y👇 ，则是minX minY
-                if (sm.IsFill)
-                    //graphics.FillRectangle(new SolidBrush(Color.FromArgb(200, 255, 255, 255)), x, y, width, height);
-                    graphics.FillRectangle(new SolidBrush(sm.BackColor), 0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
-                graphics.DrawRectangle(pen, 0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
-                graphics.Restore(state);
+                try
+                {
+                    if (sm.IsFill)
+                        //graphics.FillRectangle(new SolidBrush(Color.FromArgb(200, 255, 255, 255)), x, y, width, height);
+                        graphics.FillRectangle(new SolidBrush(sm.BackColor), 0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
+                    graphics.DrawRectangle(pen, 0, 0, Math.Abs((rect.Width) * Scale.X), Math.Abs((rect.Heigth) * Scale.Y));
+                }
+                catch (Exception)
+                {
+                    rect.IsDisposed = true;
+                    throw;
+                } 
+                graphics.Restore(state); 
             }
         }
         public override void DrawLine(LineGeo line)
@@ -359,6 +379,11 @@ namespace Painter.Painters
                     circle.IsInVision = false; 
                     return;
                 }
+                if (Math.Abs((circle.Radius * 2) * Scale.Y)<1)
+                {
+                    circle.IsInVision = false;
+                    return;
+                }
                 circle.IsInVision = true; 
                 ShapeMeta sm = circle.GetDrawMeta() as ShapeMeta;
                 pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
@@ -366,9 +391,18 @@ namespace Painter.Painters
                 {
                     pen.DashPattern = sm.DashLineStyle;
                 }
-                if (sm.IsFill)
-                    graphics.FillEllipse(new SolidBrush(sm.BackColor), leftcorner, topcorner, Math.Abs((circle.Radius * 2) * Scale.X), Math.Abs((circle.Radius * 2) * Scale.Y));
-                graphics.DrawEllipse(pen, leftcorner, topcorner, Math.Abs((circle.Radius * 2) * Scale.X), Math.Abs((circle.Radius * 2) * Scale.Y));
+                try
+                {
+                    if (sm.IsFill)
+                        graphics.FillEllipse(new SolidBrush(sm.BackColor), leftcorner, topcorner, Math.Abs((circle.Radius * 2) * Scale.X), Math.Abs((circle.Radius * 2) * Scale.Y));
+                    graphics.DrawEllipse(pen, leftcorner, topcorner, Math.Abs((circle.Radius * 2) * Scale.X), Math.Abs((circle.Radius * 2) * Scale.Y));
+                }
+                catch (Exception)
+                {
+                    circle.IsDisposed = true;
+                    throw;
+                }
+                
             }
         }
         public override void DrawEllipse(EllipseGeo ellipse)

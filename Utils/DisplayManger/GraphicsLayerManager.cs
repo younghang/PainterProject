@@ -40,26 +40,27 @@ namespace Painter.DisplayManger
     }
     public class GraphicsLayerManager
     {
-		public void Dispose()
-		{
-			if (this.Painter!=null) {
-				Painter.Dispose();
-			}
-		}
+        public void Dispose()
+        {
+            if (this.Painter != null)
+            {
+                Painter.Dispose();
+            }
+        }
 
-    	public GraphicsLayerManager(){}
-    	public GraphicsLayerManager(PainterBase p)
-    	{
-    		SetPainter(p);
-    	}
-    	public void SetPainter(PainterBase p)
-    	{
-    		Painter=p;
-    	}
-    	public PainterBase GetPainter()
-    	{
-    		return this.Painter;
-    	}
+        public GraphicsLayerManager() { }
+        public GraphicsLayerManager(PainterBase p)
+        {
+            SetPainter(p);
+        }
+        public void SetPainter(PainterBase p)
+        {
+            Painter = p;
+        }
+        public PainterBase GetPainter()
+        {
+            return this.Painter;
+        }
         private PainterBase Painter;//包含绘制图形的方法  
         private readonly List<IScreenPrintable> drawList = new List<IScreenPrintable>();
         public event Action Invalidate;
@@ -68,16 +69,16 @@ namespace Painter.DisplayManger
             return this.drawList;
         }
         private object LockObj = new object();
-        public void AddRange(List<IScreenPrintable> isps,bool isReverse= false)
+        public void AddRange(List<IScreenPrintable> isps, bool isReverse = false)
         {
             foreach (var item in isps)
             {
                 Add(item, isReverse);
             }
         }
-        public void Add(IScreenPrintable ips,bool isReverse=false)
+        public void Add(IScreenPrintable ips, bool isReverse = false)
         {
-            lock(lockObj)
+            lock (lockObj)
             {
                 if (this.drawList.Count > CurrentPos)
                 {
@@ -88,30 +89,31 @@ namespace Painter.DisplayManger
                     if (isReverse)
                     {
                         this.drawList.Insert(0, ips);
-                    } 
+                    }
                     else
                     {
                         this.drawList.Add(ips);
                     }
                     CurrentPos++;
                 }
-            } 
+            }
         }
         private int CurrentPos = 0;
         public int GetCurPos()
         {
             return CurrentPos;
         }
+
         public void Draw()
         { 
             //倒着刷新，方便能够删除元素。
             int size = Math.Min(CurrentPos, this.drawList.Count);
-            for (int i = size-1; i >=0; i--)
+            for (int i = size - 1; i >= 0; i--)
             {
                 drawList[i].Draw(Painter);
                 if (drawList[i] is Shape)
                 {
-                    if ((drawList[i] as Shape).IsDisposed==true)
+                    if ((drawList[i] as Shape).IsDisposed == true)
                     {
                         drawList.RemoveAt(i);
                         CurrentPos--;
@@ -126,6 +128,7 @@ namespace Painter.DisplayManger
                     }
                 }
             }
+
         }
         private object lockObj = new object();
         public void Clear()
@@ -137,9 +140,9 @@ namespace Painter.DisplayManger
                 this.Painter.Clear(Color.Transparent);
                 if (this.Invalidate != null)
                     Invalidate();
-            } 
+            }
         }
-        public void Undo( )
+        public void Undo()
         {
             if (CurrentPos > 0)
             {
@@ -147,7 +150,7 @@ namespace Painter.DisplayManger
                 Draw();
             }
         }
-        public void Redo( )
+        public void Redo()
         {
             if (CurrentPos < drawList.Count)
             {
@@ -162,16 +165,16 @@ namespace Painter.DisplayManger
                 Invalidate();
         }
         public void LoadShape(List<Shape> shapes)
-        { 
+        {
             CurrentPos += shapes.Count;
-            this.drawList.AddRange(shapes); 
+            this.drawList.AddRange(shapes);
         }
         public void OffsetShapes(float x, float y)
-        { 
+        {
             foreach (var item in this.drawList)
             {
                 Shape shape = item as Shape;
-                if (shape==null)
+                if (shape == null)
                 {
                     continue;
                 }

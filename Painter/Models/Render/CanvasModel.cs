@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -267,9 +268,26 @@ namespace Painter.Models
             CmdMgr = new CommandMgr(this);
 
         }
+        private bool isError = false;
         public void OnPaint(object sender, PaintEventArgs e)
         {
-            DrawOnCanvas(e.Graphics);
+            if (isError)
+            {
+                return;
+            }
+            try
+            {
+                DrawOnCanvas(e.Graphics); 
+            }
+            catch (OutOfMemoryException ee)
+            {
+                isError = true;
+                //this.CmdMgr.Undo();
+                Init();
+                Thread.Sleep(20); 
+                MessageBox.Show("Out of Memery. The Smallest shape has been disposed");
+                isError = false;
+            }
         }
         public void OnMouseMove(object sender, MouseEventArgs e)
         {
