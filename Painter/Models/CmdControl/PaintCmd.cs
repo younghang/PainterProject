@@ -31,35 +31,42 @@ namespace Painter.Models.CmdControl
             }
             if (e.Button == MouseButtons.Left)
             {
-                if (CurCmd.Status==CMD_STATUS.DONE)
+                if (CurCmd.Status == CMD_STATUS.DONE)
                 {
-                    CurCmd = null;
+                    //CurCmd = null;
                     return;
-                } 
+                }
                 CurCmd.Excute_MouseUpdate();
                 CurCmd.MoveNext_MouseDown();
-            } 
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                if (CurCmd != null)
+                {
+                    CurCmd.End();
+                }
+            }
         }
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode==Keys.Escape)
+            if (e.KeyCode == Keys.Escape)
             {
-                if (CurCmd!=null)
+                if (CurCmd != null)
                 {
-                    CurCmd.End(); 
+                    CurCmd.End();
                 }
             }
-        } 
+        }
         public void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (CurCmd==null)
+            if (CurCmd == null)
             {
                 return;
             }
             if (CurCmd.Status == CMD_STATUS.DONE)
             {
-                CurCmd = null;
-                return;
+                //CurCmd = null;
+                //return;
             }
             CurCmd.Excute_MouseUpdate();
         }
@@ -68,24 +75,25 @@ namespace Painter.Models.CmdControl
         private int curIndex = 0;
         public void AddCmd(Command cmd)
         {
-            if (this.cmds.Contains(cmd)==false)
+            if (this.cmds.Contains(cmd) == false)
             {
-                for (int i = this.cmds.Count-1; i >=0; i--)
+                for (int i = this.cmds.Count - 1; i >= 0; i--)
                 {
-                    if (i>curIndex)
+                    if (i > curIndex)
                     {
                         this.cmds.RemoveAt(i);
                     }
                 }
-                if (CurCmd!=null&&CurCmd.Status!=CMD_STATUS.DONE)
+                if (CurCmd != null && CurCmd.Status != CMD_STATUS.DONE)
                 {
-                    if (CurCmd.Status==CMD_STATUS.RUNNING)
+                    if (CurCmd.Status == CMD_STATUS.RUNNING)
                     {
                         Undo();
-                    }else
+                    }
+                    else
                     {
-                        CurCmd.Status = CMD_STATUS.DONE; 
-                    } 
+                        CurCmd.Status = CMD_STATUS.DONE;
+                    }
                 }
                 this.cmds.Add(cmd);
                 this.curIndex++;
@@ -93,15 +101,26 @@ namespace Painter.Models.CmdControl
             }
         }
         public void Undo()
-        {           
-            if (curIndex>0)
-            {
-                curIndex--; 
-                CurCmd = this.cmds[curIndex];
-                if (CurCmd!=null)
+        {
+            if (curIndex > 0)
+            { 
+                if (CurCmd != null)
                 {
                     CurCmd.Cancel();
+                    if (CurCmd.Status==CMD_STATUS.DONE)
+                    { 
+                        curIndex--;
+                        if (curIndex>0)
+                        {
+                            CurCmd = this.cmds[curIndex];
+                        }else
+                        {
+                            CurCmd = null;
+                        }
+                       
+                    }
                 } 
+               
             }
         }
         public void Redo()
@@ -110,19 +129,19 @@ namespace Painter.Models.CmdControl
             {
                 CurCmd.Cancel();
             }
-            if (curIndex < this.cmds.Count)
-            { 
-                 CurCmd = this.cmds[curIndex];
-                if (CurCmd.Status==CMD_STATUS.DONE)
+            if (curIndex <  this.cmds.Count)
+            {
+                CurCmd = this.cmds[curIndex];
+                if (CurCmd.Status == CMD_STATUS.DONE)
                 {
                     CurCmd.Resume();
                 }
                 curIndex++;
-               
+
             }
         }
     }
-    public enum CMD_STATUS { SLEEP, RUNNING, DONE }
+    public enum CMD_STATUS { SLEEP, RUNNING, DONE,ABORT }
     public class Command
     {
         public Command(CanvasModel model)
@@ -130,8 +149,8 @@ namespace Painter.Models.CmdControl
             this.canvas = model;
         }
         protected CanvasModel canvas = null;
-        public virtual void Excute_MouseUpdate( )
-        { 
+        public virtual void Excute_MouseUpdate()
+        {
         }
         public virtual void Update()
         {
@@ -142,7 +161,7 @@ namespace Painter.Models.CmdControl
         }
         public virtual void MovePrev()
         {
-            
+
         }
         public virtual void Cancel()
         {
@@ -158,15 +177,15 @@ namespace Painter.Models.CmdControl
         }
         public CMD_STATUS Status = CMD_STATUS.SLEEP;
     }
-    public class DeleteCmd: Command
+    public class DeleteCmd : Command
     {
 
-        public DeleteCmd(CanvasModel model,List<DrawableObject> ls) : base(model)
+        public DeleteCmd(CanvasModel model, List<DrawableObject> ls) : base(model)
         {
             this.curSelectObjs = ls;
         }
-        List<DrawableObject> curSelectObjs=new List<DrawableObject>();
-        static List<DrawableObject> deletedObjs=new List<DrawableObject>();
+        List<DrawableObject> curSelectObjs = new List<DrawableObject>();
+        static List<DrawableObject> deletedObjs = new List<DrawableObject>();
         public override void Cancel()
         {
             foreach (var item in deletedObjs)
@@ -175,10 +194,11 @@ namespace Painter.Models.CmdControl
                 canvas.GetFreshLayerManager().Add(item);
             }
             deletedObjs.Clear();
+            this.Status = CMD_STATUS.DONE;
         }
         public override void Resume()
         {
-            
+
         }
         public override void End()
         {
@@ -195,7 +215,7 @@ namespace Painter.Models.CmdControl
 
         public override void Excute_MouseUpdate()
         {
-            
+
         }
     }
     public class ClearCmd : Command
@@ -204,7 +224,7 @@ namespace Painter.Models.CmdControl
 
         public ClearCmd(CanvasModel model) : base(model)
         {
-        } 
+        }
         public override void Excute_MouseUpdate()
         {
             if (isInProcessing)
@@ -219,7 +239,7 @@ namespace Painter.Models.CmdControl
     public class SaveOrLoadCmd : Command
     {
         private bool IsSave = true;
-        public SaveOrLoadCmd(CanvasModel model,bool isSave=true) : base(model)
+        public SaveOrLoadCmd(CanvasModel model, bool isSave = true) : base(model)
         {
             IsSave = isSave;
         }
@@ -232,7 +252,7 @@ namespace Painter.Models.CmdControl
             }
             isInProcessing = true;
             Status = CMD_STATUS.DONE;
-            canvas.GetFreshLayerManager().SaveOrLoadFile(IsSave); 
+            canvas.GetFreshLayerManager().SaveOrLoadFile(IsSave);
         }
     }
     public class GeoCmd : Command
@@ -240,63 +260,23 @@ namespace Painter.Models.CmdControl
         public GeoCmd(CanvasModel model) : base(model)
         {
         }
+        protected DrawableObject shape;
+        public override void Cancel()
+        {
+            this.shape.IsDisposed = true;
+            this.Status = CMD_STATUS.DONE;
+        }
     }
+    public class GeoTwoPointCmd : GeoCmd
+    {
+        public GeoTwoPointCmd(CanvasModel model) : base(model)
+        {
+            process = LINE_PROCESS.FIRST_POINT;
+        }
 
-    public class LineCmd: GeoCmd
-    {
-        public override void Cancel()
+        public GeoTwoPointCmd(CanvasModel model, ShapeMeta meta) : base(model)
         {
-            this.line.IsDisposed = true;
-        }
-        public override void Resume()
-        {
-            this.line.IsDisposed = false;
-            this.canvas.GetFreshLayerManager().Add(line);
-        }
-        public LineCmd(CanvasModel model,ShapeMeta meta):base(model)
-        {
-            this.line.SetDrawMeta(meta);
-        }
-        
-        public enum LINE_PROCESS { START,FIRST_POINT,SECOND_POINT,END}
-        public LINE_PROCESS process=LINE_PROCESS.START;
-        public override void MoveNext_MouseDown()
-        {
-            this.process = this.process + 1;
-        }
-        private LineGeo line = new LineGeo(); 
-        public override void Excute_MouseUpdate( )
-        { 
-            PointGeo point = canvas.CurObjectPoint;
-            switch (this.process)
-            {
-                case LINE_PROCESS.START: 
-                    break;
-                case LINE_PROCESS.FIRST_POINT:
-                    line.FirstPoint = point.Clone(); 
-                    //MoveNext();
-                    break;
-                case LINE_PROCESS.SECOND_POINT:
-                    line.SecondPoint = point.Clone();
-                    canvas.GetFreshLayerManager().Add(line);
-                    break;
-                case LINE_PROCESS.END:
-                    this.Status = CMD_STATUS.DONE; 
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-    public class CircleCmd : GeoCmd
-    {
-        public override void Cancel()
-        {
-            this.circle.IsDisposed = true;
-        }
-        public CircleCmd(CanvasModel model, ShapeMeta meta) : base(model)
-        {
-            this.circle.SetDrawMeta(meta);
+
         }
 
         public enum LINE_PROCESS { START, FIRST_POINT, SECOND_POINT, END }
@@ -305,27 +285,26 @@ namespace Painter.Models.CmdControl
         {
             this.process = this.process + 1;
         }
-        private CircleGeo circle = new CircleGeo();
+
         public override void Resume()
         {
-            this.circle.IsDisposed = false;
-            this.canvas.GetFreshLayerManager().Add(circle);
+            this.shape.IsDisposed = false;
+            this.canvas.GetFreshLayerManager().Add(shape, true);
         }
-        public override void Excute_MouseUpdate( )
+        public override void Excute_MouseUpdate()
         {
             PointGeo point = canvas.CurObjectPoint;
             switch (this.process)
             {
-                case LINE_PROCESS.START:
-
+                case LINE_PROCESS.START: 
                     break;
                 case LINE_PROCESS.FIRST_POINT:
-                    circle.FirstPoint = point.Clone();
+                    (shape as Shape).FirstPoint = point.Clone();
                     //MoveNext();
                     break;
                 case LINE_PROCESS.SECOND_POINT:
-                    circle.SecondPoint = point.Clone();
-                    canvas.GetFreshLayerManager().Add(circle);
+                    (shape as Shape).SecondPoint = point.Clone();
+                    canvas.GetFreshLayerManager().Add(shape, true);
                     break;
                 case LINE_PROCESS.END:
                     this.Status = CMD_STATUS.DONE;
@@ -335,19 +314,54 @@ namespace Painter.Models.CmdControl
             }
         }
     }
-    public class ArcCmd : GeoCmd
+
+    public class LineCmd : GeoTwoPointCmd
+    {
+
+        public LineCmd(CanvasModel model, ShapeMeta meta) : base(model)
+        {
+            this.shape = new LineGeo();
+            this.shape.SetDrawMeta(meta);
+        }
+
+    }
+    public class CircleCmd : GeoTwoPointCmd
+    {
+        public CircleCmd(CanvasModel model, ShapeMeta meta) : base(model)
+        {
+            this.shape = new CircleGeo();
+            this.shape.SetDrawMeta(meta);
+        }
+
+    }
+
+    public class ArcCmd : Command
     {
         public override void Cancel()
         {
-            this.arc.IsDisposed = true;
+            if (this.Status!=CMD_STATUS.DONE)
+            {
+                this.process = this.process - 1;
+                if (this.process == ARC_PROCESS.START)
+                {
+                    this.arc.IsDisposed = true;
+                    this.Status = CMD_STATUS.DONE;
+                }
+            }else
+            {
+                this.arc.IsDisposed = true;
+                this.Status = CMD_STATUS.DONE;
+            } 
+
         }
         public ArcCmd(CanvasModel model, ShapeMeta meta) : base(model)
         {
             this.arc.SetDrawMeta(meta);
+            process = ARC_PROCESS.FIRST_POINT;
         }
 
-        public enum LINE_PROCESS { START, FIRST_POINT, SECOND_POINT,THIRD_POINT, END }
-        public LINE_PROCESS process = LINE_PROCESS.START;
+        public enum ARC_PROCESS { START, FIRST_POINT, SECOND_POINT, THIRD_POINT, END }
+        public ARC_PROCESS process = ARC_PROCESS.START;
         public override void MoveNext_MouseDown()
         {
             this.process = this.process + 1;
@@ -355,30 +369,30 @@ namespace Painter.Models.CmdControl
         private ArcGeo arc = new ArcGeo();
         public override void Resume()
         {
-            this.arc.IsDisposed = false;
-            this.canvas.GetFreshLayerManager().Add(arc);
+            //this.arc.IsDisposed = false;
+            //this.canvas.GetFreshLayerManager().Add(arc);
         }
         public override void Excute_MouseUpdate()
         {
             PointGeo point = canvas.CurObjectPoint;
             switch (this.process)
             {
-                case LINE_PROCESS.START:
+                case ARC_PROCESS.START:
 
                     break;
-                case LINE_PROCESS.FIRST_POINT:
+                case ARC_PROCESS.FIRST_POINT:
                     arc.FirstPoint = point.Clone();
                     //MoveNext();
                     break;
-                case LINE_PROCESS.SECOND_POINT:
-                    arc.SecondPoint = point.Clone(); 
-                    canvas.GetFreshLayerManager().Add(arc);
+                case ARC_PROCESS.SECOND_POINT:
+                    arc.SecondPoint = point.Clone();
+                    canvas.GetFreshLayerManager().Add(arc, true);
                     break;
-                case LINE_PROCESS.THIRD_POINT:
+                case ARC_PROCESS.THIRD_POINT:
                     arc.ThirdPoint = point.Clone();
-                    
+
                     break;
-                case LINE_PROCESS.END:
+                case ARC_PROCESS.END:
                     this.Status = CMD_STATUS.DONE;
                     break;
                 default:
@@ -386,94 +400,60 @@ namespace Painter.Models.CmdControl
             }
         }
     }
-    public class RectangleCmd : GeoCmd
+    public class RectangleCmd : GeoTwoPointCmd
     {
-        public override void Cancel()
-        {
-            this.rectangle.IsDisposed = true;
-        }
-        public override void Resume()
-        {
-            this.rectangle.IsDisposed = false;
-            this.canvas.GetFreshLayerManager().Add(rectangle);
-        }
         public RectangleCmd(CanvasModel model, ShapeMeta meta) : base(model)
         {
-            this.rectangle.SetDrawMeta(meta);
-        }
-
-        public enum LINE_PROCESS { START, FIRST_POINT, SECOND_POINT, END }
-        public LINE_PROCESS process = LINE_PROCESS.START;
-        public override void MoveNext_MouseDown()
-        {
-            this.process = this.process + 1;
-        }
-        private RectangleGeo rectangle = new RectangleGeo();
-        public override void Excute_MouseUpdate( )
-        {
-            PointGeo point = canvas.CurObjectPoint;
-            switch (this.process)
-            {
-                case LINE_PROCESS.START: 
-                    break;
-                case LINE_PROCESS.FIRST_POINT:
-                    rectangle.FirstPoint = point.Clone(); 
-                    break;
-                case LINE_PROCESS.SECOND_POINT:
-                    rectangle.SecondPoint = point.Clone();
-                    canvas.GetFreshLayerManager().Add(rectangle);
-                    break;
-                case LINE_PROCESS.END:
-                    this.Status = CMD_STATUS.DONE;
-                    break;
-                default:
-                    break;
-            }
+            this.shape = new RectangleGeo();
+            this.shape.SetDrawMeta(meta);
         }
     }
-    public class EllipseCmd : GeoCmd
+    public class EllipseCmd : GeoTwoPointCmd
     {
-        public override void Resume()
-        {
-            this.ellipse.IsDisposed = false;
-            this.canvas.GetFreshLayerManager().Add(ellipse);
-        }
-        public override void Cancel()
-        {
-            this.ellipse.IsDisposed = true;
-        }
         public EllipseCmd(CanvasModel model, ShapeMeta meta) : base(model)
         {
-            this.ellipse.SetDrawMeta(meta);
+            this.shape = new EllipseGeo();
+            this.shape.SetDrawMeta(meta);
         }
-
-        public enum LINE_PROCESS { START, FIRST_POINT, SECOND_POINT, END }
-        public LINE_PROCESS process = LINE_PROCESS.START;
+    }
+    public class CurveCmd : PolygonCmd
+    {
+        public override void Cancel()
+        {
+            if (this.Status != CMD_STATUS.DONE)
+            {
+                this.poly.RemovePoint();
+                if (this.poly.points.Count == 2)
+                {
+                    this.poly.IsDisposed = true;
+                    this.Status = CMD_STATUS.DONE;
+                }
+            }else
+            {
+                this.poly.IsDisposed = true;
+                this.Status = CMD_STATUS.DONE;
+            }
+            
+        }
+        public CurveCmd(CanvasModel model, ShapeMeta meta) : base(model)
+        {
+            poly = new CurveGeo();
+            this.poly.SetDrawMeta(meta);
+        }
         public override void MoveNext_MouseDown()
         {
-            this.process = this.process + 1;
-        }
-        private EllipseGeo ellipse = new EllipseGeo();
-        public override void Excute_MouseUpdate( )
-        {
-            PointGeo point = canvas.CurObjectPoint;
-            switch (this.process)
+            if (this.process == POLYGON_PROCESS.START)
             {
-                case LINE_PROCESS.START:
-                    break;
-                case LINE_PROCESS.FIRST_POINT:
-                    ellipse.FirstPoint = point.Clone();
-                    break;
-                case LINE_PROCESS.SECOND_POINT:
-                    ellipse.SecondPoint = point.Clone();
-                    canvas.GetFreshLayerManager().Add(ellipse);
-                    break;
-                case LINE_PROCESS.END:
-                    this.Status = CMD_STATUS.DONE;
-                    break;
-                default:
-                    break;
+                this.process = this.process + 1;
+                return;
             }
+            PointGeo point = canvas.CurObjectPoint;
+            poly.AddPoint(point.Clone());
+            if (this.poly.points.Count < 2)
+            {
+                return;
+            }
+            canvas.GetFreshLayerManager().Add(poly);
         }
     }
     public class PolygonCmd : GeoCmd
@@ -484,7 +464,21 @@ namespace Painter.Models.CmdControl
         }
         public override void Cancel()
         {
-            this.poly.IsDisposed = true;
+            if (this.Status != CMD_STATUS.DONE)
+            {
+                this.poly.RemovePoint();
+                if (this.poly.points.Count == 3)
+                {
+                    this.poly.IsDisposed = true;
+                    this.Status = CMD_STATUS.DONE;
+                }
+            }
+            else
+            {
+                this.poly.IsDisposed = true;
+                this.Status = CMD_STATUS.DONE;
+            }
+           
         }
         public override void Resume()
         {
@@ -493,14 +487,19 @@ namespace Painter.Models.CmdControl
         }
         public PolygonCmd(CanvasModel model, ShapeMeta meta) : base(model)
         {
+            poly = new PolygonGeo();
             this.poly.SetDrawMeta(meta);
         }
+        protected PolygonCmd(CanvasModel model) : base(model)
+        {
+            process = POLYGON_PROCESS.POINT;
+        }
 
-        public enum POLYGON_PROCESS { START,POINT, END }
+        public enum POLYGON_PROCESS { START, POINT, END }
         public POLYGON_PROCESS process = POLYGON_PROCESS.START;
         public override void MoveNext_MouseDown()
         {
-            if (this.process==POLYGON_PROCESS.START)
+            if (this.process == POLYGON_PROCESS.START)
             {
                 this.process = this.process + 1;
                 return;
@@ -513,15 +512,15 @@ namespace Painter.Models.CmdControl
             }
             canvas.GetFreshLayerManager().Add(poly);
         }
-        private PolygonGeo poly = new PolygonGeo();
+        protected PolygonGeo poly;
         public override void Excute_MouseUpdate()
         {
-            
+
             switch (this.process)
             {
                 case POLYGON_PROCESS.START:
-                    break; 
-                case POLYGON_PROCESS.POINT: 
+                    break;
+                case POLYGON_PROCESS.POINT:
                     break;
                 case POLYGON_PROCESS.END:
                     this.Status = CMD_STATUS.DONE;

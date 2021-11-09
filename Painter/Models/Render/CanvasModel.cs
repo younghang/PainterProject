@@ -339,6 +339,7 @@ namespace Painter.Models
         public PointGeo CurObjectPoint = new PointGeo();
         public void OnMouseDown(object sender, MouseEventArgs e)
         {
+            IsClickHandled = false;
             if (e.Button == MouseButtons.Middle)
             {
                 oldPoint.X = e.X;
@@ -350,7 +351,10 @@ namespace Painter.Models
             {
                 ClickTest(new Point(e.X, e.Y)); 
             }
-            this.CmdMgr.OnMouseDown(sender, e);
+            if (!IsClickHandled)
+            {
+                this.CmdMgr.OnMouseDown(sender, e); 
+            }
         }
         public event Action<List<DrawableObject>> ShapeClickEvent;
         private static int HitRangePixel = 5;
@@ -380,7 +384,7 @@ namespace Painter.Models
             }
             this.Invalidate();
         }
-        private void ClickTest(Point point)
+        private void ClickTest(Point point )
         {
             foreach (var item in clickCeo)
             {
@@ -431,10 +435,14 @@ namespace Painter.Models
 
             foreach (var item in this.geoControls)
             {
-                item.HitTest(hitCircle, true);//优先显示Controls的信息
+                if (item.HitTest(hitCircle, true))//优先显示Controls的信息
+                {
+                    IsClickHandled = true;
+                } 
             }
             this.Invalidate();
         }
+        private bool IsClickHandled = false;
         public void OnMouseWheel(object sender, MouseEventArgs e)
         {
             PointGeo point = ScreenToObjectPos(e.X, e.Y);

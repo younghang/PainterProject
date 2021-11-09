@@ -47,6 +47,9 @@ namespace Painter.Painters
         }
 
         public virtual void DrawPolygon(PolygonGeo polygonGeo) { }
+        public virtual void DrawPath(RoundRec roundRec) { }
+
+        public virtual void DrawCurve(CurveGeo curveGeo) { } 
     }
     public abstract class WPFPainter : PainterBase
     {
@@ -254,6 +257,30 @@ namespace Painter.Painters
 
         }
         #region implemented abstract members of PainterBase
+        public override void DrawCurve(CurveGeo curve)
+        {
+            if (graphics != null & pen != null)
+            {
+                ShapeMeta sm = (ShapeMeta)curve.GetDrawMeta();
+                pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
+                if (sm.DashLineStyle != null)
+                {
+                    pen.DashPattern = sm.DashLineStyle;
+                }
+                PointF[] points = curve.GetPointF();
+                for (int i = 0; i < points.Length; i++)
+                {
+                    points[i].X = (float)TransformX(points[i].X);
+                    points[i].Y = (float)TransformY(points[i].Y);
+                } 
+                if (sm.IsFill)
+                    graphics.FillClosedCurve(new SolidBrush(sm.BackColor), points);
+                if (sm.LineWidth!=0)
+                {
+                    graphics.DrawCurve(pen, points); 
+                }
+            }
+        }
         public override void DrawPolygon(PolygonGeo polygonGeo)
         {
             if (graphics != null & pen != null)
@@ -432,10 +459,10 @@ namespace Painter.Painters
                 //graphics.DrawRectangle 的X,Y 是指的屏幕的左上角，
                 //对于Y👆 ，则是minX maxY
                 //对于Y👇 ，则是minX minY
-                graphics.DrawEllipse(pen, 0, 0, Math.Abs((ellipse.Width) * Scale.X), Math.Abs((ellipse.Heigth) * Scale.Y));
                 if (sm.IsFill)
                     //graphics.FillRectangle(new SolidBrush(Color.FromArgb(200, 255, 255, 255)), x, y, width, height);
                     graphics.FillEllipse(new SolidBrush(sm.BackColor), 0, 0, Math.Abs((ellipse.Width) * Scale.X), Math.Abs((ellipse.Heigth) * Scale.Y));
+                graphics.DrawEllipse(pen, 0, 0, Math.Abs((ellipse.Width) * Scale.X), Math.Abs((ellipse.Heigth) * Scale.Y));
                 graphics.Restore(state);
             }
         }
@@ -451,6 +478,10 @@ namespace Painter.Painters
                 if (sm.DashLineStyle != null)
                 {
                     pen.DashPattern = sm.DashLineStyle;
+                }
+                if (arc.Radius==0)
+                {
+                    return;
                 }
                 double sa = arc.StartAngle;
                 double ea = arc.EndAngle;
@@ -468,11 +499,15 @@ namespace Painter.Painters
                 //他这个是顺时针为正
                 try
                 {
+                    if (sm.IsFill)
+                    {
+                        graphics.FillPie(new SolidBrush(sm.BackColor), (leftcorner), (topcorner), Math.Abs((arc.Radius * 2) * Scale.X), Math.Abs((arc.Radius * 2) * Scale.Y), (float)sa, (float)(ea - sa));
+                    }
                     graphics.DrawArc(pen, (leftcorner), (topcorner), Math.Abs((arc.Radius * 2) * Scale.X), Math.Abs((arc.Radius * 2) * Scale.Y), (float)sa, (float)(ea - sa));
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    throw;
+                    arc.IsDisposed=true;
                 }
             }
         }
@@ -505,7 +540,7 @@ namespace Painter.Painters
         ELLIPSE
     }
     [Serializable]
-    public class DrawMeta
+    public abstract class DrawMeta
     {
         //包含绘制的内容和样式信息
         public System.Drawing.Color ForeColor { get; set; }
@@ -516,8 +551,8 @@ namespace Painter.Painters
             set
             {
                 _lineWidth = value;
-                if (_lineWidth <= 0)
-                    LineWidth = 1;
+                //if (_lineWidth <= 0)
+                //    LineWidth = 1;
             }
         }
         public LineCap CapStyle = LineCap.Round;

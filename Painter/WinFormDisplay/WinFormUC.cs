@@ -412,7 +412,7 @@ namespace Painter.WinFormDisplay
 						ips.Draw(freshLayerManager.GetPainter());
 					}
 				} else {
-					DrawMeta dm = new DrawMeta();
+					DrawMeta dm = new ShapeMeta();
 					dm.ForeColor = Color.FromArgb(ShapeForeColor.A, ShapeForeColor.R, ShapeForeColor.G, ShapeForeColor.B);
 					dm.LineWidth = float.Parse(txtLineWidth.Text);
 					dm.CapStyle = (LineCap)lineCapStyle.GetValue(comBoxLineCap.SelectedIndex);

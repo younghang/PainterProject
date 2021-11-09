@@ -84,11 +84,12 @@ namespace Painter.Models.PainterModel
             this.Width = width;
             this.Height = height;
         }
-        public void HitTest(CircleGeo circle,bool isMouseDown)
+
+        public bool HitTest(CircleGeo circle,bool isMouseDown)
         {
             if (this.baseShape.IsShow == false || this.baseShape.IsInVision == false)
             {
-                return;
+                return false; 
             }
             if (circle.IsOverlap(this.baseShape))
             {
@@ -96,6 +97,7 @@ namespace Painter.Models.PainterModel
                 {
                     ClickEvent?.Invoke();
                     OnMouseClick();
+                    return true;
                 }
                 else
                 {
@@ -105,6 +107,7 @@ namespace Painter.Models.PainterModel
             {
                 OnMouseLeave();
             }
+            return false;
         }
         private bool isVisible = true;
         public bool IsVisible
@@ -429,6 +432,17 @@ namespace Painter.Models.PainterModel
         }
         private List<GeoControl> Controls = new List<GeoControl>();
         public FLOW_DIRECTION flowDirection = FLOW_DIRECTION.HORIZONTAL;
+        public void ClearRadioSelection()
+        {
+            foreach (var item in this.Controls)
+            {
+                if (item is GeoRadio)
+                {
+                    GeoRadio geoRadio = item as GeoRadio;
+                    geoRadio.IsChecked = false;
+                }
+            }
+        }
         public void AddControl(GeoControl control)
         {
             if (!Controls.Contains(control))

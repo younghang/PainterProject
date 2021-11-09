@@ -38,6 +38,8 @@ namespace Painter.Models
         public bool IsShow = true;
         public bool IsDisposed = false;
         public abstract  DrawMeta GetDrawMeta();
+        public abstract void SetDrawMeta(DrawMeta draw);
+
     }
 
     [Serializable]
@@ -234,9 +236,13 @@ namespace Painter.Models
             this.Width =  Math.Abs(FirstPoint.X - SecondPoint.X);
             this.Heigth =  Math.Abs(FirstPoint.Y - SecondPoint.Y);
         }
+        public  override void SetDrawMeta(DrawMeta dm)
+        {
+            this.drawMata = dm as ShapeMeta; 
+        }
         public Shape SetDrawMeta(ShapeMeta dm)
         {
-            this.drawMata = dm;
+            this.drawMata = dm as ShapeMeta;
             return this;
         }
         public override DrawMeta GetDrawMeta()
@@ -965,6 +971,19 @@ namespace Painter.Models
             return GetLineLength();
         }
     }
+    public class CurveGeo:PolygonGeo
+    {
+        public override void Draw(PainterBase Painter)
+        {
+            if (!IsShow)
+            {
+                return;
+            }
+            if (GetDrawMeta() == null)
+                return;
+            Painter.DrawCurve(this);
+        }
+    }
     [Serializable]
     public class PolygonGeo : RandomLines
     {
@@ -1011,10 +1030,93 @@ namespace Painter.Models
                 return;
             Painter.DrawPolygon(this);
         }
-        private List<PointF> pointF = new List<PointF>();
+        protected List<PointF> pointF = new List<PointF>();
         public PointF[] GetPointF()
         {
             return this.pointF.ToArray();
+        }
+
+        public void RemovePoint()
+        {
+            this.points.RemoveAt(this.points.Count-1);
+            this.pointF.RemoveAt(this.pointF.Count - 1);
+        }
+    }
+    [Serializable]
+    public class RoundRec:PolygonGeo
+    {
+        public RoundRec()
+        {
+            MaxCount = 4;
+        }
+        private PointGeo first = new PointGeo();
+        public PointGeo FirstPoint
+        {
+            get { return first; }
+            set {
+                first = value;
+               // Init();
+            }
+        }
+        private PointGeo second = new PointGeo();
+        public PointGeo SecondPoint
+        {
+            get { return second; }
+            set
+            {
+                second = value;
+                //Init();
+            }
+        }
+        private PointGeo third = new PointGeo();
+        public PointGeo ThirdPoint
+        {
+            get { return third; }
+            set
+            {
+                third = value;
+                Init();
+            }
+        }
+        public override void Draw(PainterBase Painter)
+        {
+            if (!IsShow)
+            {
+                return;
+            }
+            if (GetDrawMeta() == null)
+                return;
+            Painter.DrawPath(this);
+        }
+        private void Init()
+        {
+            this.points.Clear();
+            this.pointF.Clear();
+            float Width = Math.Abs(SecondPoint.X - first.X);
+            float Height = Math.Abs(second.Y - first.Y); 
+            float Radius = Math.Abs(ThirdPoint.Y - SecondPoint.Y);
+            if (Radius>Height/2)
+            {
+                Radius = Height / 2;
+            }
+            if (Radius > Width / 2)
+            {
+                Radius = Width / 2;
+            }
+            float MaxX = Math.Max(first.X, second.X);
+            float MinX = Math.Min(first.X, second.X);
+            float MaxY = Math.Max(first.Y, second.Y);
+            float MinY = Math.Min(first.Y, second.Y); 
+            AddPoint(new PointGeo(MinX+Radius,MinY));
+            AddPoint(new PointGeo(MaxX-Radius, MinY));
+            AddPoint(new PointGeo(MaxX, MinY + Radius));
+            AddPoint(new PointGeo(MaxX, MaxY - Radius));
+            AddPoint(new PointGeo(MaxX - Radius, MaxY));
+            AddPoint(new PointGeo(MinX + Radius, MaxY));
+            AddPoint(new PointGeo(MinX , MaxY - Radius));
+            AddPoint(new PointGeo(MinX , MinY + Radius));
+            //AddPoint(new PointGeo(MinX + Radius, MinY)); 
+
         }
 
     }
@@ -1090,9 +1192,9 @@ namespace Painter.Models
         {
             return this.pointsMeta;
         }
-        public void SetDrawMeta(ShapeMeta dm)
+        public override void SetDrawMeta(DrawMeta dm)
         {
-            this.pointsMeta = dm;
+            this.pointsMeta = dm as ShapeMeta;
         }
         private ShapeMeta pointsMeta;
         public virtual void AddPoints(List<PointGeo> ps)
@@ -1160,6 +1262,11 @@ namespace Painter.Models
             throw new NotImplementedException();
         }
 
+        public override void SetDrawMeta(DrawMeta draw)
+        {
+            throw new NotImplementedException();
+        }
+
         public string FilePath;
 
     }
@@ -1178,9 +1285,9 @@ namespace Painter.Models
                 return;
             dp.DrawText(this);
         }
-        public void SetDrawMeta(TextMeta dm)
+        public override void SetDrawMeta(DrawMeta dm)
         {
-            this.pm = dm;
+            this.pm = dm as TextMeta;
         }
         public TextMeta GetTextMeta()
         {

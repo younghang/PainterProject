@@ -414,7 +414,7 @@ namespace Painter.View.CanvasView
                 ScreenPaint();
                 if (currentType == DRAW_TYPE.RANDOMLINES)
                 {
-                    DrawMeta dm = new DrawMeta();
+                    DrawMeta dm = new ShapeMeta();
                     dm.ForeColor = Color.FromArgb(ShapeForeColor.A, ShapeForeColor.R, ShapeForeColor.G, ShapeForeColor.B);
                     dm.LineWidth = 1;// float.Parse(txtLineWidth.Text);
                     dm.CapStyle = (LineCap)lineCapStyle.GetValue(0);//comBoxLineCap.SelectedIndex);

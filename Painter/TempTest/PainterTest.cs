@@ -70,6 +70,7 @@ namespace Painter.TempTest
                     this.Invalidate(); 
                     break;
                 case PAINT_CMDS.LINE:
+                    this.canvasModel.GetCmdMgr().AddCmd(new LineCmd(this.canvasModel, CommonUtils.CloneObject<Painters.ShapeMeta>(CurShapeMeta)));
                     break;
                 case PAINT_CMDS.CIRCLE:
                     break;
@@ -403,11 +404,10 @@ namespace Painter.TempTest
             polygon.SetDrawMeta(new Painters.ShapeMeta() { IsFill = true, LineWidth = 2, ForeColor = Color.MediumAquamarine, BackColor = Color.Aquamarine });
             GeoRadio geoRadioPolygon = new GeoRadio(30, 30,new RectangleGeo(), polygon);
             geoRadioPolygon.CheckedEvent += () => {
-                info.Text = "当前绘制：多边形，ESC取消输入";
+                info.Text = "当前绘制：多边形，ESC取消输入"; 
                 this.canvasModel.GetCmdMgr().AddCmd(new PolygonCmd(this.canvasModel, CommonUtils.CloneObject<Painters.ShapeMeta>(CurShapeMeta)));
 
-            };
-            
+            }; 
             geoRadioPolygon.Background = Color.Transparent;
 
             geoRadioCircle.IsChecked = true; 
@@ -433,11 +433,28 @@ namespace Painter.TempTest
             GeoRadio geoRadioText = new GeoRadio(30, 30, circleGeoText);
             geoRadioText.CheckedEvent += () => {
                 info.Text = "当前绘制：文本（ 轨迹 图像）";
-
+                geoTypePanel.ClearRadioSelection();  
                 this.canvasModel.GetCmdMgr().AddCmd(new LineCmd(this.canvasModel, new Painters.ShapeMeta() { IsFill = true, LineWidth = 5, ForeColor = Color.MediumAquamarine }));
             };
             geoRadioText.Text = " T";
             geoRadioText.BackColor = Color.White;
+
+            CurveGeo curve = new CurveGeo();
+            curve.AddPoint(new PointGeo(0, 15));
+            curve.AddPoint(new PointGeo(15, 30));
+            curve.AddPoint(new PointGeo(30, 15));
+            curve.AddPoint(new PointGeo(15, 0));
+            curve.IsHold = false;
+            curve.SetDrawMeta(new Painters.ShapeMeta() { IsFill = true, LineWidth = 2, ForeColor = Color.MediumAquamarine, BackColor = Color.Aquamarine });
+            GeoRadio geoRadioCurve = new GeoRadio(30, 30, new RectangleGeo(), curve);
+            geoRadioCurve.CheckedEvent += () => {
+                info.Text = "当前绘制：曲线，ESC取消输入";
+                geoTypePanel.ClearRadioSelection();
+                this.canvasModel.GetCmdMgr().AddCmd(new CurveCmd(this.canvasModel, CommonUtils.CloneObject<Painters.ShapeMeta>(CurShapeMeta)));
+            };
+            geoRadioCurve.Background = Color.Transparent;
+
+            geoTypePanel2.AddControl(geoRadioCurve); 
             geoTypePanel2.AddControl(geoRadioText);
 
 
@@ -572,11 +589,22 @@ namespace Painter.TempTest
             polygonGeo.AddPoint(new PointGeo(1130,50));
             this.canvasModel.GetFreshLayerManager().Add(polygonGeo);
 
+
+            RoundRec roundRect = new RoundRec();
+            roundRect.SetDrawMeta(new Painters.ShapeMeta() { IsFill = true, LineWidth = 5, ForeColor = Color.MediumAquamarine, BackColor = Color.GreenYellow });
+            roundRect.FirstPoint = new PointGeo(600, 600);
+            roundRect.SecondPoint = new PointGeo(1200, 1000);
+            roundRect.ThirdPoint = new PointGeo(1200, 1020);
+            this.canvasModel.GetFreshLayerManager().Add(roundRect);
+            roundRect.Translate(new PointGeo(200, 200));
+
+
             RectangleGeo rectangeBackground = new RectangleGeo(new PointGeo(0, 0), new PointGeo(200, 500));
             rectangeBackground.SetDrawMeta(new Painters.ShapeMeta() { BackColor = Color.Aquamarine, IsFill = true });
             
             RectangleGeo rectangeHeaderBG = new RectangleGeo(new PointGeo(0, 0), new PointGeo(200, 100));
             rectangeHeaderBG.SetDrawMeta(new Painters.ShapeMeta() { BackColor = Color.Orange, IsFill = true });
+
 
              
 
