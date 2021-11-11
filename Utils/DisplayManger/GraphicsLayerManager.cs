@@ -15,7 +15,7 @@ namespace Painter.DisplayManger
 {
     public static class ScreenElementCreator
     {
-        public static IScreenPrintable CreateElement(DRAW_TYPE dt)
+        public static DrawableObject CreateElement(DRAW_TYPE dt)
         {
             switch (dt)
             {
@@ -38,6 +38,7 @@ namespace Painter.DisplayManger
             }
         }
     }
+    [Serializable]
     public class GraphicsLayerManager
     {
         public void Dispose()
@@ -62,21 +63,21 @@ namespace Painter.DisplayManger
             return this.Painter;
         }
         private PainterBase Painter;//包含绘制图形的方法  
-        private readonly List<IScreenPrintable> drawList = new List<IScreenPrintable>();
+        private readonly List<DrawableObject> drawList = new List<DrawableObject>();
         public event Action Invalidate;
-        public List<IScreenPrintable> GetDatas()
+        public List<DrawableObject> GetDatas()
         {
             return this.drawList;
         }
         private object LockObj = new object();
-        public void AddRange(List<IScreenPrintable> isps, bool isReverse = false)
+        public void AddRange(List<DrawableObject> isps, bool isReverse = false)
         {
             foreach (var item in isps)
             {
                 Add(item, isReverse);
             }
         }
-        public void Add(IScreenPrintable ips, bool isReverse = false)
+        public void Add(DrawableObject ips, bool isReverse = false)
         {
             lock (lockObj)
             {
@@ -110,23 +111,14 @@ namespace Painter.DisplayManger
             int size = Math.Min(CurrentPos, this.drawList.Count);
             for (int i = size - 1; i >= 0; i--)
             {
-                drawList[i].Draw(Painter);
-                if (drawList[i] is Shape)
+                drawList[i].Draw(Painter); 
+                if (drawList[i].IsDisposed == true)
                 {
-                    if ((drawList[i] as Shape).IsDisposed == true)
-                    {
-                        drawList.RemoveAt(i);
-                        CurrentPos--;
-                    }
+                    drawList.RemoveAt(i);
+                    CurrentPos--;
                 }
-                else if (drawList[i] is RandomLines)
-                {
-                    if ((drawList[i] as RandomLines).IsDisposed == true)
-                    {
-                        drawList.RemoveAt(i);
-                        CurrentPos--;
-                    }
-                }
+               
+               
             }
 
         }
@@ -231,7 +223,7 @@ namespace Painter.DisplayManger
                         using (FileStream fs = new FileStream(FileName, FileMode.Open))
                         {
                             IFormatter formatter = new BinaryFormatter();
-                            var list = ((List<IScreenPrintable>)formatter.Deserialize(fs));
+                            var list = ((List<DrawableObject>)formatter.Deserialize(fs));
                             CurrentPos += list.Count;
                             this.drawList.AddRange(list);
                         }

@@ -5,11 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Utils;
 
 namespace Painter.Models.CmdControl
 {
+    [Serializable]
     public class CommandMgr
     {
+        Command repeat;
         public CommandMgr(CanvasModel model)
         {
             this.canvas = model;
@@ -43,7 +46,8 @@ namespace Painter.Models.CmdControl
             {
                 if (CurCmd != null)
                 {
-                    CurCmd.End();
+                    CurCmd.MouseRightDown_EndConfirm(); 
+                    AddCmd(repeat);
                 }
             }
         }
@@ -53,7 +57,7 @@ namespace Painter.Models.CmdControl
             {
                 if (CurCmd != null)
                 {
-                    CurCmd.End();
+                    CurCmd.MouseRightDown_EndConfirm(); 
                 }
             }
         }
@@ -98,6 +102,8 @@ namespace Painter.Models.CmdControl
                 this.cmds.Add(cmd);
                 this.curIndex++;
                 this.CurCmd = cmd;
+                repeat = this.CurCmd.Clone() ;
+                repeat.canvas = cmd.canvas;
             }
         }
         public void Undo()
@@ -142,13 +148,19 @@ namespace Painter.Models.CmdControl
         }
     }
     public enum CMD_STATUS { SLEEP, RUNNING, DONE,ABORT }
+    [Serializable]
     public class Command
     {
+        public virtual Command Clone()
+        {
+            return CommonUtils.CloneObject<Command>(this);
+        }
         public Command(CanvasModel model)
         {
             this.canvas = model;
         }
-        protected CanvasModel canvas = null;
+        [NonSerialized]
+        public CanvasModel canvas = null;
         public virtual void Excute_MouseUpdate()
         {
         }
@@ -167,7 +179,7 @@ namespace Painter.Models.CmdControl
         {
 
         }
-        public virtual void End()
+        public virtual void MouseRightDown_EndConfirm()
         {
 
         }
@@ -177,12 +189,211 @@ namespace Painter.Models.CmdControl
         }
         public CMD_STATUS Status = CMD_STATUS.SLEEP;
     }
+    [Serializable] 
+    public class TextCmd : Command
+    {
+        public TEXT_PROCESS process = TEXT_PROCESS.START;
+        public enum TEXT_PROCESS { START, TEXT_LOC,TEXT_INPUT, END }
+        public TextCmd(CanvasModel model, TextMeta drawMeta) : base(model)
+        {
+          
+            textMeta = drawMeta.Copy();
+            textMeta.IsScaleble = true;
+            process= TEXT_PROCESS.START;
+            text.SetDrawMeta(textMeta);
+        }
+        [NonSerialized]
+        public Action<string> ShowTextBox;
+        [NonSerialized] 
+        public Func<string> GetTextBox;
+        private DrawableText text = new DrawableText();
+        private TextMeta textMeta ;
+        public override void MoveNext_MouseDown()
+        {
+            if (process==TEXT_PROCESS.START)
+            {
+                text.pos = canvas.CurObjectPoint.Clone();
+                ShowTextBox?.Invoke(textMeta.Text);
+            } 
+            process++;
+            if (process==TEXT_PROCESS.TEXT_INPUT)
+            {
+                if (GetTextBox!=null)
+                {
+                    textMeta.Text = GetTextBox();
+                    canvas.GetFreshLayerManager().Add(text, true);
+                }
+                process=TEXT_PROCESS.END;
+            }
+        }
+        public override void Excute_MouseUpdate()
+        {
+
+            switch (this.process)
+            {
+                case TEXT_PROCESS.START:
+                    canvas.OnCmdMsg("鼠标左键单击插入文本");
+                    break;
+                case TEXT_PROCESS.TEXT_LOC:
+                    canvas.OnCmdMsg("鼠标左键单击结束输入"); 
+                    break;
+                case TEXT_PROCESS.END:
+                    this.Status = CMD_STATUS.DONE;
+                    break;
+                default:
+                    break;
+            }
+        }
+        public override Command Clone()
+        {
+            TextCmd textCmd = new TextCmd(this.canvas,this.textMeta.Copy());
+            textCmd.ShowTextBox = this.ShowTextBox;
+            textCmd.GetTextBox = this.GetTextBox;
+            return textCmd;
+        }
+    }
+    [Serializable]
+    public class CopyCmd : GeoTwoPointCmd
+    {
+        public override Command Clone()
+        {
+            CopyCmd moveCmd = new CopyCmd(this.canvas, this.curSelectObjs);
+            return moveCmd;
+        }
+        public override void Cancel()
+        {
+            this.Status = CMD_STATUS.DONE;
+        }
+        List<DrawableObject> curSelectObjs = new List<DrawableObject>();
+        public CopyCmd(CanvasModel model, List<DrawableObject> ls) : base(model)
+        {
+            if (ls.Count == 0)
+            {
+                this.Status = CMD_STATUS.DONE;
+                this.process = LINE_PROCESS.END;
+            }
+            else
+            {
+                curSelectObjs.AddRange(ls);
+                for (int i = 0; i < curSelectObjs.Count; i++)
+                {
+                    canvas.GetFreshLayerManager().Add(CommonUtils.CloneObject<DrawableObject>(curSelectObjs[i]),true);
+                } 
+            }
+        }
+        PointGeo startP = new PointGeo();
+        PointGeo endP = new PointGeo();
+        public override void Excute_MouseUpdate()
+        {
+            PointGeo point = canvas.CurObjectPoint;
+            switch (this.process)
+            {
+                case LINE_PROCESS.START:
+                    break;
+                case LINE_PROCESS.FIRST_POINT:
+                    canvas.OnCmdMsg("请鼠标左键单击选择起点");
+                    startP = point.Clone();
+                    endP = point.Clone();
+                    //MoveNext();
+                    break;
+                case LINE_PROCESS.SECOND_POINT:
+                    canvas.OnCmdMsg("请鼠标左键单击选择终点");
+                    foreach (var item in this.curSelectObjs)
+                    {
+                        item.Translate(startP - endP);
+                    }
+                    endP = point.Clone();
+                    foreach (var item in this.curSelectObjs)
+                    {
+                        item.Translate(endP - startP);
+                    }
+                    break;
+                case LINE_PROCESS.END:
+                    this.Status = CMD_STATUS.DONE;
+                    if (curSelectObjs.Count == 0)
+                    {
+                        canvas.OnCmdMsg("请先选择图形后，再使用复制命令");
+                    }
+                    else
+                        canvas.OnCmdMsg("复制命令结束");
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    [Serializable]
+    public class MoveCmd : GeoTwoPointCmd
+    {
+        public override void Cancel()
+        { 
+            this.Status = CMD_STATUS.DONE;
+        }
+        public override Command Clone()
+        {
+            MoveCmd moveCmd = new MoveCmd(this.canvas,this.curSelectObjs);
+            return moveCmd;
+        }
+        List<DrawableObject> curSelectObjs = new List<DrawableObject>();
+        public MoveCmd(CanvasModel model, List<DrawableObject> ls) : base(model)
+        {
+            if (ls.Count==0)
+            {
+                this.Status = CMD_STATUS.DONE;
+                this.process = LINE_PROCESS.END; 
+            }
+            else
+            {
+                curSelectObjs.AddRange(ls); 
+            } 
+        }
+        PointGeo startP = new PointGeo();
+        PointGeo endP = new PointGeo();
+        public override void Excute_MouseUpdate()
+        {
+            PointGeo point = canvas.CurObjectPoint;
+            switch (this.process)
+            {
+                case LINE_PROCESS.START:
+                    break;
+                case LINE_PROCESS.FIRST_POINT:
+                    canvas.OnCmdMsg("请鼠标左键单击选择起点");
+                    startP = point.Clone();
+                    endP= point.Clone();
+                    //MoveNext();
+                    break;
+                case LINE_PROCESS.SECOND_POINT:
+                    canvas.OnCmdMsg("请鼠标左键单击选择终点"); 
+                    foreach (var item in this.curSelectObjs)
+                    {
+                        item.Translate(startP-endP);
+                    }
+                    endP = point.Clone();
+                    foreach (var item in this.curSelectObjs)
+                    {
+                        item.Translate(endP-startP );
+                    }
+                    break;
+                case LINE_PROCESS.END:
+                    this.Status = CMD_STATUS.DONE;
+                    if (curSelectObjs.Count == 0) 
+                    {
+                        canvas.OnCmdMsg("请先选择图形后，再使用移动命令");
+                    }else
+                    canvas.OnCmdMsg("移动命令结束"); 
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    [Serializable]
     public class DeleteCmd : Command
     {
 
         public DeleteCmd(CanvasModel model, List<DrawableObject> ls) : base(model)
         {
-            this.curSelectObjs = ls;
+            this.curSelectObjs = ls;//这里传递是的引用，可以源源不断的拿到现在选择的对象
         }
         List<DrawableObject> curSelectObjs = new List<DrawableObject>();
         static List<DrawableObject> deletedObjs = new List<DrawableObject>();
@@ -200,7 +411,7 @@ namespace Painter.Models.CmdControl
         {
 
         }
-        public override void End()
+        public override void MouseRightDown_EndConfirm()
         {
             this.Status = CMD_STATUS.DONE;
         }
@@ -211,6 +422,7 @@ namespace Painter.Models.CmdControl
                 item.IsDisposed = true;
                 deletedObjs.Add(item);
             }
+            canvas.OnCmdMsg("鼠标左键拾取删除元素，鼠标右键结束命令"); 
         }
 
         public override void Excute_MouseUpdate()
@@ -218,6 +430,7 @@ namespace Painter.Models.CmdControl
 
         }
     }
+    [Serializable]
     public class ClearCmd : Command
     {
         private bool isInProcessing = false;
@@ -236,6 +449,7 @@ namespace Painter.Models.CmdControl
             canvas.GetFreshLayerManager().Clear();
         }
     }
+    [Serializable]
     public class SaveOrLoadCmd : Command
     {
         private bool IsSave = true;
@@ -255,6 +469,7 @@ namespace Painter.Models.CmdControl
             canvas.GetFreshLayerManager().SaveOrLoadFile(IsSave);
         }
     }
+    [Serializable]
     public class GeoCmd : Command
     {
         public GeoCmd(CanvasModel model) : base(model)
@@ -267,13 +482,13 @@ namespace Painter.Models.CmdControl
             this.Status = CMD_STATUS.DONE;
         }
     }
+    [Serializable]
     public class GeoTwoPointCmd : GeoCmd
     {
         public GeoTwoPointCmd(CanvasModel model) : base(model)
         {
             process = LINE_PROCESS.FIRST_POINT;
-        }
-
+        } 
         public GeoTwoPointCmd(CanvasModel model, ShapeMeta meta) : base(model)
         {
 
@@ -300,11 +515,13 @@ namespace Painter.Models.CmdControl
                     break;
                 case LINE_PROCESS.FIRST_POINT:
                     (shape as Shape).FirstPoint = point.Clone();
+                    canvas.OnCmdMsg("请鼠标左键单击选择第一个点");
                     //MoveNext();
                     break;
                 case LINE_PROCESS.SECOND_POINT:
                     (shape as Shape).SecondPoint = point.Clone();
                     canvas.GetFreshLayerManager().Add(shape, true);
+                    canvas.OnCmdMsg((shape as Shape).MSG);
                     break;
                 case LINE_PROCESS.END:
                     this.Status = CMD_STATUS.DONE;
@@ -315,6 +532,7 @@ namespace Painter.Models.CmdControl
         }
     }
 
+    [Serializable]
     public class LineCmd : GeoTwoPointCmd
     {
 
@@ -325,6 +543,7 @@ namespace Painter.Models.CmdControl
         }
 
     }
+    [Serializable]
     public class CircleCmd : GeoTwoPointCmd
     {
         public CircleCmd(CanvasModel model, ShapeMeta meta) : base(model)
@@ -335,6 +554,7 @@ namespace Painter.Models.CmdControl
 
     }
 
+    [Serializable]
     public class ArcCmd : Command
     {
         public override void Cancel()
@@ -377,19 +597,22 @@ namespace Painter.Models.CmdControl
             PointGeo point = canvas.CurObjectPoint;
             switch (this.process)
             {
-                case ARC_PROCESS.START:
-
+                case ARC_PROCESS.START: 
                     break;
                 case ARC_PROCESS.FIRST_POINT:
+                    canvas.OnCmdMsg("请鼠标左键单击选择圆心"); 
                     arc.FirstPoint = point.Clone();
                     //MoveNext();
                     break;
                 case ARC_PROCESS.SECOND_POINT:
                     arc.SecondPoint = point.Clone();
                     canvas.GetFreshLayerManager().Add(arc, true);
+                    canvas.OnCmdMsg("请鼠标左键单击确定半径和圆弧起始角度");
+
                     break;
                 case ARC_PROCESS.THIRD_POINT:
                     arc.ThirdPoint = point.Clone();
+                    canvas.OnCmdMsg("请鼠标左键单击确定圆弧终止角度，“撤销”回退，单击右键确定");
 
                     break;
                 case ARC_PROCESS.END:
@@ -400,6 +623,7 @@ namespace Painter.Models.CmdControl
             }
         }
     }
+    [Serializable]
     public class RectangleCmd : GeoTwoPointCmd
     {
         public RectangleCmd(CanvasModel model, ShapeMeta meta) : base(model)
@@ -408,6 +632,7 @@ namespace Painter.Models.CmdControl
             this.shape.SetDrawMeta(meta);
         }
     }
+    [Serializable]
     public class EllipseCmd : GeoTwoPointCmd
     {
         public EllipseCmd(CanvasModel model, ShapeMeta meta) : base(model)
@@ -416,6 +641,7 @@ namespace Painter.Models.CmdControl
             this.shape.SetDrawMeta(meta);
         }
     }
+    [Serializable]
     public class CurveCmd : PolygonCmd
     {
         public override void Cancel()
@@ -447,6 +673,7 @@ namespace Painter.Models.CmdControl
                 this.process = this.process + 1;
                 return;
             }
+            canvas.OnCmdMsg("请鼠标左键单击添加点，要求点数量>3,“撤销”回退，单击右键确定");
             PointGeo point = canvas.CurObjectPoint;
             poly.AddPoint(point.Clone());
             if (this.poly.points.Count < 2)
@@ -456,9 +683,10 @@ namespace Painter.Models.CmdControl
             canvas.GetFreshLayerManager().Add(poly);
         }
     }
+    [Serializable]
     public class PolygonCmd : GeoCmd
     {
-        public override void End()
+        public override void MouseRightDown_EndConfirm()
         {
             this.process = POLYGON_PROCESS.END;
         }
@@ -502,8 +730,10 @@ namespace Painter.Models.CmdControl
             if (this.process == POLYGON_PROCESS.START)
             {
                 this.process = this.process + 1;
-                return;
+                //return;
             }
+            canvas.OnCmdMsg("请鼠标左键单击添加点，要求点数量>3,“撤销”回退，单击右键确定");
+
             PointGeo point = canvas.CurObjectPoint;
             poly.AddPoint(point.Clone());
             if (this.poly.points.Count < 3)

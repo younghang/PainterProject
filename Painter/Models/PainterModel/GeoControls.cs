@@ -7,15 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Utils;
 
 namespace Painter.Models.PainterModel
 {
     
     public class GeoControl
     {
-        public virtual List<IScreenPrintable> GetElements()
+        public virtual List<DrawableObject> GetElements()
         {
-            List<IScreenPrintable> temp = new List<IScreenPrintable>();  
+            List<DrawableObject> temp = new List<DrawableObject>();  
             temp.Add(baseShape); 
             return temp;
         }
@@ -91,7 +92,7 @@ namespace Painter.Models.PainterModel
             {
                 return false; 
             }
-            if (circle.IsOverlap(this.baseShape))
+            if (circle.IsOverlap(baseShape))
             {
                 if (isMouseDown)
                 {
@@ -169,6 +170,11 @@ namespace Painter.Models.PainterModel
             ReplaceText();
             this.Drawable = drawable;
         }
+        public void LoadDrawableFile(string filePath)
+        {
+            List<DrawableObject> drawables= FileUtils.LoadDrawableFile(filePath);
+            this.Drawable = drawables[0];
+        }
         protected DrawableObject Drawable=null;
          
         public Color TextColor
@@ -234,9 +240,9 @@ namespace Painter.Models.PainterModel
             set { (this.text.GetDrawMeta()).ForeColor = value; }
         }
         
-        public override List<IScreenPrintable> GetElements()
+        public override List<DrawableObject> GetElements()
         {
-            List<IScreenPrintable> temp = base.GetElements(); 
+            List<DrawableObject> temp = base.GetElements(); 
             temp.Add(text);
             if (Drawable!=null)
             {
@@ -344,9 +350,9 @@ namespace Painter.Models.PainterModel
             base.Update();
             Drawable.IsShow = IsVisible;
         }
-        public override List<IScreenPrintable> GetElements()
+        public override List<DrawableObject> GetElements()
         {
-            List < IScreenPrintable > temp= base.GetElements();
+            List <DrawableObject> temp= base.GetElements();
             temp.Add(Drawable);
             return temp;
         }
@@ -517,9 +523,9 @@ namespace Painter.Models.PainterModel
                 item.Update();
             } 
         }
-        public override List<IScreenPrintable> GetElements()
+        public override List<DrawableObject> GetElements()
         {
-            List<IScreenPrintable> temp = new List<IScreenPrintable>();
+            List<DrawableObject> temp = new List<DrawableObject>();
             temp.Add(baseShape);
             foreach (var item in this.Controls)
             {

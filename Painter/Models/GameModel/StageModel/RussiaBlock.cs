@@ -107,7 +107,7 @@ namespace Painter.Models.StageModel
                 UpdatePosition();
             }
             #region 上色
-            List<IScreenPrintable> elements = obstacle.GetElements(); 
+            List<DrawableObject> elements = obstacle.GetElements(); 
             for (int i = 0; i < elements.Count - 1; i++)
             {
                 Shape shape = elements[i] as Shape;
@@ -140,7 +140,7 @@ namespace Painter.Models.StageModel
                 }
             }
 
-            List<IScreenPrintable> nextElements = nextBlock.GetElements();
+            List<DrawableObject> nextElements = nextBlock.GetElements();
             for (int i = 0; i < nextElements.Count; i++)
             {
                 Shape shape = nextElements[i] as Shape;

@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,9 +14,19 @@ namespace Utils
 {
     public class FileUtils
     {
-        public static void SavePoints(List<PointGeo> track,string fileName="head_track.txt")
+        public static List<DrawableObject> LoadDrawableFile(string FileName)
         {
-            using (StreamWriter sw=File.CreateText(fileName))
+            List<DrawableObject> list = new List<DrawableObject>();
+            using (FileStream fs = new FileStream(FileName, FileMode.Open))
+            {
+                IFormatter formatter = new BinaryFormatter();
+                list = ((List<DrawableObject>)formatter.Deserialize(fs));
+            }
+            return list;
+        }
+        public static void SavePoints(List<PointGeo> track, string fileName = "head_track.txt")
+        {
+            using (StreamWriter sw = File.CreateText(fileName))
             {
                 for (int i = 0; i < track.Count; i++)
                 {
@@ -33,7 +45,7 @@ namespace Utils
         /// <param name="filePath">初始文件夹</param>
         /// <param name="validFileAction">有效文件</param>
         /// <param name="dealFileAction">处理文件</param>
-        public static void FindFiles(string filePath,Func<FileInfo,bool> validFileAction,Action<FileInfo> dealFileAction)
+        public static void FindFiles(string filePath, Func<FileInfo, bool> validFileAction, Action<FileInfo> dealFileAction)
         {
             DirectoryInfo theFolder = new DirectoryInfo(filePath);
             //遍历文件夹 
@@ -53,7 +65,7 @@ namespace Utils
             }
         }
         public static bool SelectFilePath(ref string FilePath)
-        { 
+        {
             FilePathSelectDialog folderBrowserDialog = new FilePathSelectDialog();
             if (folderBrowserDialog.ShowDialog(null) == DialogResult.OK)
             {
@@ -67,10 +79,10 @@ namespace Utils
             else
             {
                 return false;
-            } 
+            }
         }
         public static bool SeletFile(ref string FileName)
-        { 
+        {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 if (openFileDialog.ShowDialog() != DialogResult.OK)
@@ -82,7 +94,7 @@ namespace Utils
                 {
                     return false;
                 }
-                FileName= fileFullName;
+                FileName = fileFullName;
                 return true;
             }
         }
@@ -134,7 +146,7 @@ namespace Utils
             string[] setItems = CONFIGURE_TEXT.Split('\n');
             for (int i = 0; i < setItems.Length; i++)
             {
-                if (setItems[i].StartsWith("[")|| setItems[i].StartsWith("#"))
+                if (setItems[i].StartsWith("[") || setItems[i].StartsWith("#"))
                     continue;
                 if (setItems[i].Contains("="))
                 {
@@ -178,5 +190,6 @@ namespace Utils
             }
             SaveConfigurations();
         }
+
     }
 }

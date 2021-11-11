@@ -583,10 +583,20 @@ public class TextMeta : DrawMeta
         stringFormat = new StringFormat();
         stringFormat.Alignment = StringAlignment.Center;
     }
+    public TextMeta Copy()
+    {
+        TextMeta textMeta = new TextMeta(this.Text);
+        textMeta.LineWidth = this.LineWidth;
+        textMeta.ForeColor = this.ForeColor;
+        textMeta.TEXTFONT = this.TEXTFONT;
+        textMeta.stringFormat = this.stringFormat;
+        return textMeta;
+    }
     public bool IsScaleble = false;
-    public StringFormat stringFormat { get; set; }
-    public Font TEXTFONT { get; set; }
-    public string Text { get; set; }
+    [NonSerialized]
+    public StringFormat stringFormat;
+    public Font TEXTFONT;
+    public string Text;
 }
 
 public interface IScreenPrintable

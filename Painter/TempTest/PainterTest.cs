@@ -1,6 +1,7 @@
 ﻿using Painter.Models;
 using Painter.Models.CmdControl;
 using Painter.Models.PainterModel;
+using Painter.Painters;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,8 +18,15 @@ namespace Painter.TempTest
     public partial class PainterTest : Form
     {
         CanvasModel canvasModel = new CanvasModel();
+        private TextBox textBox = new TextBox();
+        private TextMeta textMeta = new TextMeta("请输入文本")  
+        {
+            ForeColor = Color.Black,
+                TEXTFONT = new Font("Arial", 16f),
+                stringFormat = new StringFormat() { Alignment = StringAlignment.Near }
+        } ;
         PainterInputCmds inputs = new PainterInputCmds();
-        List<DrawableObject> selectDrawableObjects = new List<DrawableObject>();
+        static List<DrawableObject> selectDrawableObjects = new List<DrawableObject>();
         public PainterTest()
         {
             InitializeComponent();
@@ -40,7 +48,14 @@ namespace Painter.TempTest
                 } 
             };
             canvasModel.Invalidate += this.Invalidate;
+            canvasModel.CmdMsgEvent += CanvasModel_CmdMsgEvent;
         }
+
+        private void CanvasModel_CmdMsgEvent(string msg)
+        {
+            info.Text = msg;
+        }
+
         void OnLoad(object sender, EventArgs e)
         {
             BackColor = Color.White;
@@ -48,6 +63,8 @@ namespace Painter.TempTest
             {
                 return;
             }
+            this.Controls.Add(textBox);
+            textBox.Visible = false;
             canvasModel.OnLoad(sender, e);
             canvasModel.ShapeClickEvent += CanvasModel_ShapeClickEvent;
             inputs.CMDEvent += Inputs_CMDEvent;
@@ -92,6 +109,7 @@ namespace Painter.TempTest
                 case PAINT_CMDS.TEXT:
                     break;
                 case PAINT_CMDS.HELP:
+                    new PainterForm().Show();
                     break;
                 default:
                     break;
@@ -223,10 +241,16 @@ namespace Painter.TempTest
             {
                 foreach (var item in selectDrawableObjects)
                 {
-                    if (item is Shape)
+                    if (item is DrawableObject)
                     {
                         item.GetDrawMeta().DashLineStyle = new float[] { 0.5f, 1, 0.5f };
-                        info.Text = (item as Shape).MSG;
+                        if (item is Shape)
+                        {
+                            info.Text = (item as Shape).MSG;
+                        } else if(item is DrawableText)
+                        {
+                            item.GetDrawMeta().ForeColor = Color.Gray;
+                        }
                     } 
                 }
             }  
@@ -246,12 +270,29 @@ namespace Painter.TempTest
                 if (button.Text.Contains("填充"))
                 {
                     CurShapeMeta.BackColor = color;
+                    foreach (var item in selectDrawableObjects)
+                    {
+                        ShapeMeta shapeMeta = item.GetDrawMeta() as ShapeMeta;
+                        if (shapeMeta != null)
+                        {
+                            shapeMeta.BackColor = color;
+                        }
+                    }
                 }
                 if (button.Text.Contains("边框"))
                 {
                     CurShapeMeta.ForeColor = color;
+                    foreach (var item in selectDrawableObjects)
+                    {
+                        DrawMeta shapeMeta = item.GetDrawMeta() ;
+                        if (shapeMeta != null)
+                        {
+                            shapeMeta.ForeColor = color;
+                        }
+                    }
                 }
                 button.BackColor = color;
+                
             }
         };
         private void LoadControls()
@@ -316,19 +357,25 @@ namespace Painter.TempTest
             GeoButton geoButtonRotate = new GeoButton(50, 30, new RectangleGeo());
             geoButtonRotate.Text = "旋转";
             geoButtonRotate.ClickEvent += () => {
-                info.Text = "旋转  is Clicked";
+                info.Text = "旋转  [not implement]";
 
             };
             GeoButton geoButtonScale = new GeoButton(50, 30, new RectangleGeo());
             geoButtonScale.Text = "缩放";
             geoButtonScale.ClickEvent += () => {
-                info.Text = "加载 is Clicked";
+                info.Text = "缩放 [not implement]";
             };
             GeoButton geoButtonTranslate = new GeoButton(50, 30, new RectangleGeo());
-            geoButtonTranslate.Text = "平移";
+            geoButtonTranslate.Text = "移动";
             geoButtonTranslate.ClickEvent += () => {
-                info.Text = "撤销  is Clicked";
-
+                info.Text = "移动  is Clicked";
+                this.canvasModel.GetCmdMgr().AddCmd(new MoveCmd(this.canvasModel, selectDrawableObjects));
+            };
+            GeoButton geoButtonCopy = new GeoButton(50, 30, new RectangleGeo());
+            geoButtonCopy.Text = "复制";
+            geoButtonCopy.ClickEvent += () => {
+                info.Text = "复制  is Clicked";
+                this.canvasModel.GetCmdMgr().AddCmd(new CopyCmd(this.canvasModel, selectDrawableObjects));
             };
             GeoButton geoButtonDelete = new GeoButton(50, 30, new RectangleGeo());
             geoButtonDelete.Text = "删除";
@@ -342,6 +389,7 @@ namespace Painter.TempTest
             geoOperatorPanel.AddControl(geoButtonRotate);
             geoOperatorPanel.AddControl(geoButtonScale);
             geoOperatorPanel.AddControl(geoButtonTranslate); 
+            geoOperatorPanel.AddControl(geoButtonCopy); 
             geoOperatorPanel.AddControl(geoButtonDelete);
             geoOperatorPanel.Move(new PointGeo(0, 50));
             canvasModel.AddGeoControls(geoOperatorPanel);
@@ -369,8 +417,9 @@ namespace Painter.TempTest
             };
 
             ArcGeo bezier = new ArcGeo();
-            bezier.SetDrawMeta(new Painters.ShapeMeta() { LineWidth = 3, ForeColor = Color.Aquamarine });
+            bezier.SetDrawMeta(new Painters.ShapeMeta() { LineWidth = 2, ForeColor = Color.Orange });
             GeoRadio geoRadioBezier = new GeoRadio(30, 30, bezier);
+            geoRadioBezier.LoadDrawableFile("pen.dat");
             geoRadioBezier.CheckedEvent += () => {
                 info.Text = "当前绘制：样条线";
                 this.canvasModel.GetCmdMgr().AddCmd(new ArcCmd(this.canvasModel, CommonUtils.CloneObject<Painters.ShapeMeta>(CurShapeMeta)));
@@ -433,8 +482,22 @@ namespace Painter.TempTest
             GeoRadio geoRadioText = new GeoRadio(30, 30, circleGeoText);
             geoRadioText.CheckedEvent += () => {
                 info.Text = "当前绘制：文本（ 轨迹 图像）";
-                geoTypePanel.ClearRadioSelection();  
-                this.canvasModel.GetCmdMgr().AddCmd(new LineCmd(this.canvasModel, new Painters.ShapeMeta() { IsFill = true, LineWidth = 5, ForeColor = Color.MediumAquamarine }));
+                geoTypePanel.ClearRadioSelection();
+                TextCmd textCmd = new TextCmd(this.canvasModel, textMeta);
+                textMeta.ForeColor = CurShapeMeta.ForeColor;
+                textCmd.ShowTextBox += (str) => {
+                    textBox.Font = textMeta.TEXTFONT;
+                    textBox.TextAlign = (HorizontalAlignment)textMeta.stringFormat.Alignment;
+                    textBox.Text = str;
+                    textBox.Location = canvasModel.CurScreenPoint;
+                    textBox.Visible = true;
+                };
+                textCmd.GetTextBox += () =>
+                {
+                    textBox.Visible = false;
+                    return textBox.Text;
+                };
+                this.canvasModel.GetCmdMgr().AddCmd(textCmd);
             };
             geoRadioText.Text = " T";
             geoRadioText.BackColor = Color.White;
@@ -527,6 +590,14 @@ namespace Painter.TempTest
                 float lw = CurShapeMeta.LineWidth;
                 float.TryParse(str, out lw);
                 CurShapeMeta.LineWidth = lw;
+                foreach (var item in selectDrawableObjects)
+                {
+                    ShapeMeta shapeMeta = item.GetDrawMeta() as ShapeMeta;
+                    if (shapeMeta != null)
+                    {
+                        shapeMeta.LineWidth = lw==0?1:lw;
+                    }
+                }
             };
 
             GeoLabel lineStyleLabel = new GeoLabel(60, 40, new RectangleGeo());

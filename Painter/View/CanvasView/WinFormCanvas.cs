@@ -161,7 +161,7 @@ namespace Painter.View.CanvasView
         PointGeo oldPoint;
         PointGeo newPoint;
         bool IsMouseDown = false;
-        IScreenPrintable ips = null;
+        DrawableObject ips = null;
 
         public GraphicsLayerManager GetTrackLayerManager()
         {

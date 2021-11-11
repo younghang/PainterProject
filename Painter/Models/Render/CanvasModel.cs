@@ -19,9 +19,14 @@ namespace Painter.Models
     ///1.图形绘制
     ///2.视图操作
     ///3.鼠标反馈
-
+    [Serializable] 
     public class CanvasModel
     {
+        public event Action<string> CmdMsgEvent;
+        public void OnCmdMsg(string str)
+        {
+            CmdMsgEvent?.Invoke(str);
+        }
         private PointGeo offset = new PointGeo();
         private PointGeo scale = new PointGeo();
         private CommandMgr CmdMgr;
@@ -337,6 +342,7 @@ namespace Painter.Models
         PointGeo newPoint = new PointGeo(0, 0);
         PointGeo oldOffsetPoint = new PointGeo(0, 0);
         public PointGeo CurObjectPoint = new PointGeo();
+        public Point  CurScreenPoint = new Point();
         public void OnMouseDown(object sender, MouseEventArgs e)
         {
             IsClickHandled = false;
@@ -347,6 +353,7 @@ namespace Painter.Models
                 oldOffsetPoint = this.fixedLayerManager.GetPainter().OffsetPoint.Clone();
             }
             CurObjectPoint = ScreenToObjectPos(e.X, e.Y);
+            CurScreenPoint = e.Location;
             if (e.Button==MouseButtons.Left)
             {
                 ClickTest(new Point(e.X, e.Y)); 
@@ -386,6 +393,17 @@ namespace Painter.Models
         }
         private void ClickTest(Point point )
         {
+            foreach (var item in this.geoControls)
+            {
+                if (item.HitTest(hitCircle, true))//优先显示Controls的信息
+                {
+                    IsClickHandled = true;
+                }
+            }
+            if (IsClickHandled)
+            {
+                return;
+            }
             foreach (var item in clickCeo)
             {
                 item.GetDrawMeta().DashLineStyle = null;
@@ -397,9 +415,9 @@ namespace Painter.Models
             hitCircle.SecondPoint = objPoint + new PointGeo(HitRange, HitRange);
             foreach (var item in this.freshLayerManager.GetDatas())
             {
-                if (item is Shape)
+                if (item is DrawableObject)
                 {
-                    Shape shape = item as Shape;
+                    DrawableObject shape = item as DrawableObject;
                     if (shape.IsShow==false||shape.IsInVision==false)
                     {
                         continue;
@@ -412,9 +430,9 @@ namespace Painter.Models
             }
             foreach (var item in this.fixedLayerManager.GetDatas())
             {
-                if (item is Shape)
+                if (item is DrawableObject)
                 {
-                    Shape shape = item as Shape;
+                    DrawableObject shape = item as DrawableObject;
                     if (shape.IsShow == false || shape.IsInVision == false)
                     {
                         continue;
@@ -431,15 +449,8 @@ namespace Painter.Models
             //if (clickCeo.GetShapes().Count!=0)
             {
                 ShapeClickEvent?.Invoke(clickCeo);
-            }
-
-            foreach (var item in this.geoControls)
-            {
-                if (item.HitTest(hitCircle, true))//优先显示Controls的信息
-                {
-                    IsClickHandled = true;
-                } 
-            }
+            } 
+            
             this.Invalidate();
         }
         private bool IsClickHandled = false;

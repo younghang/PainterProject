@@ -180,7 +180,7 @@ namespace Painter.Models.StageModel
                 points.RemoveAt(0);
             }
             #endregion
-            List<IScreenPrintable> elements = obstacle.GetElements();
+            List<DrawableObject> elements = obstacle.GetElements();
             #endregion
             for (int i = 0; i < elements.Count-1; i++)
             {

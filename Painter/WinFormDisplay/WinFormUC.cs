@@ -90,7 +90,7 @@ namespace Painter.WinFormDisplay
 		Point oldP;
 		Point newP;
 		bool IsMouseDown = false;
-		IScreenPrintable ips = null;
+		DrawableObject ips = null;
 		bool IsStraightLine = false;
 		bool IsContinusLine = false;
 		List<PointGeo> points = new List<PointGeo>();
@@ -98,7 +98,7 @@ namespace Painter.WinFormDisplay
 		bool IsTextAdded = false;
 		bool IsSaveFile = false;
 		bool IsDrawByOutCall = false;
-		public void SetIPS(IScreenPrintable screenPrintable)
+		public void SetIPS(DrawableObject screenPrintable)
 		{
 			ips = screenPrintable;
 			currentType = DRAW_TYPE.RANDOMLINES;

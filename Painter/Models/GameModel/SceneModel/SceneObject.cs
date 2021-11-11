@@ -129,11 +129,11 @@ namespace Painter.Models.Paint
         public float MinX { get; set; }
         public float MinY { get; set; }
         public SCENE_OBJECT_TYPE OBJECT_TYPE;
-        protected List<IPrintAndOperatable> elements = new List<IPrintAndOperatable>();
+        protected List<DrawableObject> elements = new List<DrawableObject>();
         public PointGeo Pos = new PointGeo();
         public float Area = 0;
 
-        public void Add(IPrintAndOperatable ele)
+        public void Add(DrawableObject ele)
         {
             if (!this.elements.Contains(ele))
             {
@@ -148,9 +148,9 @@ namespace Painter.Models.Paint
             }
         }
 
-        internal List<IScreenPrintable> GetElements()
+        internal List<DrawableObject> GetElements()
         {
-            List<IScreenPrintable> temp = new List<IScreenPrintable>();
+            List<DrawableObject> temp = new List<DrawableObject>();
             for (int i = 0; i < elements.Count; i++)
             {
                 temp.Add(elements[i]);
