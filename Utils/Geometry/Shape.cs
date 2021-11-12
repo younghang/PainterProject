@@ -1108,6 +1108,22 @@ namespace Painter.Models
         public PolygonGeo()
         {
         }
+        public override void SamplePointByStep(double ratio)
+        {
+            int countSpan = (int)(this.points.Count * ratio);
+            if (countSpan<1)
+            {
+                countSpan = 1;
+            }
+            for (int i = this.points.Count - 1; i >= 0; i--)
+            {
+                if (i % countSpan != 0)
+                {
+                    this.points.RemoveAt(i);
+                    this.pointF.RemoveAt(i);
+                }
+            }
+        }
         //这个没办法，一定要通过自己去调用AddPoint 添加新的点
         public void AddPoint(PointGeo point)
         {
@@ -1159,6 +1175,7 @@ namespace Painter.Models
             this.points.RemoveAt(this.points.Count - 1);
             this.pointF.RemoveAt(this.pointF.Count - 1);
         }
+         
     }
     [Serializable]
     public class RoundRec : PolygonGeo
@@ -1250,6 +1267,21 @@ namespace Painter.Models
     [Serializable]
     public class RandomLines : DrawableObject
     {
+        public  virtual void SamplePointByStep(double ratio)
+        {
+            int countSpan = (int)(this.points.Count * ratio);
+            if (countSpan < 1)
+            {
+                countSpan = 1;
+            }
+            for (int i = this.points.Count-1; i >=0; i--)
+            {
+                if (i%countSpan!=0)
+                {
+                    this.points.RemoveAt(i);
+                } 
+            }
+        }
         public void ResetPoints()
         {
             foreach (var element in this.points)

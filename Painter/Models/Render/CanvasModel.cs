@@ -317,16 +317,38 @@ namespace Painter.Models
                 }
             }
             CurObjectPoint = ScreenToObjectPos(e.X, e.Y);
-            MoveTest(new Point(e.X, e.Y));
+            if (EnableClickTest)
+            {
+                MoveTest(new Point(e.X, e.Y));
+            } 
             this.CmdMgr.OnMouseMove(sender, e);
         }
+        public bool EnableClickTest = true;
         public void OnMouseUp(object sender, MouseEventArgs e)
         {
+            this.CmdMgr.OnMouseUp(sender, e);
         }
         public void OnKeyUp(object sender, KeyEventArgs e)
         {
-
+            if (e.Modifiers == Keys.Shift)
+            {
+                IsShiftDown = true;
+            }
+            else
+            {
+                IsShiftDown = false;
+            }
+            if (e.Modifiers == Keys.Control)
+            {
+                IsControlDown = true;
+            }
+            else
+            {
+                IsControlDown = false;
+            }
         }
+        public   bool IsControlDown = false;
+        public   bool IsShiftDown = false;
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
             foreach (var item in this.geoControls)
@@ -335,6 +357,22 @@ namespace Painter.Models
                 {
                     (item as GeoEditBox).OnKeyDown(sender, e);
                 }
+            }
+            if (e.Modifiers == Keys.Shift)
+            {
+                IsShiftDown = true;
+            }
+            else
+            {
+                IsShiftDown = false;
+            }
+            if (e.Modifiers == Keys.Control)
+            {
+                IsControlDown = true;
+            }
+            else
+            {
+                IsControlDown = false;
             }
             this.CmdMgr.OnKeyDown(sender, e);
         }
@@ -354,7 +392,7 @@ namespace Painter.Models
             }
             CurObjectPoint = ScreenToObjectPos(e.X, e.Y);
             CurScreenPoint = e.Location;
-            if (e.Button==MouseButtons.Left)
+            if (e.Button==MouseButtons.Left&&EnableClickTest)
             {
                 ClickTest(new Point(e.X, e.Y)); 
             }
@@ -362,6 +400,7 @@ namespace Painter.Models
             {
                 this.CmdMgr.OnMouseDown(sender, e); 
             }
+            this.Invalidate();
         }
         public event Action<List<DrawableObject>> ShapeClickEvent;
         private static int HitRangePixel = 5;
@@ -451,7 +490,7 @@ namespace Painter.Models
                 ShapeClickEvent?.Invoke(clickCeo);
             } 
             
-            this.Invalidate();
+            
         }
         private bool IsClickHandled = false;
         public void OnMouseWheel(object sender, MouseEventArgs e)

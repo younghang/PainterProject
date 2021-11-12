@@ -260,6 +260,7 @@ namespace Painter.TempTest
 
         private Action<GeoButton> myColorSelectHandler = ( button ) => { 
             ColorDialog colorDialog = new ColorDialog();
+            colorDialog.Color = button.BackColor;
             DialogResult dialogResult = colorDialog.ShowDialog();
             Console.WriteLine(dialogResult.ToString());
             Color color = new Color();
@@ -422,7 +423,7 @@ namespace Painter.TempTest
             geoRadioBezier.LoadDrawableFile("pen.dat");
             geoRadioBezier.CheckedEvent += () => {
                 info.Text = "当前绘制：样条线";
-                this.canvasModel.GetCmdMgr().AddCmd(new ArcCmd(this.canvasModel, CommonUtils.CloneObject<Painters.ShapeMeta>(CurShapeMeta)));
+                this.canvasModel.GetCmdMgr().AddCmd(new PenCmd(this.canvasModel, CommonUtils.CloneObject<Painters.ShapeMeta>(CurShapeMeta)));
 
             };
 
@@ -600,21 +601,35 @@ namespace Painter.TempTest
                 }
             };
 
-            GeoLabel lineStyleLabel = new GeoLabel(60, 40, new RectangleGeo());
-            lineStyleLabel.Text = "线型";
-            lineStyleLabel.Background = Color.Transparent;
-            lineStyleLabel.Move(new PointGeo(0, 0));
+            GeoButton geoButtonLineStyle = new GeoButton(50, 30, new RectangleGeo());
+            geoButtonLineStyle.Text = "线型";
+            geoButtonLineStyle.ClickEvent += () => {
+                info.Text = "线型  is Clicked";
+                
+            };
 
+            GeoButton geoButtonFont = new GeoButton(50, 30, new RectangleGeo());
+            geoButtonFont.Text = "字体";
+            geoButtonFont.ClickEvent += () => {
+                info.Text = "设置字体  is Clicked";
+                FontDialog fontDialog = new FontDialog();
+                fontDialog.Font = textMeta.TEXTFONT;
+                if (fontDialog.ShowDialog()==DialogResult.OK)
+                {
+                    this.textMeta.TEXTFONT = fontDialog.Font;
+                }
+            };
 
             geoPenPanel.AddControl(penLabel); 
             geoPenPanel.AddControl(lineWidthLabel);
             geoPenPanel.AddControl(geoEditBox);
-            geoPenPanel.AddControl(lineStyleLabel);
+            geoPenPanel.AddControl(geoButtonLineStyle);
+            geoPenPanel.AddControl(geoButtonFont);
             geoPenPanel.Move(new PointGeo(0, 250));
             this.canvasModel.AddGeoControls(geoTypePanel);
             this.canvasModel.AddGeoControls(geoTypePanel2);
             this.canvasModel.AddGeoControls(geoColorPanel);
-            this.canvasModel.AddGeoControls(geoPenPanel);
+            this.canvasModel.AddGeoControls(geoPenPanel); 
             info.Move(new PointGeo(0, this.ClientRectangle.Height - info.Height));
 
 

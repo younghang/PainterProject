@@ -183,7 +183,7 @@ namespace Painter.Painters
         public WinFormPainter(Graphics g, Bitmap b)
         {
             SetGraphics(g);
-            SetCanvas(b);
+            SetCanvas(b); 
         }
 
         public WinFormPainter()
@@ -251,7 +251,7 @@ namespace Painter.Painters
                 if (canvas != null&&( x >canvas.Width|| y >canvas.Height))
                 {
                     return;
-                }
+                } 
                 graphics.DrawString(t.GetTextMeta().Text, font, new SolidBrush(t.GetDrawMeta().ForeColor),x, y, t.GetTextMeta().stringFormat);
             }
 
