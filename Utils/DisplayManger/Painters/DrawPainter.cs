@@ -221,8 +221,7 @@ namespace Painter.Painters
         public override void DrawText(DrawableText t)
         {
             if (graphics != null)
-            {
-
+            { 
                 graphics.SmoothingMode = SmoothingMode.HighQuality;
                 graphics.CompositingQuality = CompositingQuality.HighQuality;
                 graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -251,10 +250,13 @@ namespace Painter.Painters
                 if (canvas != null&&( x >canvas.Width|| y >canvas.Height))
                 {
                     return;
-                } 
-                graphics.DrawString(t.GetTextMeta().Text, font, new SolidBrush(t.GetDrawMeta().ForeColor),x, y, t.GetTextMeta().stringFormat);
-            }
-
+                }
+                GraphicsState state= graphics.Save();
+                graphics.TranslateTransform(x, y);
+                graphics.RotateTransform(t.Angle);
+                graphics.DrawString(t.GetTextMeta().Text, font, new SolidBrush(t.GetDrawMeta().ForeColor), 0, 0, t.GetTextMeta().stringFormat);
+                graphics.Restore(state);
+            } 
         }
         #region implemented abstract members of PainterBase
         public override void DrawCurve(CurveGeo curve)
@@ -542,6 +544,7 @@ namespace Painter.Painters
     [Serializable]
     public abstract class DrawMeta
     {
+        public System.Drawing.Color BackColor { get; set; }
         //包含绘制的内容和样式信息
         public System.Drawing.Color ForeColor { get; set; }
         private float _lineWidth = 1;
@@ -563,7 +566,7 @@ namespace Painter.Painters
     public class ShapeMeta : DrawMeta  //for shape element
     {
         public bool IsFill { get; set; }
-        public System.Drawing.Color BackColor { get; set; }
+       
         public ShapeMeta()
         {
             LineWidth = 1;
@@ -588,6 +591,7 @@ public class TextMeta : DrawMeta
         TextMeta textMeta = new TextMeta(this.Text);
         textMeta.LineWidth = this.LineWidth;
         textMeta.ForeColor = this.ForeColor;
+        textMeta.BackColor = this.BackColor;
         textMeta.TEXTFONT = this.TEXTFONT;
         textMeta.stringFormat = this.stringFormat;
         return textMeta;

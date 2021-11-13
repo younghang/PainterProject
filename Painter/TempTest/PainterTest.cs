@@ -2,6 +2,7 @@
 using Painter.Models.CmdControl;
 using Painter.Models.PainterModel;
 using Painter.Painters;
+using Painter.View.Window;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,7 +20,7 @@ namespace Painter.TempTest
     {
         CanvasModel canvasModel = new CanvasModel();
         private TextBox textBox = new TextBox();
-        private TextMeta textMeta = new TextMeta("请输入文本")  
+        private static TextMeta textMeta = new TextMeta("请输入文本")  
         {
             ForeColor = Color.Black,
                 TEXTFONT = new Font("Arial", 16f),
@@ -242,21 +243,23 @@ namespace Painter.TempTest
                 foreach (var item in selectDrawableObjects)
                 {
                     if (item is DrawableObject)
-                    {
+                    { 
+                        this.canvasModel.LineDashStyle = item.GetDrawMeta().DashLineStyle;
                         item.GetDrawMeta().DashLineStyle = new float[] { 0.5f, 1, 0.5f };
                         if (item is Shape)
                         {
                             info.Text = (item as Shape).MSG;
                         } else if(item is DrawableText)
                         {
-                            item.GetDrawMeta().ForeColor = Color.Gray;
+                            item.GetDrawMeta().BackColor = item.GetDrawMeta().ForeColor;
+                            item.GetDrawMeta().ForeColor =Color.Gray;
                         }
                     } 
                 }
             }  
         }
         GeoLabel info = new GeoLabel(400,50,new RectangleGeo());
-        static Painters.ShapeMeta CurShapeMeta = new Painters.ShapeMeta() { IsFill = true, LineWidth = 5, ForeColor = Color.MediumAquamarine };
+        public static Painters.ShapeMeta CurShapeMeta = new Painters.ShapeMeta() { IsFill = true, LineWidth = 5, ForeColor = Color.MediumAquamarine };
 
         private Action<GeoButton> myColorSelectHandler = ( button ) => { 
             ColorDialog colorDialog = new ColorDialog();
@@ -280,7 +283,7 @@ namespace Painter.TempTest
                         }
                     }
                 }
-                if (button.Text.Contains("边框"))
+                if (button.Text.Contains("前景"))
                 {
                     CurShapeMeta.ForeColor = color;
                     foreach (var item in selectDrawableObjects)
@@ -291,6 +294,7 @@ namespace Painter.TempTest
                             shapeMeta.ForeColor = color;
                         }
                     }
+                    textMeta.ForeColor = CurShapeMeta.ForeColor;
                 }
                 button.BackColor = color;
                 
@@ -358,7 +362,8 @@ namespace Painter.TempTest
             GeoButton geoButtonRotate = new GeoButton(50, 30, new RectangleGeo());
             geoButtonRotate.Text = "旋转";
             geoButtonRotate.ClickEvent += () => {
-                info.Text = "旋转  [not implement]";
+                info.Text = "旋转  is Clicked";
+                this.canvasModel.GetCmdMgr().AddCmd(new RotateCmd(this.canvasModel, selectDrawableObjects));
 
             };
             GeoButton geoButtonScale = new GeoButton(50, 30, new RectangleGeo());
@@ -482,10 +487,9 @@ namespace Painter.TempTest
             circleGeoText.SetDrawMeta(new Painters.ShapeMeta() { LineWidth = 1, ForeColor = Color.Black, IsFill = true });
             GeoRadio geoRadioText = new GeoRadio(30, 30, circleGeoText);
             geoRadioText.CheckedEvent += () => {
-                info.Text = "当前绘制：文本（ 轨迹 图像）";
+                info.Text = "当前绘制：文本（ 图像）";
                 geoTypePanel.ClearRadioSelection();
-                TextCmd textCmd = new TextCmd(this.canvasModel, textMeta);
-                textMeta.ForeColor = CurShapeMeta.ForeColor;
+                TextCmd textCmd = new TextCmd(this.canvasModel, textMeta); 
                 textCmd.ShowTextBox += (str) => {
                     textBox.Font = textMeta.TEXTFONT;
                     textBox.TextAlign = (HorizontalAlignment)textMeta.stringFormat.Alignment;
@@ -530,9 +534,9 @@ namespace Painter.TempTest
             colorLabel.Background = Color.FromArgb(220, 255, 255);
 
             GeoButton geoButton = new GeoButton(60, 30, new RectangleGeo());
-            geoButton.Text = "边框色";
+            geoButton.Text = "前景色";
             geoButton.ClickEvent += () => {
-                info.Text = "边框色  is Clicked";
+                info.Text = "前景色  is Clicked";
                 myColorSelectHandler(geoButton);
             };
             GeoButton geoButton2 = new GeoButton(60, 30, new RectangleGeo());
@@ -605,7 +609,7 @@ namespace Painter.TempTest
             geoButtonLineStyle.Text = "线型";
             geoButtonLineStyle.ClickEvent += () => {
                 info.Text = "线型  is Clicked";
-                
+                new LineStyleFrm().Show();
             };
 
             GeoButton geoButtonFont = new GeoButton(50, 30, new RectangleGeo());
@@ -616,7 +620,7 @@ namespace Painter.TempTest
                 fontDialog.Font = textMeta.TEXTFONT;
                 if (fontDialog.ShowDialog()==DialogResult.OK)
                 {
-                    this.textMeta.TEXTFONT = fontDialog.Font;
+                    textMeta.TEXTFONT = fontDialog.Font;
                 }
             };
 

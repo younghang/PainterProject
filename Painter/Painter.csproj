@@ -133,6 +133,12 @@
     <Compile Include="View\Window\EditCodeFrm.Designer.cs">
       <DependentUpon>EditCodeFrm.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\Window\LineStyleFrm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\Window\LineStyleFrm.Designer.cs">
+      <DependentUpon>LineStyleFrm.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\Window\SelectFileForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -213,6 +219,9 @@
     </Compile>
     <EmbeddedResource Include="View\Window\EditCodeFrm.resx">
       <DependentUpon>EditCodeFrm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\Window\LineStyleFrm.resx">
+      <DependentUpon>LineStyleFrm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\Window\SelectFileForm.resx">
       <DependentUpon>SelectFileForm.cs</DependentUpon>

@@ -59,6 +59,7 @@ namespace Painter.Models.CmdControl
                 if (CurCmd != null)
                 {
                     CurCmd.MouseRightDown_EndConfirm();
+                    CurCmd = null;
                 }
             } 
 
@@ -139,6 +140,18 @@ namespace Painter.Models.CmdControl
                             CurCmd = null;
                         }
 
+                    }
+                }
+                else
+                {
+                    curIndex--;
+                    if (curIndex > 0)
+                    {
+                        CurCmd = this.cmds[curIndex];
+                    }
+                    else
+                    {
+                        CurCmd = null;
                     }
                 }
 
@@ -344,6 +357,76 @@ namespace Painter.Models.CmdControl
                     }
                     else
                         canvas.OnCmdMsg("复制命令结束");
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    [Serializable]
+    public class RotateCmd : GeoTwoPointCmd
+    {
+        public override void Cancel()
+        {
+            this.Status = CMD_STATUS.DONE;
+        }
+        public override Command Clone()
+        {
+            RotateCmd moveCmd = new RotateCmd(this.canvas, this.curSelectObjs);
+            return moveCmd;
+        }
+        List<DrawableObject> curSelectObjs = new List<DrawableObject>();
+        public RotateCmd(CanvasModel model, List<DrawableObject> ls) : base(model)
+        {
+            if (ls.Count == 0)
+            {
+                this.Status = CMD_STATUS.DONE;
+                this.process = LINE_PROCESS.END;
+            }
+            else
+            {
+                curSelectObjs.AddRange(ls);
+            }
+        }
+        PointGeo startP = new PointGeo();
+        PointGeo endP = new PointGeo();
+        public override void Excute_MouseUpdate()
+        {
+            PointGeo point = canvas.CurObjectPoint;
+            switch (this.process)
+            {
+                case LINE_PROCESS.START:
+                    break;
+                case LINE_PROCESS.FIRST_POINT:
+                    canvas.OnCmdMsg("请鼠标左键单击选择参考点");
+                    startP = point.Clone();
+                    endP = point.Clone();
+                    //MoveNext();
+                    break;
+                case LINE_PROCESS.SECOND_POINT:
+                    canvas.OnCmdMsg("请鼠标左键单击确定角度");
+                    PointGeo pointGeo = endP - startP;
+                    float angle = (float)(Math.Atan2(pointGeo.Y, pointGeo.X) / Math.PI * 180);
+                    foreach (var item in this.curSelectObjs)
+                    {
+                        item.Rotate(angle,startP);
+                    }
+                    endP = point.Clone();
+                    PointGeo pointGeo2 = endP - startP;
+                    float angle2 = (float)(Math.Atan2(pointGeo2.Y, pointGeo2.X) / Math.PI * 180);
+                    foreach (var item in this.curSelectObjs)
+                    {
+                        item.Rotate(-angle2,startP);
+                    }
+                    break;
+                case LINE_PROCESS.END:
+                    this.Status = CMD_STATUS.DONE;
+                    if (curSelectObjs.Count == 0)
+                    {
+                        canvas.OnCmdMsg("请先选择图形后，再使用旋转命令");
+                    }
+                    else
+                        canvas.OnCmdMsg("旋转命令结束");
                     break;
                 default:
                     break;

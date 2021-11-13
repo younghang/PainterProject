@@ -33,12 +33,16 @@ namespace Painter.Models
     public abstract class DrawableObject : IPrintAndOperatable
     {
         public abstract void Draw(PainterBase pb);
-        public abstract void Rotate(float degree, PointGeo center = null);
+        public virtual void Rotate(float degree, PointGeo center = null)
+        {
+            this.Angle += degree;
+        }
         public abstract void Scale(PointGeo offset);
         public abstract void Translate(PointGeo offset);
         public bool IsShow = true;
         public bool IsDisposed = false;
         public bool IsInVision = true;//减少gdi刷新的图像数量，超过视野的设置为不可看见
+        public float Angle = 0;//定义旋转中心为左上角 旋转的矩形,顺时针为正
         public abstract DrawMeta GetDrawMeta();
         public abstract void SetDrawMeta(DrawMeta draw);
 
@@ -130,6 +134,16 @@ namespace Painter.Models
         public override string ToString()
         {
             return "(" + this.X.ToString("f3") + ", " + this.Y.ToString("f3") + ")";
+        }
+        public void RotateAroundOrigin(float degree, PointGeo refOrigin)
+        {
+            double rad = degree / 180 * Math.PI;
+            float tempX, tempY;
+            PointGeo deltaP = this - refOrigin;
+            tempX = (float)((deltaP.X) * Math.Cos(rad) - (deltaP.Y) * Math.Sin(rad));
+            tempY = (float)((deltaP.X) * Math.Sin(rad) + (deltaP.Y) * Math.Cos(rad));
+            X = tempX + refOrigin.X;
+            Y = tempY + refOrigin.Y;
         }
     }
 
@@ -376,7 +390,7 @@ namespace Painter.Models
         {
             Angle += degree;
         }
-        public float Angle = 0;//定义旋转中心为左上角 旋转的矩形,顺时针为正
+        
         protected override void Initial()
         {
             base.Initial();
@@ -721,9 +735,8 @@ namespace Painter.Models
     }
     [Serializable]
     public class ArcGeo : Shape
-    {
-        public static int DISPERSED_COUNT = 500;
-
+    { 
+        public static int DISPERSED_COUNT = 500; 
         public ArcGeo()
         {
             ShpaeType = SHAPE_TYPE.ARC;
@@ -805,10 +818,12 @@ namespace Painter.Models
                 while (value > 180)
                 {
                     value -= 360;
+                    _endAngle -= 360;
                 }
                 while (value < -180)
                 {
                     value += 360;
+                    _endAngle += 360;
                 }
                 _startAngle = value;
                 DispersedStartWithRightSide();
@@ -821,12 +836,21 @@ namespace Painter.Models
             set
             {
                 _endAngle = value;
-                if (_endAngle <= _startAngle)
-                {
-                    _endAngle += 360;
-                }
+                //if (_endAngle <= _startAngle)
+                //{
+                //    _endAngle += 360;
+                //}
+                //if (_endAngle>360)
+                //{
+
+                //}
                 DispersedStartWithRightSide();
             }
+        }
+        public override void Rotate(float degree, PointGeo center)
+        {
+            StartAngle -= degree;
+            EndAngle -= degree;
         }
 
         public float Radius
@@ -1000,7 +1024,7 @@ namespace Painter.Models
             this.FirstPoint += offset;
             this.SecondPoint += offset;
         }
-        public override void Rotate(float degree, PointGeo center = null)
+        public  void Rotate2(float degree, PointGeo center = null)
         {
             if (center == null)
             {
@@ -1008,14 +1032,23 @@ namespace Painter.Models
             }
             float x = FirstPoint.X - center.X;
             float y = FirstPoint.Y - center.Y;
-            CommonUtils.PointRotateAroundOrigin(degree, ref x, ref y);
+            CommonUtils.PointRotateAroundOrigin(-degree, ref x, ref y);
             FirstPoint.X = x + center.X;
             FirstPoint.Y = y + center.Y;
             x = SecondPoint.X - center.X;
             y = SecondPoint.Y - center.Y;
-            CommonUtils.PointRotateAroundOrigin(degree, ref x, ref y);
+            CommonUtils.PointRotateAroundOrigin(-degree, ref x, ref y);
             SecondPoint.X = x + center.X;
             SecondPoint.Y = y + center.Y;
+        }
+        public override void Rotate(float degree, PointGeo center=null)
+        {
+            if (center == null)
+            {
+                center = this.FirstPoint.Clone();
+            }
+            this.FirstPoint.RotateAroundOrigin(-degree, center);
+            this.SecondPoint.RotateAroundOrigin(-degree, center);
         }
 
         public static float MAX_SLOP = 66666;
@@ -1107,6 +1140,14 @@ namespace Painter.Models
     {
         public PolygonGeo()
         {
+        }
+        public override void Rotate(float degree, PointGeo center = null)
+        {
+            base.Rotate(degree, center);
+            for (int i = 0; i < this.points.Count; i++)
+            {
+                pointF[i]  = new PointF(this.points[i].X,this.points[i].Y); 
+            }
         }
         public override void SamplePointByStep(double ratio)
         {
@@ -1282,6 +1323,7 @@ namespace Painter.Models
                 } 
             }
         }
+        
         public void ResetPoints()
         {
             foreach (var element in this.points)
@@ -1371,7 +1413,10 @@ namespace Painter.Models
 
         public override void Rotate(float degree, PointGeo center = null)
         {
-
+            foreach (var item in this.points)
+            {
+                item.RotateAroundOrigin(-degree, center);
+            }
         }
 
         public override void Scale(PointGeo offset)
@@ -1452,12 +1497,7 @@ namespace Painter.Models
         {
             this.pos.Offset(offset);
         }
-
-        public override void Rotate(float degree, PointGeo center)
-        {
-
-        }
-
+         
         public override void Scale(PointGeo p)
         {
             this.pos.Scale(p);

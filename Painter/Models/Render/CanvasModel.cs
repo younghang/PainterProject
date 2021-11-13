@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Utils;
 
 namespace Painter.Models
 {
@@ -402,6 +403,7 @@ namespace Painter.Models
             }
             this.Invalidate();
         }
+        public float[] LineDashStyle = null;
         public event Action<List<DrawableObject>> ShapeClickEvent;
         private static int HitRangePixel = 5;
         private CircleGeo hitCircle = new CircleGeo();
@@ -445,7 +447,11 @@ namespace Painter.Models
             }
             foreach (var item in clickCeo)
             {
-                item.GetDrawMeta().DashLineStyle = null;
+                item.GetDrawMeta().DashLineStyle = LineDashStyle;
+                if (item is DrawableText)
+                { 
+                    item.GetDrawMeta().ForeColor = item.GetDrawMeta().BackColor;
+                }
             }
             clickCeo.Clear();
             float HitRange = HitRangePixel / this.fixedLayerManager.GetPainter().Scale.X;
@@ -457,6 +463,7 @@ namespace Painter.Models
                 if (item is DrawableObject)
                 {
                     DrawableObject shape = item as DrawableObject;
+                     
                     if (shape.IsShow==false||shape.IsInVision==false)
                     {
                         continue;
@@ -472,6 +479,7 @@ namespace Painter.Models
                 if (item is DrawableObject)
                 {
                     DrawableObject shape = item as DrawableObject;
+                    
                     if (shape.IsShow == false || shape.IsInVision == false)
                     {
                         continue;

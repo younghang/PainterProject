@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -91,6 +92,10 @@ namespace Utils
             tempY = (float)((deltax) * Math.Sin(rad) + (deltay) * Math.Cos(rad));
             deltax = tempX+originx;
             deltay = tempY+originy;
+        }
+        public static Color ReverseColor(Color color)
+        {
+            return Color.FromArgb(255-color.R, 255 - color.G, 255 - color.B);
         }
         /// <summary>
         /// Clones the specified list.
