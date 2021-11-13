@@ -39,7 +39,7 @@ namespace Painter.Painters
         public virtual void DrawText(DrawableText text)
         {
         }
-        public virtual void DrawImage(string filePath, int x = 0, int y = 0)
+        public virtual void DrawImage(DrawableImage image)
         {
         }
         public virtual void DrawMultiLines(RandomLines randomLines)
@@ -217,6 +217,36 @@ namespace Painter.Painters
             this.graphics = g;
             TransformX = (value) => (float)(Scale.X * value + OffsetPoint.X);
             TransformY = (value) => (float)(Scale.Y * value + OffsetPoint.Y);
+        }
+       
+        public override void DrawImage(DrawableImage image)
+        {
+            
+            if (graphics != null & pen != null)
+            {
+                if (image.GetDrawMeta()==null||(image.GetDrawMeta() as ImageMeta)==null|| (image.GetDrawMeta() as ImageMeta).bitmap==null)
+                {
+                    return;
+                }
+                float x = TransformX(image.leftTop.X);
+                float y = TransformY(image.leftTop.Y);
+                if (canvas != null && (x > canvas.Width || y > canvas.Height))
+                {
+                    image.IsInVision = false;
+                    return;
+                }
+                if (canvas != null && (x + image.Width<0|| y + image.Height<0))
+                {
+                    image.IsInVision = false;
+                    return;
+                }
+                System.Drawing.RectangleF rect = new System.Drawing.RectangleF(  0,0, Math.Abs((image.Width) * Scale.X), Math.Abs((image.Height) * Scale.Y));
+                GraphicsState state = graphics.Save();
+                graphics.TranslateTransform(x,y);
+                graphics.RotateTransform(image.Angle); 
+                graphics.DrawImage((image.GetDrawMeta() as ImageMeta).bitmap, rect);
+                graphics.Restore(state);
+            }
         }
         public override void DrawText(DrawableText t)
         {
@@ -574,7 +604,39 @@ namespace Painter.Painters
     }
 
 }
+[Serializable]
+public class ImageMeta:DrawMeta
+{
+    public string FilePath
+    {
+        get
+        {
+            return this.filePath;
+        }
+        set
+        {
+            if (value!="")
+            {
+                this.filePath = value;
+                System.Drawing.Image image = Bitmap.FromFile(FilePath);
+                if (image != null)
+                {
+                    this.bitmap = new Bitmap(image);
+                }
+            } 
+        }
+    }
+    private string filePath = "";
+    public Bitmap bitmap = null;
 
+    public ImageMeta Copy()
+    {
+        ImageMeta imageMeta = new ImageMeta();
+        imageMeta.bitmap = this.bitmap;
+        imageMeta.FilePath = this.filePath;
+        return imageMeta;
+    }
+}
 [Serializable]
 public class TextMeta : DrawMeta
 {

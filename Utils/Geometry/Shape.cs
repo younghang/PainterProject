@@ -201,10 +201,7 @@ namespace Painter.Models
                 this._end = value;
                 Initial();
             }
-        }
-
-
-
+        } 
         public override bool IsOverlap(DrawableObject shape)
         {
             return false;
@@ -739,6 +736,13 @@ namespace Painter.Models
                 Size size = TextRenderer.MeasureText(text.GetTextMeta().Text, text.GetTextMeta().TEXTFONT);
                 RectangleGeo rectangle = new RectangleGeo(text.pos, text.pos + new PointGeo(size.Width, -size.Height));
                 rectangle.SetDrawMeta(new ShapeMeta() { IsFill=true});
+                return this.IsOverlap(rectangle);
+            }
+            if (other is DrawableImage)
+            {
+                DrawableImage image = other as DrawableImage; 
+                RectangleGeo rectangle = new RectangleGeo(image.leftTop,image.RightBottom);
+                rectangle.SetDrawMeta(new ShapeMeta() { IsFill = true });
                 return this.IsOverlap(rectangle);
             }
             return false;
@@ -1464,50 +1468,78 @@ namespace Painter.Models
     [Serializable]
     public class DrawableImage : DrawableObject
     {
+       
+        
+        private PointGeo _start = new PointGeo(0, 0);
+        private PointGeo _end = new PointGeo(0, 0);
+        public PointGeo leftTop 
+        {
+            get { return _start; }
+            set
+            {
+                this._start = value;
+                Initial();
+            }
+        }
+        public PointGeo RightBottom
+        {
+            get { return _end; }
+            set
+            {
+                this._end = value;
+                Initial();
+            }
+        }
+        public float Width
+        {
+            get;
+            set;
+        }
+        public float Height
+        {
+            get;
+            set;
+        }
         public override List<PointGeo> GetControlPoints()
         {
-            return new List<PointGeo>() {  };
+            return new List<PointGeo>() { this.leftTop,this.RightBottom };
         }
         public override void Draw(PainterBase Painter)
         {
             if (Painter != null)
             {
-                Painter.DrawImage(FilePath);
+                Painter.DrawImage(this);
             }
         }
-
-        public override void Rotate(float degree, PointGeo center = null)
-        {
-            throw new NotImplementedException();
-        }
+         
 
         public override void Scale(PointGeo offset)
         {
-            throw new NotImplementedException();
+             
         }
 
         public override void Translate(PointGeo offset)
         {
-            throw new NotImplementedException();
+            this.leftTop += offset;
+            this.RightBottom += offset;
         }
 
         public override DrawMeta GetDrawMeta()
         {
-            throw new NotImplementedException();
-        }
-
+            return this.imageMeta;
+        } 
         public override void SetDrawMeta(DrawMeta draw)
         {
-            throw new NotImplementedException();
+            imageMeta = draw as ImageMeta; 
         }
-
+        private ImageMeta imageMeta;
+        
         public override void Initial()
         {
-            throw new NotImplementedException();
-        }
-
-        public string FilePath;
-
+            this.Width = Math.Abs(leftTop.X - RightBottom.X);
+            this.Height = Math.Abs(leftTop.Y - RightBottom.Y); 
+        } 
+       
     }
     [Serializable]
     public class DrawableText : DrawableObject

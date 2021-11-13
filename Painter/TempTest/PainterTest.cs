@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -177,9 +178,35 @@ namespace Painter.TempTest
             {
 
             }
+            // 如果按下组合键CTRL+Enter
+            if (e.KeyData == (Keys.Control | Keys.Enter))
+            {
+                MessageBox.Show("CTRL+Enter");
+            }
+
             if (e.KeyCode==Keys.S&&ModifierKeys==Keys.Control)
             {
                 canvasModel.GetCmdMgr().AddCmd(new SaveOrLoadCmd(canvasModel)); 
+            }
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.C)
+            {// Ctrl+C 
+                Clipboard.SetImage((this.canvasModel.GetFreshLayerManager().GetPainter() as WinFormPainter).canvas);
+            }
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.V)
+            {// Ctrl+V 
+                if (Clipboard.ContainsImage())
+                {
+                    Image image = Clipboard.GetImage();
+                    if (image != null)
+                    {
+                        Bitmap bmp =new Bitmap(image);
+                        DrawableImage image1 = new DrawableImage();
+                        image1.leftTop =this.canvasModel.CurObjectPoint+ new PointGeo(0, bmp.Height);
+                        image1.RightBottom = this.canvasModel.CurObjectPoint + new PointGeo(bmp.Width,0);
+                        image1.SetDrawMeta(new ImageMeta() {bitmap=bmp });
+                        this.canvasModel.GetFreshLayerManager().Add(image1,true);
+                    } 
+                }
             }
         }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -201,8 +228,8 @@ namespace Painter.TempTest
                     
                     break;
                 case Keys.Down:
-                    break;
-            } 
+                    break; 
+            }  
             canvasModel.OnInvalidate();
             return base.ProcessCmdKey(ref msg, keyData);
         }
@@ -507,6 +534,31 @@ namespace Painter.TempTest
             geoRadioText.Text = " T";
             geoRadioText.BackColor = Color.White;
 
+            GeoDrawButton geoButtonPic = new GeoDrawButton(30, 30, new RectangleGeo());
+            geoButtonPic.LoadDrawableFile("pic.dat");
+            geoButtonPic.ClickEvent += () => {
+                info.Text = "当前绘制：图像";
+                string filePath = "";
+                if (!FileUtils.SeletFile(ref filePath))
+                {
+                    return;
+                }
+                FileInfo fileinfo = new FileInfo(filePath);
+                List<string> imgExt = new List<string>() {".jpg",".jpeg",".bmp",".png" };
+                if (!imgExt.Contains(fileinfo.Extension))
+                {
+                    return;
+                }
+                Image image = Bitmap.FromFile(filePath); 
+                if (image != null)
+                {
+                    Bitmap bmp = new Bitmap(image);
+                    ImageMeta imageMeta = new ImageMeta();
+                    imageMeta.bitmap = bmp;
+                    this.canvasModel.GetCmdMgr().AddCmd(new ImageCmd(this.canvasModel, imageMeta));
+                } 
+            };
+
             CurveGeo curve = new CurveGeo();
             curve.AddPoint(new PointGeo(0, 15));
             curve.AddPoint(new PointGeo(15, 30));
@@ -524,6 +576,7 @@ namespace Painter.TempTest
 
             geoTypePanel2.AddControl(geoRadioCurve); 
             geoTypePanel2.AddControl(geoRadioText);
+            geoTypePanel2.AddControl(geoButtonPic);
 
 
             geoTypePanel2.Move(new PointGeo(0, 150));
@@ -701,32 +754,18 @@ namespace Painter.TempTest
             GeoPanel geoPanel = new GeoPanel(500,300,new RectangleGeo());
             
             GeoButton geoButton = new GeoButton(100, 50,new RectangleGeo()); 
-            geoButton.Text = "按钮"; 
+            geoButton.Text = "关闭"; 
             geoButton.ClickEvent += () =>{
-                info.Text = "Button1 is Clicked";
-                //geoButton.IsVisible = false;
-                //MessageBox.Show("Button is Clicked");
+                geoPanel.IsVisible = false;
+              
             };
-            GeoButton geoButton2 = new GeoButton(100, 50, new RectangleGeo());
-            geoButton2.Text = "按钮";
-            geoButton2.ClickEvent += () => {
-                info.Text = "Button2 is Clicked"; 
-            };
-            GeoButton geoButton3 = new GeoButton(50, 50, new CircleGeo()); 
-      
-            GeoButton geoButton4 = new GeoButton(200, 100, new RectangleGeo());
-
-            GeoRadio geoRadio = new GeoRadio(50, 50, new CircleGeo());
-            GeoRadio geoRadio2 = new GeoRadio(50, 50, new CircleGeo());
-
-            GeoEditBox geoEditBox = new GeoEditBox(100, 50, new RectangleGeo());
-            geoPanel.AddControl(geoButton);
-            geoPanel.AddControl(geoButton2);
-            geoPanel.AddControl(geoButton3);
-            geoPanel.AddControl(geoRadio);
-            geoPanel.AddControl(geoRadio2);
-            geoPanel.AddControl(geoEditBox);
-            geoPanel.Move(new PointGeo(1000, 800));
+            GeoLabel geoLabel = new GeoLabel(400,70,new RectangleGeo());
+            geoLabel.Alignment = StringAlignment.Near; 
+            geoLabel.Text = "保存：Ctrl+S\n复制为图片: Ctrl+C\n粘贴图片：Ctrl+V";
+            geoLabel.Background = Color.Transparent; 
+            geoPanel.AddControl(geoButton); 
+            geoPanel.AddControl(geoLabel);
+            geoPanel.Move(new PointGeo(500, 300));
             this.canvasModel.AddGeoControls(geoPanel);
             //this.canvasModel.OffsetPoint = new PointGeo(500,350);
         }

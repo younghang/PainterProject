@@ -182,6 +182,7 @@ namespace Painter.Models.PainterModel
             get { return text.GetDrawMeta().ForeColor; }
             set { text.GetDrawMeta().ForeColor=value; }
         }
+        //文本对齐方式，在设置Text之前设置
         public StringAlignment Alignment = StringAlignment.Center;
         public string Text
         {
@@ -309,6 +310,10 @@ namespace Painter.Models.PainterModel
     }
     public class GeoButton: GeoLabel
     {
+        public GeoButton(int width, int height, Shape shape, DrawableObject drawable) : base(width, height, shape, drawable)
+        {
+            Text = "";
+        }
         public GeoButton(int width, int height, Shape shape) : base(width, height, shape)
         {
             Text = "123";
@@ -334,27 +339,51 @@ namespace Painter.Models.PainterModel
     }
     public class GeoDrawButton : GeoButton
     {
-        public GeoDrawButton(int width, int height, Shape shape,DrawableObject drawable) : base(width, height, shape)
+        public GeoDrawButton(int width, int height, Shape shape) : base(width, height, shape)
         {
-            Text = "";
-            this.Drawable = drawable;
+            Text = ""; 
         }
-        protected DrawableObject Drawable;
+        protected List<DrawableObject> Drawables;
         public override void Move(PointGeo point)
         {
             base.Move(point);
-            Drawable.Translate(point);
+            if (this.Drawables != null)
+            {
+                foreach (var item in Drawables)
+                {
+                    item.Translate(point);
+                }
+            }
         }
         public override void Update()
         {
             base.Update();
-            Drawable.IsShow = IsVisible;
+            if (this.Drawables!=null)
+            {
+                foreach (var item in Drawables)
+                {
+                    item.IsShow = IsVisible;
+                }
+            }
+           
         }
         public override List<DrawableObject> GetElements()
         {
-            List <DrawableObject> temp= base.GetElements();
-            temp.Add(Drawable);
+            List<DrawableObject> temp = base.GetElements();
+            if (this.Drawables != null)
+            {
+                foreach (var item in Drawables)
+                {
+                    temp.Add(item);
+                }
+            }
             return temp;
+        }
+        public new void LoadDrawableFile(string filePath)
+        {
+            List<DrawableObject> drawables = FileUtils.LoadDrawableFile(filePath);
+            drawables.Reverse();
+            this.Drawables = drawables;
         }
 
     }

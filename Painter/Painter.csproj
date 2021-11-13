@@ -81,6 +81,7 @@
     <Compile Include="Models\CmdControl\PaintCmd.cs" />
     <Compile Include="Models\GameModel\CameraModel\Camera.cs" />
     <Compile Include="Models\CmdControl\InputCmds.cs" />
+    <Compile Include="Models\GameModel\StageModel\WeldStage.cs" />
     <Compile Include="Models\PainterModel\GeoControls.cs" />
     <Compile Include="Models\Render\CanvasModel.cs" />
     <Compile Include="Models\GameModel\PhysicalModel\PhysicalField.cs" />

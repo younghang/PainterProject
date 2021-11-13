@@ -231,6 +231,53 @@ namespace Painter.Models.CmdControl
         public CMD_STATUS Status = CMD_STATUS.SLEEP;
     }
     [Serializable]
+    public class ImageCmd:Command
+    {
+        public IMAGE_PROCESS process = IMAGE_PROCESS.START;
+        public enum IMAGE_PROCESS { START, IMAGE_LOC,  END }
+        public ImageCmd(CanvasModel model, ImageMeta drawMeta) : base(model)
+        {
+            imageMeta = drawMeta.Copy(); 
+            process = IMAGE_PROCESS.IMAGE_LOC;
+            image.SetDrawMeta(drawMeta);
+        }
+        private DrawableImage image=new DrawableImage();
+        private ImageMeta imageMeta = null;
+        public override void MoveNext_MouseDown()
+        {
+            if (process == IMAGE_PROCESS.IMAGE_LOC)
+            {
+                if (this.imageMeta==null)
+                {
+                    canvas.OnCmdMsg("未设置图片，命令无效");
+                    process = IMAGE_PROCESS.END;
+                    return;
+                } 
+                image.leftTop = canvas.CurObjectPoint.Clone();
+                image.RightBottom = image.leftTop + new PointGeo(imageMeta.bitmap.Width, -imageMeta.bitmap.Height);
+                canvas.GetFreshLayerManager().Add(image, true);
+            }
+            process++; 
+        }
+        public override void Excute_MouseUpdate()
+        { 
+            switch (this.process)
+            {
+                case IMAGE_PROCESS.START:
+                   
+                    break;
+                case IMAGE_PROCESS.IMAGE_LOC:
+                    canvas.OnCmdMsg("鼠标左键单击确定图片插入位置"); 
+                    break;
+                case IMAGE_PROCESS.END:
+                    this.Status = CMD_STATUS.DONE;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    [Serializable]
     public class TextCmd : Command
     {
         public TEXT_PROCESS process = TEXT_PROCESS.START;
@@ -838,7 +885,7 @@ namespace Painter.Models.CmdControl
             {
                 return;
             }
-            canvas.GetFreshLayerManager().Add(poly);
+            canvas.GetFreshLayerManager().Add(poly, true);
         }
     }
     [Serializable]
@@ -858,7 +905,7 @@ namespace Painter.Models.CmdControl
                     {
                         return;
                     }
-                    canvas.GetFreshLayerManager().Add(poly);
+                    canvas.GetFreshLayerManager().Add(poly, true);
                     break;
                 case POLYGON_PROCESS.END:
                     poly.SamplePointByStep(0.06);
@@ -927,7 +974,7 @@ namespace Painter.Models.CmdControl
         public override void Resume()
         {
             this.poly.IsDisposed = false;
-            this.canvas.GetFreshLayerManager().Add(poly);
+            this.canvas.GetFreshLayerManager().Add(poly, true);
         }
         public PolygonCmd(CanvasModel model, ShapeMeta meta) : base(model)
         {
@@ -956,7 +1003,7 @@ namespace Painter.Models.CmdControl
             {
                 return;
             }
-            canvas.GetFreshLayerManager().Add(poly);
+            canvas.GetFreshLayerManager().Add(poly,true);
         }
         protected PolygonGeo poly;
         public override void Excute_MouseUpdate()

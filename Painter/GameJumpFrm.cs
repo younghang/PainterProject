@@ -5,6 +5,7 @@ using Painter.Models.Paint;
 using Painter.Models.PhysicalModel; 
 using Painter.Models.StageModel;
 using Painter.Painters;
+using Painter.TempTest;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -53,7 +54,7 @@ namespace Painter
                 } 
             };
             canvasModel.Invalidate += this.Invalidate;
-           
+            canvasModel.EnableClickTest = false;
         }
         void OnLoad(object sender, EventArgs e)
         {
@@ -276,6 +277,9 @@ namespace Painter
                 case GAME_CMDS.FOR_SCENE:
                     StageScene stage = stageManager.GetPreViewStage();
                     SetCurStage(stage);
+                    break;
+                case GAME_CMDS.EDIT:
+                    new PainterTest().Show();
                     break;
                 default:
                     break;
