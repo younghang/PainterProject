@@ -189,6 +189,12 @@ namespace Painter.Models
             graphics.InterpolationMode = InterpolationMode.HighQualityBilinear;
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
             screenManager.Draw();
+            foreach (var item in this.ControlPoints)
+            {
+                Point p=this.ObjectToScreen(item.Clone());
+                Debug.Print(p.ToString());
+                graphics.DrawRectangle(Pens.BlueViolet, new Rectangle(p.X-4, p.Y-4, 8, 8));
+            }
         }
         private void SetLayerManagerGraphic(ref GraphicsLayerManager layerGraphic)
         {
@@ -318,6 +324,15 @@ namespace Painter.Models
                 }
             }
             CurObjectPoint = ScreenToObjectPos(e.X, e.Y);
+            if (this.selectPoint != null)
+            {
+                this.selectPoint.X = CurObjectPoint.X;
+                this.selectPoint.Y = CurObjectPoint.Y;
+                foreach (var item in clickCeo)
+                {
+                    item.Initial();
+                }
+            }
             if (EnableClickTest)
             {
                 MoveTest(new Point(e.X, e.Y));
@@ -327,6 +342,10 @@ namespace Painter.Models
         public bool EnableClickTest = true;
         public void OnMouseUp(object sender, MouseEventArgs e)
         {
+            if (e.Button == MouseButtons.Left)
+            {
+                selectPoint = null;
+            }
             this.CmdMgr.OnMouseUp(sender, e);
         }
         public void OnKeyUp(object sender, KeyEventArgs e)
@@ -385,6 +404,7 @@ namespace Painter.Models
         public void OnMouseDown(object sender, MouseEventArgs e)
         {
             IsClickHandled = false;
+
             if (e.Button == MouseButtons.Middle)
             {
                 oldPoint.X = e.X;
@@ -432,8 +452,13 @@ namespace Painter.Models
             }
             this.Invalidate();
         }
+        private  List<PointGeo> ControlPoints=new List<PointGeo>();
+        private PointGeo selectPoint; 
         private void ClickTest(Point point )
         {
+            selectPoint = null;
+            hitCircle.FirstPoint = new PointGeo(point.X, point.Y);
+            hitCircle.SecondPoint = hitCircle.FirstPoint + new PointGeo(HitRangePixel, HitRangePixel);
             foreach (var item in this.geoControls)
             {
                 if (item.HitTest(hitCircle, true))//优先显示Controls的信息
@@ -445,6 +470,21 @@ namespace Painter.Models
             {
                 return;
             }
+
+            float HitRange = HitRangePixel / this.fixedLayerManager.GetPainter().Scale.X;
+            PointGeo objPoint = ScreenToObjectPos(point.X, point.Y);
+            hitCircle.FirstPoint = objPoint;
+            hitCircle.SecondPoint = objPoint + new PointGeo(HitRange, HitRange);
+            foreach (var item in this.ControlPoints)
+            {
+                PointGeo dist = item - hitCircle.FirstPoint;
+                if (dist.GetLength()< HitRange)
+                {
+                    selectPoint = item;
+                    return;
+                }
+            }
+
             foreach (var item in clickCeo)
             {
                 item.GetDrawMeta().DashLineStyle = LineDashStyle;
@@ -454,10 +494,8 @@ namespace Painter.Models
                 }
             }
             clickCeo.Clear();
-            float HitRange = HitRangePixel / this.fixedLayerManager.GetPainter().Scale.X;
-            PointGeo objPoint=  ScreenToObjectPos(point.X, point.Y);
-            hitCircle.FirstPoint = objPoint;
-            hitCircle.SecondPoint = objPoint + new PointGeo(HitRange, HitRange);
+            ControlPoints.Clear();
+         
             foreach (var item in this.freshLayerManager.GetDatas())
             {
                 if (item is DrawableObject)
@@ -471,7 +509,9 @@ namespace Painter.Models
                     if (hitCircle.IsOverlap(shape))
                     {
                         clickCeo.Add(shape);
+                        ControlPoints.AddRange(shape.GetControlPoints());
                     }
+                    
                 }
             }
             foreach (var item in this.fixedLayerManager.GetDatas())
@@ -490,8 +530,7 @@ namespace Painter.Models
                     }
                 }
             }
-            hitCircle.FirstPoint = new PointGeo(point.X, point.Y);
-            hitCircle.SecondPoint = hitCircle.FirstPoint + new PointGeo(HitRangePixel, HitRangePixel);
+           
 
             //if (clickCeo.GetShapes().Count!=0)
             {

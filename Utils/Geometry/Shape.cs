@@ -32,6 +32,7 @@ namespace Painter.Models
     [Serializable]
     public abstract class DrawableObject : IPrintAndOperatable
     {
+        public abstract List<PointGeo> GetControlPoints();
         public abstract void Draw(PainterBase pb);
         public virtual void Rotate(float degree, PointGeo center = null)
         {
@@ -50,6 +51,9 @@ namespace Painter.Models
         {
             return false;
         }
+
+        public abstract void Initial() ;
+        
     }
 
     [Serializable]
@@ -150,6 +154,10 @@ namespace Painter.Models
     [Serializable]
     public abstract class Shape : DrawableObject
     {
+        public override List<PointGeo> GetControlPoints()
+        {
+            return new List<PointGeo>() { this.FirstPoint,this.SecondPoint };
+        }
         public enum SHAPE_TYPE { SHAPE, CIRCLE, ELLIPSE, RECTANGLE, ARC, LINE }
         public SHAPE_TYPE ShpaeType = SHAPE_TYPE.SHAPE;
 
@@ -251,7 +259,7 @@ namespace Painter.Models
             this.FirstPoint = s;
             this.SecondPoint = e;
         }
-        protected virtual void Initial()
+        public override void Initial()
         {
             this.Width = Math.Abs(FirstPoint.X - SecondPoint.X);
             this.Heigth = Math.Abs(FirstPoint.Y - SecondPoint.Y);
@@ -391,7 +399,7 @@ namespace Painter.Models
             Angle += degree;
         }
         
-        protected override void Initial()
+        public override void Initial()
         {
             base.Initial();
             LeftCorner = (int)Math.Min(SecondPoint.X, FirstPoint.X);
@@ -523,6 +531,10 @@ namespace Painter.Models
             ShpaeType = SHAPE_TYPE.CIRCLE;
 
         }
+        public override List<PointGeo> GetControlPoints()
+        {
+            return new List<PointGeo>() { this.FirstPoint, this.SecondPoint  };
+        }
         public override PointGeo GetShapeCenter()
         {
             return FirstPoint;
@@ -536,7 +548,7 @@ namespace Painter.Models
             this.FirstPoint = s;
             this.SecondPoint = e;
         }
-        protected override void Initial()
+        public override void Initial()
         {//是这样的，第一个点是圆心，第二个点决定半径
             this.Width = Math.Abs(FirstPoint.X - SecondPoint.X);
             this.Heigth = Math.Abs(FirstPoint.Y - SecondPoint.Y);
@@ -742,6 +754,10 @@ namespace Painter.Models
             ShpaeType = SHAPE_TYPE.ARC;
 
         }
+        public override List<PointGeo> GetControlPoints()
+        {
+            return new List<PointGeo>() { this.FirstPoint, this.SecondPoint,this.ThirdPoint};
+        }
         public override bool IsOverlap(DrawableObject other)
         {
             if (other is CircleGeo)
@@ -890,7 +906,7 @@ namespace Painter.Models
                 Initial();
             }
         }
-        protected override void Initial()
+        public override void Initial()
         {
             this.CenterX = FirstPoint.X;
             this.CenterY = FirstPoint.Y;
@@ -1141,6 +1157,15 @@ namespace Painter.Models
         public PolygonGeo()
         {
         }
+        public override void Initial()
+        {
+            this.pointF.Clear();
+            foreach (var item in this.points)
+            {
+                pointF.Add(new PointF(item.X,item.Y));
+            }
+        }
+
         public override void Rotate(float degree, PointGeo center = null)
         {
             base.Rotate(degree, center);
@@ -1173,7 +1198,7 @@ namespace Painter.Models
                 this.points.Add(point);
                 this.pointF.Add(new PointF(point.X, point.Y));
             }
-        }
+        } 
         public override void Translate(PointGeo offset)
         {
             base.Translate(offset);
@@ -1308,6 +1333,10 @@ namespace Painter.Models
     [Serializable]
     public class RandomLines : DrawableObject
     {
+        public override List<PointGeo> GetControlPoints()
+        {
+            return this.points;
+        }
         public  virtual void SamplePointByStep(double ratio)
         {
             int countSpan = (int)(this.points.Count * ratio);
@@ -1424,12 +1453,21 @@ namespace Painter.Models
 
         }
 
+        public override void Initial()
+        {
+            
+        }
+
         public List<PointGeo> points = new List<PointGeo>();
 
     }
     [Serializable]
     public class DrawableImage : DrawableObject
     {
+        public override List<PointGeo> GetControlPoints()
+        {
+            return new List<PointGeo>() {  };
+        }
         public override void Draw(PainterBase Painter)
         {
             if (Painter != null)
@@ -1463,12 +1501,21 @@ namespace Painter.Models
             throw new NotImplementedException();
         }
 
+        public override void Initial()
+        {
+            throw new NotImplementedException();
+        }
+
         public string FilePath;
 
     }
     [Serializable]
     public class DrawableText : DrawableObject
     {
+        public override List<PointGeo> GetControlPoints()
+        {
+            return new List<PointGeo>() { this.pos };
+        }
         public override void Draw(PainterBase dp)
         {
             if (!IsShow)
@@ -1503,6 +1550,10 @@ namespace Painter.Models
             this.pos.Scale(p);
         }
 
+        public override void Initial()
+        {
+            
+        }
 
         public PointGeo pos { get; set; }
         private TextMeta pm;
