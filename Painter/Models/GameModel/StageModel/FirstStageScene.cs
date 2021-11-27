@@ -170,7 +170,7 @@ namespace Painter.Models.StageModel
                 rectange2.SetDrawMeta(new Painters.ShapeMeta() { ForeColor = System.Drawing.Color.Red, LineWidth = 5, BackColor = System.Drawing.Color.OrangeRed, IsFill = true });
                 enemy1.Add(rectange2);
                 enemy1.Speed = new PointGeo((float)rand.NextDouble() * 2, (float)rand.NextDouble() * 2);
-                enemy1.Move(new PointGeo(obj.GetOutShape().GetShapeCenter()));
+                enemy1.Move(new PointGeo((obj.GetOutShape() as Shape).GetShapeCenter()));
                 enemy1.StopEvent += OnEnemyStop;
                 scene.AddObject(enemy1, false);
             }

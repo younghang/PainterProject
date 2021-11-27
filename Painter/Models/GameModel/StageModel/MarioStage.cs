@@ -12,9 +12,9 @@ using Utils;
 
 namespace Painter.Models.GameModel.StageModel
 {
-    class WeldStage : StageScene
+    class MarioStage : StageScene
     {
-        public WeldStage()
+        public MarioStage()
         {
             MaxX = 2400;
             MinX = 0;
@@ -24,24 +24,20 @@ namespace Painter.Models.GameModel.StageModel
         public override void Clear()
         {
             this.scene.Clear();
-            气槽工字板.IsDisposed = true; 
+ 
             CanvasModel.EnableTrack = false;
         }
         MainCharacter character = new MainCharacter();
         MainCharacter board = new MainCharacter();
-        MainCharacter graph = new MainCharacter();
+      
         DrawableText scoreText = new DrawableText();
-        Obstacle 气槽工字板 = new Obstacle();
+ 
         Scene scene = new Scene();
 
         public override Scene CreateScene()
         {
             CanvasModel.EnableTrack = false;
-            //scene.Background = Color.Black;
-            this.Add气槽工字板();
-            气槽工字板.Move(new PointGeo(0, -20));
-
-
+            this.LoadGround(); 
             Obstacle TextObject = new Obstacle();
             scoreText.pos = new PointGeo(1200, 500);
             scoreText.SetDrawMeta(new TextMeta("你好呀 Hello") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
@@ -49,22 +45,21 @@ namespace Painter.Models.GameModel.StageModel
             TextObject.Add(rect);
             TextObject.Add(scoreText);
 
-            if (board.GetElements().Count<6)
+            if (board.GetElements().Count < 6)
             {
                 RectangleGeo rectangleBoard = new RectangleGeo(new PointGeo(0, 1220), new PointGeo(-7050, 0));
                 rectangleBoard.SetDrawMeta(new ShapeMeta() { ForeColor = Color.Black, LineWidth = 2, IsFill = true, BackColor = Color.FromArgb(50, Color.Gray) });
                 board.Add(rectangleBoard);
                 board.IsAppliedGravity = false;
-                board.AvoidFallingDown = false; 
-            } 
+                board.AvoidFallingDown = false;
+            }
 
-            this.LoadGraph();
-            graph.IsAppliedGravity = false;
-            graph.AvoidFallingDown = false;
-
-            scene.AddObject(气槽工字板, false);
-            scene.AddObject(graph);
-            scene.AddObject(board); 
+      
+            
+         
+    
+            
+            scene.AddObject(character);
             return scene;
         }
 
@@ -72,23 +67,24 @@ namespace Painter.Models.GameModel.StageModel
         {
             return character;
         }
-        public void LoadGraph()
+        
+        public void LoadGround()
         {
-            if (this.graph.GetElements().Count<6)
-            {
-                List<DrawableObject> drawableObjects = FileUtils.LoadDrawableFile("./shape.dat");
-                foreach (var item in drawableObjects)
-                {
-                    graph.Add(item);
-                }
-            } 
-        }
-        public void Add气槽工字板()
-        {
-            List<DrawableObject> drawableObjects = FileUtils.LoadDrawableFile("./gongziban.dat");
+            List<DrawableObject> drawableObjects = FileUtils.LoadDrawableFile("./mario_ground.dat");
             foreach (var item in drawableObjects)
             {
-                气槽工字板.Add(item);
+                if (item is RectangleGeo)
+                {
+                    GroundObject groundObject = new GroundObject();
+                    groundObject.Add(item);
+                    this.scene.AddObject(groundObject);
+                }else
+                {
+                    Obstacle obstacle = new Obstacle();
+                    obstacle.Add(item);
+                    this.scene.AddObject(obstacle);
+                }
+               
             }
         }
         public override Scene GetScene()
@@ -101,24 +97,23 @@ namespace Painter.Models.GameModel.StageModel
             switch (keyData)
             {
                 case Keys.Right:
-                    board.Speed.X = 1; 
+                    character.Speed.X = 3;
                     break;
                 case Keys.Left:
-                    board.Speed.X = -1; 
+                    character.Speed.X = -3;
                     break;
                 case Keys.Up:
-                    graph.Speed.X = 1;
+                    character.Speed.Y =  2;
                     break;
                 case Keys.Space:
-                    board.Speed.X = 0;
-                    board.Move(new PointGeo(1, 0));
-                    graph.Speed.X = 0;
-                    graph.Move(new PointGeo(1, 0));
+                    character.Speed.Y = 2;
+                   
+                 
                     break;
                 case Keys.Enter:
                     break;
                 case Keys.Down:
-                    graph.Speed.X = -1;
+                    
                     break;
 
             }
@@ -140,10 +135,11 @@ namespace Painter.Models.GameModel.StageModel
         {
             if (isGraph)
             {
-                graph.AnimateTo(new PointGeo(moveDistance, 0), timespan);
-            }else
+                 
+            }
+            else
             {
-                board.AnimateTo(new PointGeo(moveDistance, 0), timespan); 
+                board.AnimateTo(new PointGeo(moveDistance, 0), timespan);
             }
         }
     }

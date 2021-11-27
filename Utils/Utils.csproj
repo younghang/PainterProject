@@ -55,7 +55,7 @@
     <Compile Include="DisplayManger\GraphicsLayerManager.cs" />
     <Compile Include="DisplayManger\Painters\DrawPainter.cs" />
     <Compile Include="FileUtils.cs" />
-    <Compile Include="Geometry\Shape.cs" />
+    <Compile Include="Geometry\2DShape.cs" />
     <Compile Include="MVVM\MyCommandT.cs" />
     <Compile Include="MVVM\MyEventCommand.cs" />
     <Compile Include="MVVM\NotifyObject.cs" />

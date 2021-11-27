@@ -65,11 +65,11 @@
             // 
             this.listGCode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listGCode.FormattingEnabled = true;
-            this.listGCode.ItemHeight = 12;
+            this.listGCode.ItemHeight = 18;
             this.listGCode.Location = new System.Drawing.Point(0, 0);
-            this.listGCode.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.listGCode.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.listGCode.Name = "listGCode";
-            this.listGCode.Size = new System.Drawing.Size(261, 920);
+            this.listGCode.Size = new System.Drawing.Size(391, 1382);
             this.listGCode.TabIndex = 1;
             // 
             // toolStrip1
@@ -80,7 +80,8 @@
             this.SettingFrmCmd});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1185, 27);
+            this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.toolStrip1.Size = new System.Drawing.Size(1778, 38);
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "Setting";
             // 
@@ -90,7 +91,7 @@
             this.OpenCmd.Image = global::Painter.Properties.Resources.loadFile;
             this.OpenCmd.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.OpenCmd.Name = "OpenCmd";
-            this.OpenCmd.Size = new System.Drawing.Size(24, 24);
+            this.OpenCmd.Size = new System.Drawing.Size(34, 33);
             this.OpenCmd.Text = "打开文件";
             this.OpenCmd.Click += new System.EventHandler(this.OpenCmd_Click);
             // 
@@ -100,7 +101,7 @@
             this.SettingFrmCmd.Image = ((System.Drawing.Image)(resources.GetObject("SettingFrmCmd.Image")));
             this.SettingFrmCmd.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.SettingFrmCmd.Name = "SettingFrmCmd";
-            this.SettingFrmCmd.Size = new System.Drawing.Size(24, 24);
+            this.SettingFrmCmd.Size = new System.Drawing.Size(34, 33);
             this.SettingFrmCmd.Text = "设置";
             this.SettingFrmCmd.Click += new System.EventHandler(this.SettingFrmCmdClick);
             // 
@@ -111,47 +112,45 @@
             this.statusMsg,
             this.toolStripStatusASpeed,
             this.toolStripStatusSingleCutLength});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 925);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 1389);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 11, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1185, 22);
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(2, 0, 16, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(1778, 31);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // statusMsg
             // 
             this.statusMsg.Name = "statusMsg";
-            this.statusMsg.Size = new System.Drawing.Size(25, 17);
+            this.statusMsg.Size = new System.Drawing.Size(36, 24);
             this.statusMsg.Text = "0.0";
             // 
             // toolStripStatusASpeed
             // 
             this.toolStripStatusASpeed.Name = "toolStripStatusASpeed";
-            this.toolStripStatusASpeed.Size = new System.Drawing.Size(52, 17);
+            this.toolStripStatusASpeed.Size = new System.Drawing.Size(77, 24);
             this.toolStripStatusASpeed.Text = "A轴速度";
             // 
             // toolStripStatusSingleCutLength
             // 
             this.toolStripStatusSingleCutLength.Name = "toolStripStatusSingleCutLength";
-            this.toolStripStatusSingleCutLength.Size = new System.Drawing.Size(104, 17);
+            this.toolStripStatusSingleCutLength.Size = new System.Drawing.Size(154, 24);
             this.toolStripStatusSingleCutLength.Text = "单个脉冲加工长度";
             // 
             // richTextBox1
             // 
             this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.richTextBox1.Location = new System.Drawing.Point(0, 60);
-            this.richTextBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.richTextBox1.Location = new System.Drawing.Point(0, 92);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(921, 293);
+            this.richTextBox1.Size = new System.Drawing.Size(1383, 438);
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = "";
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(1, 5);
-            this.btnStart.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnStart.Location = new System.Drawing.Point(2, 8);
             this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(90, 43);
+            this.btnStart.Size = new System.Drawing.Size(135, 64);
             this.btnStart.TabIndex = 6;
             this.btnStart.Text = "启动";
             this.btnStart.UseVisualStyleBackColor = true;
@@ -171,8 +170,7 @@
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 27);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 38);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -183,9 +181,8 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
             this.splitContainer1.Panel2.Controls.Add(this.winFormUC1);
-            this.splitContainer1.Size = new System.Drawing.Size(1185, 920);
-            this.splitContainer1.SplitterDistance = 261;
-            this.splitContainer1.SplitterWidth = 3;
+            this.splitContainer1.Size = new System.Drawing.Size(1778, 1382);
+            this.splitContainer1.SplitterDistance = 391;
             this.splitContainer1.TabIndex = 8;
             // 
             // panel1
@@ -201,19 +198,17 @@
             this.panel1.Controls.Add(this.richTextBox1);
             this.panel1.Controls.Add(this.btnStart);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 636);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel1.Location = new System.Drawing.Point(0, 954);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(921, 353);
+            this.panel1.Size = new System.Drawing.Size(1383, 530);
             this.panel1.TabIndex = 8;
             // 
             // ckWait
             // 
             this.ckWait.Font = new System.Drawing.Font("宋体", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.ckWait.Location = new System.Drawing.Point(685, 29);
-            this.ckWait.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ckWait.Location = new System.Drawing.Point(1028, 44);
             this.ckWait.Name = "ckWait";
-            this.ckWait.Size = new System.Drawing.Size(107, 29);
+            this.ckWait.Size = new System.Drawing.Size(160, 44);
             this.ckWait.TabIndex = 10;
             this.ckWait.Text = "屏蔽等待";
             this.ckWait.UseVisualStyleBackColor = true;
@@ -221,30 +216,27 @@
             // ckXAxisUp
             // 
             this.ckXAxisUp.Font = new System.Drawing.Font("宋体", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.ckXAxisUp.Location = new System.Drawing.Point(685, 2);
-            this.ckXAxisUp.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ckXAxisUp.Location = new System.Drawing.Point(1028, 3);
             this.ckXAxisUp.Name = "ckXAxisUp";
-            this.ckXAxisUp.Size = new System.Drawing.Size(107, 29);
+            this.ckXAxisUp.Size = new System.Drawing.Size(160, 44);
             this.ckXAxisUp.TabIndex = 10;
             this.ckXAxisUp.Text = "Y轴向上";
             this.ckXAxisUp.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(343, 39);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Location = new System.Drawing.Point(514, 58);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(120, 20);
+            this.label1.Size = new System.Drawing.Size(180, 30);
             this.label1.TabIndex = 9;
             this.label1.Text = "00:00.000";
             // 
             // lblPosition
             // 
             this.lblPosition.Font = new System.Drawing.Font("Consolas", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPosition.Location = new System.Drawing.Point(454, 5);
-            this.lblPosition.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblPosition.Location = new System.Drawing.Point(681, 8);
             this.lblPosition.Name = "lblPosition";
-            this.lblPosition.Size = new System.Drawing.Size(208, 43);
+            this.lblPosition.Size = new System.Drawing.Size(312, 64);
             this.lblPosition.TabIndex = 8;
             this.lblPosition.Text = "(1000.00,1000.00)";
             this.lblPosition.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -256,10 +248,9 @@
             this.lblLaserStatus.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.lblLaserStatus.Font = new System.Drawing.Font("Consolas", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblLaserStatus.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.lblLaserStatus.Location = new System.Drawing.Point(797, 12);
-            this.lblLaserStatus.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblLaserStatus.Location = new System.Drawing.Point(1196, 18);
             this.lblLaserStatus.Name = "lblLaserStatus";
-            this.lblLaserStatus.Size = new System.Drawing.Size(71, 37);
+            this.lblLaserStatus.Size = new System.Drawing.Size(106, 54);
             this.lblLaserStatus.TabIndex = 8;
             this.lblLaserStatus.Text = "激光开";
             this.lblLaserStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -267,20 +258,18 @@
             // lblTime
             // 
             this.lblTime.Font = new System.Drawing.Font("Consolas", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTime.Location = new System.Drawing.Point(331, 5);
-            this.lblTime.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.lblTime.Location = new System.Drawing.Point(496, 8);
             this.lblTime.Name = "lblTime";
-            this.lblTime.Size = new System.Drawing.Size(119, 43);
+            this.lblTime.Size = new System.Drawing.Size(178, 64);
             this.lblTime.TabIndex = 8;
             this.lblTime.Text = "00:00.000";
             this.lblTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(203, 5);
-            this.btnClear.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnClear.Location = new System.Drawing.Point(304, 8);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(90, 43);
+            this.btnClear.Size = new System.Drawing.Size(135, 64);
             this.btnClear.TabIndex = 7;
             this.btnClear.Text = "清除";
             this.btnClear.UseVisualStyleBackColor = true;
@@ -288,10 +277,9 @@
             // 
             // btnStop
             // 
-            this.btnStop.Location = new System.Drawing.Point(101, 5);
-            this.btnStop.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnStop.Location = new System.Drawing.Point(152, 8);
             this.btnStop.Name = "btnStop";
-            this.btnStop.Size = new System.Drawing.Size(90, 43);
+            this.btnStop.Size = new System.Drawing.Size(135, 64);
             this.btnStop.TabIndex = 7;
             this.btnStop.Text = "停止";
             this.btnStop.UseVisualStyleBackColor = true;
@@ -302,22 +290,22 @@
             this.winFormUC1.BackColor = System.Drawing.Color.White;
             this.winFormUC1.Dock = System.Windows.Forms.DockStyle.Top;
             this.winFormUC1.Location = new System.Drawing.Point(0, 0);
-            this.winFormUC1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.winFormUC1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.winFormUC1.Name = "winFormUC1";
-            this.winFormUC1.Size = new System.Drawing.Size(921, 636);
+            this.winFormUC1.Size = new System.Drawing.Size(1383, 954);
             this.winFormUC1.TabIndex = 7;
             this.winFormUC1.Load += new System.EventHandler(this.winFormUC1_Load);
             // 
             // PainterForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1185, 947);
+            this.ClientSize = new System.Drawing.Size(1778, 1420);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.toolStrip1);
             this.KeyPreview = true;
-            this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "PainterForm";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load_1);

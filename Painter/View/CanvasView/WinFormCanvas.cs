@@ -912,7 +912,7 @@ namespace Painter.View.CanvasView
 
         private void SaveAsDAT_Click(object sender, EventArgs e)
         {
-            this.freshLayerManager.SaveOrLoadFile(true);
+            this.moveableLayerManager.SaveOrLoadFile(true);
             this.ips = null;
             this.Invalidate();
         }

@@ -2,8 +2,10 @@
 using Painter.Models.CameraModel;
 using Painter.Models.CmdControl;
 using Painter.Models.GameModel.StageModel;
+using Painter.Models.GeoModel;
 using Painter.Models.Paint;
-using Painter.Models.PhysicalModel; 
+using Painter.Models.PainterModel;
+using Painter.Models.PhysicalModel;
 using Painter.Models.StageModel;
 using Painter.Painters;
 using Painter.TempTest;
@@ -21,16 +23,22 @@ using Utils;
 
 namespace Painter
 {
-    public partial class GameJumpFrm : Form
+    public partial class Object3DForm : Form
     {
+  
         CanvasModel canvasModel = new CanvasModel();
         GameInputCmds inputs = new GameInputCmds();
         ScreenCamera camera;
         StageManager stageManager = new StageManager();//多场景下使用的
         MainCharacter character;
         StageController stageController;
-        StageScene curStage;//现在只有一个场景 
-        public GameJumpFrm()
+        StageScene curStage;
+
+        Scene3D scene3D = new Scene3D();
+        Render3D render3D;
+        Camera3D camera3D = new Camera3D();
+        Timer timer = new Timer();
+        public Object3DForm()
         {
             InitializeComponent();
             this.DoubleBuffered = true;//防止频闪
@@ -49,13 +57,14 @@ namespace Painter
                 {
                     this.canvasModel.Clear();
                 }
-                if (stageController!=null)
+                if (stageController != null)
                 {
                     stageController.Dispose();
-                } 
+                }
             };
             canvasModel.Invalidate += this.Invalidate;
-            canvasModel.EnableClickTest = false;
+            canvasModel.EnableClickTest = true;
+            canvasModel.EnableSelect = false;
         }
         void OnLoad(object sender, EventArgs e)
         {
@@ -71,21 +80,103 @@ namespace Painter
             FirstStageScene firstScene = new FirstStageScene();
             SecondStageScene second = new SecondStageScene();
             SnakeStage snakeStage = new SnakeStage();
-            RussiaBlock russia = new RussiaBlock();
-            WeldStage weld = new WeldStage();
+            RussiaBlock russia = new RussiaBlock(); 
             MarioStage mario = new MarioStage();
-            
+ 
             stageManager.AddStage(firstScene);
             stageManager.AddStage(russia);
             stageManager.AddStage(second);
             stageManager.AddStage(snakeStage);
             stageManager.AddStage(mario);
-            stageManager.AddStage(weld);
-            SetCurStage(mario);
+            //SetCurStage(firstScene);
             inputs.CMDEvent += Inputs_CMDEvent;
             isFirst = false;
+            this.LoadControls();
+            canvasModel.MaxX = 200;
+            canvasModel.MaxY = 200;
+            canvasModel.MinX = -100;
+            canvasModel.MinY = -100;
+
+            scene3D.Init();
+            render3D = new Render3D(this.canvasModel, scene3D, camera3D);
+            timer.Interval = 50;
+            timer.Tick += Timer_Tick;
+            timer.Start();
         }
-       
+        int degree = 1;
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            canvasModel.Clear();
+            if (render3D!=null)
+            {
+                render3D.Render();
+            }
+            scene3D.GetOctahedral().Rotate(degree,new Vertex(0,0,0),new Vertex(0,1,0));
+            scene3D.GetCube().Rotate(degree/2.0f, new Vertex(0,0,0),new Vertex(0,1,0));
+            this.Invalidate();
+        }
+
+        void LoadControls()
+        {
+
+            GeoPanel geoTypePanel = new GeoPanel(400, 50, new RectangleGeo());
+            geoTypePanel.Padding = 10;
+            GeoLabel typeLabel = new GeoLabel(100, 50, new RectangleGeo());
+            typeLabel.Text = "操作对象";
+            typeLabel.Background = Color.FromArgb(220, 255, 255);
+
+            GeoRadio geoRadioLine = new GeoRadio(50, 35, new RectangleGeo());
+            geoRadioLine.CheckedEvent += () => {
+                this.Text = "当前：板材";
+                isGraph = false;
+            };
+            geoRadioLine.Text = "板材";
+
+
+            GeoRadio geoRadioArc = new GeoRadio(50, 35, new RectangleGeo());
+            geoRadioArc.CheckedEvent += () => {
+                this.Text = "当前：图形";
+                isGraph = true;
+            };
+            geoRadioArc.Text = "图形";
+            geoRadioLine.IsChecked = true;
+
+            GeoLabel lineWidthLabel = new GeoLabel(50, 35, new RectangleGeo());
+            lineWidthLabel.Text = "距离";
+            lineWidthLabel.Background = Color.Transparent;
+            lineWidthLabel.Move(new PointGeo(0, 0));
+
+            GeoEditBox geoEditBox = new GeoEditBox(50, 30, new RectangleGeo());
+            geoEditBox.Text = "10";
+            geoEditBox.Move(new PointGeo(0, 0));
+            geoEditBox.TextChangeEvent += (str) =>
+            {
+                float lw = MoveDistance;
+                float.TryParse(str, out lw);
+                MoveDistance = lw;
+            };
+
+            GeoButton geoButtonLineStyle = new GeoButton(50, 30, new RectangleGeo());
+            geoButtonLineStyle.Text = "步进";
+            geoButtonLineStyle.ClickEvent += () => {
+                if (this.curStage is WeldStage)
+                {
+                    (this.curStage as WeldStage).AnimateDistance(MoveDistance, 500, isGraph);
+                }
+            };
+
+
+            geoTypePanel.AddControl(typeLabel);
+            geoTypePanel.AddControl(geoRadioLine);
+            geoTypePanel.AddControl(geoRadioArc);
+            geoTypePanel.AddControl(lineWidthLabel);
+            geoTypePanel.AddControl(geoEditBox);
+            geoTypePanel.AddControl(geoButtonLineStyle);
+            geoTypePanel.Move(new PointGeo(0, 0));
+            this.canvasModel.AddGeoControls(geoTypePanel);
+        }
+        float MoveDistance = 10;
+        bool isGraph = false;
         private void OnSizeChanged(object sender, EventArgs e)
         {
             if (canvasModel == null)
@@ -139,27 +230,27 @@ namespace Painter
             if (e.KeyCode == Keys.Enter)//无效 这里接收不到命令按键
             {
 
-            } 
+            }
         }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            switch(keyData)
+            switch (keyData)
             {
                 case Keys.Right:
-                   
+
                     break;
                 case Keys.Left:
-                   
+
                     break;
                 case Keys.Up:
-                   
+
                     break;
                 case Keys.Space:
                     break;
                 case Keys.Enter:
                     Pause_Click();
                     break;
-                case Keys.Down: 
+                case Keys.Down:
                     break;
             }
             curStage.OnKeyDown(keyData);
@@ -185,24 +276,12 @@ namespace Painter
                 //this.contextMenuStrip1.Show(new Point(e.X + this.Left, e.Y + this.Top + 20));
             }
             canvasModel.OnMouseDown(sender, e);
-            if (e.Button == MouseButtons.Left&&character != null && character.CurrenScene != null)
+            if (e.Button == MouseButtons.Left && character != null && character.CurrenScene != null)
             {
-                character.OnFire(canvasModel.CurObjectPoint); 
+                character.OnFire(canvasModel.CurObjectPoint);
             }
-        }  
-        private void btnStart_Click(object sender, EventArgs e)
-        { 
-            if (curStage != null)
-            {
-                curStage.Clear();
-            }
-            btnStart.Visible = false;
-            this.Focus();
+        }
 
-            stageController.Start(curStage.CreateScene());
-            camera = new ScreenCamera(canvasModel);
-            camera.SetFocusObject(character); 
-        } 
         private bool isPause = false;
         private void Pause_Click()
         {
@@ -214,13 +293,10 @@ namespace Painter
             else
             {
                 stageController.Resume();
-            } 
+            }
         }
         bool isFirst = true;
-        private void GameJumpFrm_Load(object sender, EventArgs e)
-        {
-            this.btnStart.Visible = false;
-        }
+
         private void SetCurStage(StageScene stage)
         {
             if (stage == null)
@@ -232,18 +308,19 @@ namespace Painter
             if (!isFirst)
             {
                 stageController.Stop();
-            } else
+            }
+            else
             {
-                camera = new ScreenCamera(canvasModel); 
+                camera = new ScreenCamera(canvasModel);
             }
             stageController.Start(curStage.CreateScene());
             camera.SetFocusObject(character);
             this.canvasModel.MaxX = stage.MaxX;
-            this.canvasModel.MaxY = stage.MaxY; 
+            this.canvasModel.MaxY = stage.MaxY;
             this.canvasModel.MinX = stage.MinX;
             this.canvasModel.MinY = stage.MinY;
             this.Width = stage.GetWidth();
-            this.Height= stage.GetHeight(); 
+            this.Height = stage.GetHeight();
             this.StartPosition = FormStartPosition.CenterScreen;
         }
         private void Inputs_CMDEvent(GAME_CMDS cmd)
@@ -256,7 +333,7 @@ namespace Painter
                     camera.EnableFucus = true;
                     break;
                 case GAME_CMDS.DISABLE_FOCUS:
-                    camera.EnableFucus = false; 
+                    camera.EnableFucus = false;
                     break;
                 case GAME_CMDS.INTERFER_ON:
                     character.EnableCheckCollision = true;
@@ -274,9 +351,13 @@ namespace Painter
                     CanvasModel.EnableTrack = true;
                     break;
                 case GAME_CMDS.TRACK_OFF:
-                    CanvasModel.EnableTrack = false; 
+                    CanvasModel.EnableTrack = false;
                     break;
                 case GAME_CMDS.NEXT_SCENE:
+                    if (curStage != null)
+                    {
+                        curStage.Clear();
+                    }
                     StageScene next = stageManager.GetNextStage();
                     SetCurStage(next);
                     break;
@@ -287,10 +368,18 @@ namespace Painter
                 case GAME_CMDS.EDIT:
                     new PainterTest().Show();
                     break;
+                case GAME_CMDS.GCODE:
+                    new GCodeLaserHeadForm().Show();
+                    break;
                 default:
                     break;
             }
         }
+
+        private void Object3DForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
-    
 }
+

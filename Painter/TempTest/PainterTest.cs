@@ -71,6 +71,7 @@ namespace Painter.TempTest
             canvasModel.ShapeClickEvent += CanvasModel_ShapeClickEvent;
             inputs.CMDEvent += Inputs_CMDEvent;
             this.LoadElements();
+            //Load工字形();
             this.LoadControls();
         }
 
@@ -514,7 +515,7 @@ namespace Painter.TempTest
             circleGeoText.SetDrawMeta(new Painters.ShapeMeta() { LineWidth = 1, ForeColor = Color.Black, IsFill = true });
             GeoRadio geoRadioText = new GeoRadio(30, 30, circleGeoText);
             geoRadioText.CheckedEvent += () => {
-                info.Text = "当前绘制：文本（ 图像）";
+                info.Text = "当前绘制：文本 ";
                 geoTypePanel.ClearRadioSelection();
                 TextCmd textCmd = new TextCmd(this.canvasModel, textMeta); 
                 textCmd.ShowTextBox += (str) => {
@@ -537,26 +538,32 @@ namespace Painter.TempTest
             GeoDrawButton geoButtonPic = new GeoDrawButton(30, 30, new RectangleGeo());
             geoButtonPic.LoadDrawableFile("pic.dat");
             geoButtonPic.ClickEvent += () => {
-                info.Text = "当前绘制：图像";
+                info.Text = "当前绘制：图片";
                 string filePath = "";
                 if (!FileUtils.SeletFile(ref filePath))
                 {
+                    info.Text = "文件打开失败";
                     return;
                 }
                 FileInfo fileinfo = new FileInfo(filePath);
                 List<string> imgExt = new List<string>() {".jpg",".jpeg",".bmp",".png" };
                 if (!imgExt.Contains(fileinfo.Extension))
                 {
+                    info.Text = "非图片类型";
                     return;
                 }
-                Image image = Bitmap.FromFile(filePath); 
+                Image image = Bitmap.FromFile(filePath);
                 if (image != null)
                 {
                     Bitmap bmp = new Bitmap(image);
                     ImageMeta imageMeta = new ImageMeta();
                     imageMeta.bitmap = bmp;
                     this.canvasModel.GetCmdMgr().AddCmd(new ImageCmd(this.canvasModel, imageMeta));
-                } 
+                }
+                else
+                {
+                    info.Text = "图片打开失败";
+                }
             };
 
             CurveGeo curve = new CurveGeo();
@@ -696,17 +703,35 @@ namespace Painter.TempTest
             this.canvasModel.AddGeoControls(info);
 
         }
+        private void Load工字形()
+        {
+            PolygonGeo polygon = new PolygonGeo();
+            polygon.SetDrawMeta(new ShapeMeta() { IsFill = true, BackColor = Color.FromArgb(100, Color.Aquamarine), LineWidth = 1.5f,ForeColor=Color.FromArgb(65,111,123)});
+            polygon.AddPoint(new PointGeo(0,0));
+            polygon.AddPoint(new PointGeo(200,0));
+            polygon.AddPoint(new PointGeo(200, 20));
+            polygon.AddPoint(new PointGeo(130, 20));
+            polygon.AddPoint(new PointGeo(130, 1520));
+            polygon.AddPoint(new PointGeo(200, 1520));
+            polygon.AddPoint(new PointGeo(200, 1540));
+            polygon.AddPoint(new PointGeo(0, 1540));
+            polygon.AddPoint(new PointGeo(0, 1520));
+            polygon.AddPoint(new PointGeo(70, 1520));
+            polygon.AddPoint(new PointGeo(70, 20));
+            polygon.AddPoint(new PointGeo(0, 20));
+            this.canvasModel.GetFreshLayerManager().Add(polygon);
+        }
         private void LoadElements()
         {
-            
+
             CircleGeo circleGeo = new CircleGeo() { FirstPoint = new PointGeo(100, 100), SecondPoint = new PointGeo(200, 200) };
             circleGeo.SetDrawMeta(new Painters.ShapeMeta() { IsFill = true, BackColor = Color.MediumAquamarine });
-            this.canvasModel.GetFreshLayerManager().Add(circleGeo); 
-            
-            LineGeo lineGeo=new LineGeo() { FirstPoint = new PointGeo(300, 100), SecondPoint = new PointGeo(1000, 300) };
-            lineGeo.SetDrawMeta(new Painters.ShapeMeta() { IsFill = true,LineWidth=5, ForeColor = Color.LimeGreen });
+            this.canvasModel.GetFreshLayerManager().Add(circleGeo);
+
+            LineGeo lineGeo = new LineGeo() { FirstPoint = new PointGeo(300, 100), SecondPoint = new PointGeo(1000, 300) };
+            lineGeo.SetDrawMeta(new Painters.ShapeMeta() { IsFill = true, LineWidth = 5, ForeColor = Color.LimeGreen });
             this.canvasModel.GetFreshLayerManager().Add(lineGeo);
-            
+
             LineGeo lineGeo2 = new LineGeo() { FirstPoint = new PointGeo(300, 300), SecondPoint = new PointGeo(800, 300) };
             lineGeo2.SetDrawMeta(new Painters.ShapeMeta() { IsFill = true, LineWidth = 5, ForeColor = Color.Orange });
             this.canvasModel.GetFreshLayerManager().Add(lineGeo2);
@@ -725,11 +750,11 @@ namespace Painter.TempTest
             this.canvasModel.GetFreshLayerManager().Add(arcGeo);
 
             PolygonGeo polygonGeo = new PolygonGeo();
-            polygonGeo.SetDrawMeta(new Painters.ShapeMeta() { IsFill = true, LineWidth = 5, ForeColor = Color.MediumAquamarine,BackColor=Color.GreenYellow });
-            polygonGeo.AddPoint(new PointGeo(1000,0));
-            polygonGeo.AddPoint(new PointGeo(1100,-100));
-            polygonGeo.AddPoint(new PointGeo(1300,-180)); 
-            polygonGeo.AddPoint(new PointGeo(1130,50));
+            polygonGeo.SetDrawMeta(new Painters.ShapeMeta() { IsFill = true, LineWidth = 5, ForeColor = Color.MediumAquamarine, BackColor = Color.GreenYellow });
+            polygonGeo.AddPoint(new PointGeo(1000, 0));
+            polygonGeo.AddPoint(new PointGeo(1100, -100));
+            polygonGeo.AddPoint(new PointGeo(1300, -180));
+            polygonGeo.AddPoint(new PointGeo(1130, 50));
             this.canvasModel.GetFreshLayerManager().Add(polygonGeo);
 
 
@@ -742,28 +767,31 @@ namespace Painter.TempTest
             roundRect.Translate(new PointGeo(200, 200));
 
 
-            RectangleGeo rectangeBackground = new RectangleGeo(new PointGeo(0, 0), new PointGeo(200, 500));
-            rectangeBackground.SetDrawMeta(new Painters.ShapeMeta() { BackColor = Color.Aquamarine, IsFill = true });
-            
+            RectangleGeo originRect = new RectangleGeo(new PointGeo(0, 0), new PointGeo(100, 100));
+            originRect.SetDrawMeta(new Painters.ShapeMeta() { BackColor = Color.Aquamarine, IsFill = true });
+            this.canvasModel.GetFreshLayerManager().Add(originRect);
+
             RectangleGeo rectangeHeaderBG = new RectangleGeo(new PointGeo(0, 0), new PointGeo(200, 100));
             rectangeHeaderBG.SetDrawMeta(new Painters.ShapeMeta() { BackColor = Color.Orange, IsFill = true });
 
 
-             
 
-            GeoPanel geoPanel = new GeoPanel(500,300,new RectangleGeo());
-            
-            GeoButton geoButton = new GeoButton(100, 50,new RectangleGeo()); 
-            geoButton.Text = "关闭"; 
-            geoButton.ClickEvent += () =>{
+
+
+            GeoPanel geoPanel = new GeoPanel(500, 300, new RectangleGeo());
+
+            GeoButton geoButton = new GeoButton(100, 50, new RectangleGeo());
+            geoButton.Text = "关闭";
+            geoButton.ClickEvent += () =>
+            {
                 geoPanel.IsVisible = false;
-              
+
             };
-            GeoLabel geoLabel = new GeoLabel(400,70,new RectangleGeo());
-            geoLabel.Alignment = StringAlignment.Near; 
+            GeoLabel geoLabel = new GeoLabel(400, 70, new RectangleGeo());
+            geoLabel.Alignment = StringAlignment.Near;
             geoLabel.Text = "保存：Ctrl+S\n复制为图片: Ctrl+C\n粘贴图片：Ctrl+V";
-            geoLabel.Background = Color.Transparent; 
-            geoPanel.AddControl(geoButton); 
+            geoLabel.Background = Color.Transparent;
+            geoPanel.AddControl(geoButton);
             geoPanel.AddControl(geoLabel);
             geoPanel.Move(new PointGeo(500, 300));
             this.canvasModel.AddGeoControls(geoPanel);

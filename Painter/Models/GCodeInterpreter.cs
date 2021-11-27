@@ -28,11 +28,7 @@ namespace Painter.Models
 
         public double AxisSpeed { get; set; }
         private List<GeoProcessorBase> geoProcessors = new List<GeoProcessorBase>();
-        public Geo loopRapidGeo
-        {
-            get;
-            set;
-        }
+        public List<GeoProcessorBase> LoopProcessor = new List<GeoProcessorBase>();
 
         private double _curX;
         private bool IsStopRun = false;
@@ -49,7 +45,7 @@ namespace Painter.Models
         public int CurCycleTimes = 0;
         public int CutIndex = 0;
         private List<PointGeo> HeadTrack = new List<PointGeo>();
-        public static int MAX_TRACK_COUNT=3000;
+        public static int MAX_TRACK_COUNT = 3000;
         public double CurrentY = 0;
         public PointGeo StartPoint;
         public PointGeo EndPoint;
@@ -80,7 +76,7 @@ namespace Painter.Models
             {
                 CurrentX = this.StartPoint.X;
                 CurrentY = this.StartPoint.Y;
-            } 
+            }
             IsStartCount = false;
             //			this.geoProcessors[0].StartRapidGeo.GetShapes()[0].GetDrawMeta().LineWidth = 2;
             //			this.geoProcessors[0].StartRapidGeo.GetShapes()[0].GetDrawMeta().CapStyle = System.Drawing.Drawing2D.LineCap.Round;
@@ -104,12 +100,12 @@ namespace Painter.Models
             {
                 if (curGeoProcessor is CutGeoProcessor)
                 {
-                    if (CurProcessorIndex>=CutIndex)
+                    if (CurProcessorIndex >= CutIndex)
                     {
                         CutIndex++;
-                    } 
+                    }
                 }
-            } 
+            }
             //new Thread(() => curGeoProcessor.Execute(CurrentX)).Start(); 
             curGeoProcessor.Execute(CurrentX);
             if (CurProcessorIndex == this.geoProcessors.Count)
@@ -118,10 +114,15 @@ namespace Painter.Models
                 {
                     if (!ProgramController.Instance.IsUniversalGCode)
                     {
-                        this.geoProcessors[0].CutGeo = loopRapidGeo;// 下一次循环的起点变更
-                        this.geoProcessors[0].cutDistance = loopRapidGeo.GetShapes()[0].GetPerimeter();
-                        this.geoProcessors[0].cutDistanceInXDirection = loopRapidGeo.GetShapes()[0].FirstPoint.X - loopRapidGeo.GetShapes()[0].SecondPoint.X;
-                    }  
+                        this.geoProcessors.RemoveAt(0);
+                        for (int i = this.LoopProcessor.Count - 1; i >= 0; i--)
+                        {
+                            this.AddGeoProcessor(this.LoopProcessor[i], 0);
+                        }
+                        //this.geoProcessors[0].CutGeo = loopRapidGeo;// 下一次循环的起点变更
+                        //this.geoProcessors[0].cutDistance = loopRapidGeo.GetShapes()[0].GetPerimeter();
+                        //this.geoProcessors[0].cutDistanceInXDirection = loopRapidGeo.GetShapes()[0].StartPoint.X - loopRapidGeo.GetShapes()[0].EndPoint.X;
+                    }
                 }
                 CurProcessorIndex = 0;
                 CurCycleTimes++;
@@ -132,28 +133,28 @@ namespace Painter.Models
                 }
                 OnMsg.Invoke("***********开始第" + (CurCycleTimes + 1) + "次循环**********.\n");
             }
-            HeadTrack.Add(new PointGeo((float)CurrentX, (float)CurrentY)); 
-            if (HeadTrack.Count>MAX_TRACK_COUNT)
-            {  
+            HeadTrack.Add(new PointGeo((float)CurrentX, (float)CurrentY));
+            if (HeadTrack.Count > MAX_TRACK_COUNT)
+            {
                 HeadTrack.RemoveAt(0);
-            }  
+            }
         }
         public void SetLoopGeo()
         {
             //设定循环G00
-            Geo loopRapidGeo = new Geo();
-            LineGeo loopG00Line = new LineGeo();
-            loopG00Line.FirstPoint = this.EndPoint;
-            if (ProgramController.Instance.IsNoWait)
-            {
-                loopG00Line.SecondPoint = new PointGeo((float)(this.StartPoint.X + Settings.CYCLE_LENGTH), this.StartPoint.Y);
-            }
-            else
-            {
-                loopG00Line.SecondPoint = new PointGeo((float)(this.StartPoint.X - Settings.CYCLE_LENGTH), this.StartPoint.Y);
-            } 
-            loopRapidGeo.AddShape(loopG00Line);
-            this.loopRapidGeo = loopRapidGeo;
+            // Geo loopRapidGeo = new Geo();
+            // LineGeo loopG00Line = new LineGeo();
+            // loopG00Line.FirstPoint = this.EndPoint;
+            // if (ProgramController.Instance.IsNoWait)
+            // {
+            //     loopG00Line.SecondPoint = new PointGeo((float)(this.StartPoint.X + Settings.CYCLE_LENGTH), this.StartPoint.Y);
+            // }
+            // else
+            // {
+            //     loopG00Line.SecondPoint = new PointGeo((float)(this.StartPoint.X - Settings.CYCLE_LENGTH), this.StartPoint.Y);
+            // } 
+            // loopRapidGeo.AddShape(loopG00Line);
+            // this.loopRapidGeo = loopRapidGeo;
         }
 
 
@@ -208,14 +209,21 @@ namespace Painter.Models
             _curX += deltaX;
             CurrentY = curY;
         }
-        public void AddGeoProcessor(GeoProcessorBase geoProcessor)
+        public void AddGeoProcessor(GeoProcessorBase geoProcessor, int index = -1)
         {
             if (!geoProcessors.Contains(geoProcessor))
             {
                 geoProcessor.UpdatePositionEvent += this.UpdateCurPos;
                 geoProcessor.MesssageEvent += this.OnMsg;
                 geoProcessor.SetInterpreter(this);
-                geoProcessors.Add(geoProcessor);
+                if (index != -1)
+                {
+                    geoProcessors.Insert(index, geoProcessor);
+                }
+                else
+                {
+                    geoProcessors.Add(geoProcessor);
+                }
                 if (geoProcessor.MinX < this.MinX)
                 {
                     this.MinX = geoProcessor.MinX;
@@ -410,16 +418,16 @@ namespace Painter.Models
                     return true;
                 }
                 return false;
-            } 
+            }
             PointGeo curPos = shape.GetXDirectionAtLength((float)(_cutLength));
             PointGeo nextPos = shape.GetXDirectionAtLength((float)(_cutLength + tickProcessLength));
             double deltaX = nextPos.X - curPos.X;
             if (Math.Abs(_cutLength - shape.GetPerimeter()) < tickProcessLength)
-            { 
-                 UpdatePositionEvent.Invoke(shape.SecondPoint.X- curPos.X, shape.SecondPoint.Y);
+            {
+                UpdatePositionEvent.Invoke(shape.SecondPoint.X - curPos.X, shape.SecondPoint.Y);
                 _curShapeIndex++;
                 _cutLength = 0;
-                 
+
                 if (_curShapeIndex == geo.GetShapes().Count)
                 {
                     _curShapeIndex = 0;
@@ -478,15 +486,15 @@ namespace Painter.Models
                         break;
 
                     case CUT_PROCESS_STATUS.CUTWAIT:
-                        if (ProgramController.Instance.IsNoWait || (pos - interpreter.StartPoint.X + (cutDistance / cutSpeed*60+Settings.BEAMON) * Settings.A_SHAFT_SPEED/60) > cutDistanceInXDirection)
+                        if (ProgramController.Instance.IsNoWait || (pos - interpreter.StartPoint.X + (cutDistance / cutSpeed * 60 + Settings.BEAMON) * Settings.A_SHAFT_SPEED / 60) > cutDistanceInXDirection)
                         {
                             if (!isReady)
-                            { 
+                            {
                                 if (interpreter.CurCycleTimes == 0 && interpreter.CutIndex == 1)
                                 {
                                     ProgramController.Instance.WORKER＿READY_COUNT++;
                                     OnMessage("等待其他Head同步中...\n");
-                                } 
+                                }
                                 isReady = true;
                             }
                             if (ProgramController.Instance.WORKER＿READY_COUNT == ProgramController.Instance.TOTAL_WORKER_COUNT)
@@ -563,7 +571,7 @@ namespace Painter.Models
                         curState = MOVE_PROCESS_STATUS.MOVEWAIT;
                         break;
                     case MOVE_PROCESS_STATUS.MOVEWAIT:
-                        if (ProgramController.Instance.IsNoWait || (pos - interpreter.StartPoint.X + (cutDistance / cutSpeed*60) * Settings.A_SHAFT_SPEED/60) > this.cutDistanceInXDirection)
+                        if (ProgramController.Instance.IsNoWait || (pos - interpreter.StartPoint.X + (cutDistance / cutSpeed * 60) * Settings.A_SHAFT_SPEED / 60) > this.cutDistanceInXDirection)
                         {
                             curState = MOVE_PROCESS_STATUS.MOVE;
                             //OnMesssage?.BeginInvoke("开始切割轮廓[" + interpreter.CutIndex + "]...\n", null, null);

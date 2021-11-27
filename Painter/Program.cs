@@ -15,7 +15,7 @@ namespace Painter
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Settings.LoadSettingFile();
-            Application.Run(new PainterTest());
+            Application.Run(new Object3DForm());
         }
     }
 }

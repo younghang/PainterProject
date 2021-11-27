@@ -159,7 +159,7 @@ namespace Painter.Models
             return new List<PointGeo>() { this.FirstPoint,this.SecondPoint };
         }
         public enum SHAPE_TYPE { SHAPE, CIRCLE, ELLIPSE, RECTANGLE, ARC, LINE }
-        public SHAPE_TYPE ShpaeType = SHAPE_TYPE.SHAPE;
+        public SHAPE_TYPE ShapeType = SHAPE_TYPE.SHAPE;
 
         public bool IsFinishedInitial = false;//减少离散点计算 
 
@@ -384,12 +384,12 @@ namespace Painter.Models
         }
         public RectangleGeo()
         {
-            ShpaeType = SHAPE_TYPE.RECTANGLE;
+            ShapeType = SHAPE_TYPE.RECTANGLE;
 
         }
         public RectangleGeo(PointGeo s, PointGeo e) : base(s, e)
         {
-            ShpaeType = SHAPE_TYPE.RECTANGLE;
+            ShapeType = SHAPE_TYPE.RECTANGLE;
         }
         public override void Rotate(float degree, PointGeo center)
         {
@@ -506,7 +506,7 @@ namespace Painter.Models
     {
         public EllipseGeo()
         {
-            ShpaeType = SHAPE_TYPE.ELLIPSE;
+            ShapeType = SHAPE_TYPE.ELLIPSE;
 
         }
         public override void Draw()
@@ -525,7 +525,7 @@ namespace Painter.Models
     {
         public CircleGeo()
         {
-            ShpaeType = SHAPE_TYPE.CIRCLE;
+            ShapeType = SHAPE_TYPE.CIRCLE;
 
         }
         public override List<PointGeo> GetControlPoints()
@@ -755,7 +755,7 @@ namespace Painter.Models
         public static int DISPERSED_COUNT = 500; 
         public ArcGeo()
         {
-            ShpaeType = SHAPE_TYPE.ARC;
+            ShapeType = SHAPE_TYPE.ARC;
 
         }
         public override List<PointGeo> GetControlPoints()
@@ -856,10 +856,10 @@ namespace Painter.Models
             set
             {
                 _endAngle = value;
-                //if (_endAngle <= _startAngle)
-                //{
-                //    _endAngle += 360;
-                //}
+                if (_endAngle <= _startAngle)
+                {
+                    _endAngle += 360;
+                }
                 //if (_endAngle>360)
                 //{
 
@@ -1027,12 +1027,12 @@ namespace Painter.Models
     {
         public LineGeo()
         {
-            ShpaeType = SHAPE_TYPE.LINE;
+            ShapeType = SHAPE_TYPE.LINE;
         }
         public LineGeo(PointGeo s, PointGeo e)
             : base(s, e)
         {
-            ShpaeType = SHAPE_TYPE.LINE;
+            ShapeType = SHAPE_TYPE.LINE;
         }
 
         public override float GetArea()

@@ -79,9 +79,11 @@
       <DependentUpon>GameJumpFrm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\CmdControl\PaintCmd.cs" />
-    <Compile Include="Models\GameModel\CameraModel\Camera.cs" />
+    <Compile Include="Models\GameModel\CameraModel\ScreenCamera.cs" />
     <Compile Include="Models\CmdControl\InputCmds.cs" />
+    <Compile Include="Models\GameModel\StageModel\MarioStage.cs" />
     <Compile Include="Models\GameModel\StageModel\WeldStage.cs" />
+    <Compile Include="Models\GeoModel\3DObject.cs" />
     <Compile Include="Models\PainterModel\GeoControls.cs" />
     <Compile Include="Models\Render\CanvasModel.cs" />
     <Compile Include="Models\GameModel\PhysicalModel\PhysicalField.cs" />
@@ -92,6 +94,12 @@
     <Compile Include="Models\GameModel\StageModel\SnakeStage.cs" />
     <Compile Include="Models\GameModel\StageModel\StageController.cs" />
     <Compile Include="Models\GameModel\StageModel\StageManager.cs" />
+    <Compile Include="Object3DForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Object3DForm.Designer.cs">
+      <DependentUpon>Object3DForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="PainterForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -177,6 +185,12 @@
     <Compile Include="View\Window\UC\ShapePreview.Designer.cs">
       <DependentUpon>ShapePreview.cs</DependentUpon>
     </Compile>
+    <Compile Include="WeldForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WeldForm.Designer.cs">
+      <DependentUpon>WeldForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -192,6 +206,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GameJumpFrm.resx">
       <DependentUpon>GameJumpFrm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Object3DForm.resx">
+      <DependentUpon>Object3DForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PainterForm.resx">
       <DependentUpon>PainterForm.cs</DependentUpon>
@@ -241,6 +258,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="View\Window\UC\ShapePreview.resx">
       <DependentUpon>ShapePreview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WeldForm.resx">
+      <DependentUpon>WeldForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormDisplay\WinFormUC.resx">
       <DependentUpon>WinFormUC.cs</DependentUpon>
@@ -299,8 +319,6 @@
   <ItemGroup>
     <None Include="Resources\save.bmp" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\GeoModel\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

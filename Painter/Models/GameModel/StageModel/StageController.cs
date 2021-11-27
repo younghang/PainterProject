@@ -111,8 +111,12 @@ namespace Painter.Models.StageModel
                 timer.Dispose(); 
             }
             physicalField.Dispose();
-            curScene.Clear();
-            render.Clear();
+            if (curScene!=null)
+            {
+                curScene.Clear();
+                render.Clear();
+            }
+          
         }
     }
 }

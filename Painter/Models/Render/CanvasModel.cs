@@ -192,7 +192,7 @@ namespace Painter.Models
             foreach (var item in this.ControlPoints)
             {
                 Point p=this.ObjectToScreen(item.Clone());
-                Debug.Print(p.ToString());
+                //Debug.Print(p.ToString());
                 graphics.DrawRectangle(Pens.BlueViolet, new Rectangle(p.X-4, p.Y-4, 8, 8));
             }
         }
@@ -336,10 +336,12 @@ namespace Painter.Models
             if (EnableClickTest)
             {
                 MoveTest(new Point(e.X, e.Y));
+                this.CmdMgr.OnMouseMove(sender, e);
             } 
-            this.CmdMgr.OnMouseMove(sender, e);
+            
         }
         public bool EnableClickTest = true;
+        public bool EnableSelect = true;
         public void OnMouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -470,7 +472,10 @@ namespace Painter.Models
             {
                 return;
             }
-
+            if (!EnableSelect)
+            {
+                return;
+            }
             float HitRange = HitRangePixel / this.fixedLayerManager.GetPainter().Scale.X;
             PointGeo objPoint = ScreenToObjectPos(point.X, point.Y);
             hitCircle.FirstPoint = objPoint;

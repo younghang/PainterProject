@@ -207,6 +207,7 @@ namespace Painter.DisplayManger
                     }
                 }
                 sfd.Dispose();
+                MessageBox.Show("文件已保存");
             }
             else
             {

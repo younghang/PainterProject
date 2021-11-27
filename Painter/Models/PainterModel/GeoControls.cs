@@ -124,7 +124,7 @@ namespace Painter.Models.PainterModel
         } 
         public Color Background { 
             get {
-                if (baseShape is LineGeo|| baseShape.ShpaeType==Shape.SHAPE_TYPE.ARC)
+                if (baseShape is LineGeo|| baseShape.ShapeType==Shape.SHAPE_TYPE.ARC)
                 {
                     return (this.baseShape.GetDrawMeta() as ShapeMeta).ForeColor;
                 }
@@ -134,7 +134,7 @@ namespace Painter.Models.PainterModel
                 } 
             }
             set {
-                if (baseShape is LineGeo || baseShape.ShpaeType == Shape.SHAPE_TYPE.ARC)
+                if (baseShape is LineGeo || baseShape.ShapeType == Shape.SHAPE_TYPE.ARC)
                 {
                     (this.baseShape.GetDrawMeta() as ShapeMeta).ForeColor = value;
                 }else
@@ -436,11 +436,17 @@ namespace Painter.Models.PainterModel
                 if (e.KeyCode>=Keys.NumPad0 && e.KeyCode <= Keys.NumPad9
                     || e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9
                     || e.KeyCode >= Keys.A && e.KeyCode <= Keys.Z
+                    || e.KeyCode==Keys.Subtract
+                    || e.KeyCode==Keys.OemMinus
                     )
                 {
                     if (e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9)
                     {
-                        Text += (e.KeyCode - Keys.NumPad0) ; 
+                        Text += (e.KeyCode - Keys.NumPad0) ;
+                    }
+                    else if (e.KeyCode == Keys.Subtract || e.KeyCode == Keys.OemMinus)
+                    {
+                        Text += "-";
                     }
                     else
                     {

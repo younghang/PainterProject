@@ -57,8 +57,8 @@ namespace Painter.Models.Paint
             {
                 return false;
             }
-            Shape shapeSelf = GetOutShape();
-            Shape other = sceneObject.GetOutShape();
+            DrawableObject shapeSelf = GetOutShape();
+            DrawableObject other = sceneObject.GetOutShape();
             if (shapeSelf.IsOverlap(other))
             {
                 this.Interfer = SCENE_OBJECT_INTERFER.INTERFER;
@@ -66,9 +66,9 @@ namespace Painter.Models.Paint
             }
             return false;
         }
-        public virtual Shape GetOutShape()
+        public virtual DrawableObject GetOutShape()
         {
-            return elements[0] as Shape;
+            return elements[0];
         }
         private bool _isDisposed = false;
         public bool IsDisposed
@@ -187,6 +187,10 @@ namespace Painter.Models.Paint
         public LineGeo GetReflectionLine()//仅仅是用来确定一个旋转的参考点，还需结合矩形角度
         {
             RectangleGeo rectange = elements[0] as RectangleGeo;
+            if (rectange == null)
+            {
+                return null;
+            }
             if (ReflectedLine == null)
             {
                 switch (ReflectionDirection)
@@ -236,6 +240,7 @@ namespace Painter.Models.Paint
     }
     public class Role : SceneObject
     {
+        public bool IsAppliedGravity = true;
         public int LifeLength = 100;
         public int Attack = 20;
         public int Level = 1;
@@ -285,8 +290,12 @@ namespace Painter.Models.Paint
                                 //if (this is MainCharacter)
                                 //{
                                 //和Enemy对象发生碰撞了 动量计算
-                                PointGeo thisCenter = this.GetOutShape().GetShapeCenter();
-                                PointGeo enemyCenter = enemy.GetOutShape().GetShapeCenter();
+                                if (!(this.GetOutShape() is Shape&& enemy.GetOutShape() is Shape))
+                                {
+                                    return;
+                                }
+                                PointGeo thisCenter = (this.GetOutShape() as Shape).GetShapeCenter();
+                                PointGeo enemyCenter = (enemy.GetOutShape() as Shape).GetShapeCenter();
                                 LineGeo line = new LineGeo(enemyCenter, thisCenter);//这里不是this.Center
                                 PointGeo delta = this.Center - enemyCenter;
                                 float angle = (float)(line.GetRad()/Math.PI*180);
@@ -324,8 +333,16 @@ namespace Painter.Models.Paint
                     GroundObject ground = sceneObject as GroundObject;
                     RectangleGeo rectange = ground.GetOutShape() as RectangleGeo;
                     LineGeo lineGeo = ground.GetReflectionLine();
-                    float radius = (this.GetOutShape().GetMaxX() - this.GetOutShape().GetMinX()) / 2;
-                    PointGeo checkPoint = this.GetOutShape().GetShapeCenter().Clone();
+                    if (lineGeo==null)
+                    {
+                        return;
+                    }
+                    if (!(this.GetOutShape() is Shape ))
+                    {
+                        return;
+                    }
+                    float radius = ((this.GetOutShape() as Shape).GetMaxX() - (this.GetOutShape() as Shape).GetMinX()) / 2;
+                    PointGeo checkPoint = (this.GetOutShape() as Shape).GetShapeCenter().Clone();
                     PointGeo checkPRelativeToLine = checkPoint - lineGeo.FirstPoint;
                     PointGeo geoTemp = checkPRelativeToLine.Clone();
                     PointGeo force = this.Force.Clone();
@@ -531,11 +548,17 @@ namespace Painter.Models.Paint
             elements.Add(circle);
             elements.Add(circle1);
             elements.Add(circle2);
+            //lineGeo2.IsShow = false;
+            //lineGeo.IsShow = false;
+            //circle.IsShow = false;
+            //circle1.IsShow = false;
+            //circle2.IsShow = false;
+
         }
         private int StatusCount = 0;
         private int TickCount = 0;
 
-        public override Shape GetOutShape()
+        public override DrawableObject GetOutShape()
         {
             return elements[2] as Shape;
             //return new RectangeGeo(new PointGeo(this.MinX, this.MinY), new PointGeo(this.MaxX, this.MaxY));
@@ -582,6 +605,10 @@ namespace Painter.Models.Paint
                 ((this.elements[2] as Shape).GetDrawMeta() as ShapeMeta).BackColor = System.Drawing.Color.Red;
                 ((this.elements[2] as Shape).GetDrawMeta() as ShapeMeta).IsFill = true;
             }
+            if (InAnimation)
+            {
+                AnimateStep();
+            }
 
         }
         public void OnAttack()
@@ -596,21 +623,50 @@ namespace Painter.Models.Paint
             this.Speed.Y -= (float)(weapon.Speed * Math.Sin(weapon.Angle)) * weapon.Mass / this.Mass;
             this.CurrenScene.AddObject(weapon, false);
         }
+        public bool AvoidFallingDown = true;
         public override void Move(PointGeo pos)
         {
             Pos += pos;
-            if (MinY < -1000)
+            if (AvoidFallingDown)
             {
-                pos.Y = 2000;
-                this.HitCount -= 100;
-                Speed.Y = 0;
-            }
+                if (MinY < -1000)
+                {
+                    pos.Y = 2000;
+                    this.HitCount -= 100;
+                    Speed.Y = 0;
+                }
+            } 
             foreach (var item in elements)
             {
                 item.Translate(pos);
             }
             Center += pos;
             PositionChange?.Invoke();
+        }
+        private bool InAnimation = false;
+        private PointGeo curPoint;
+        private PointGeo endPoint;
+        private PointGeo stepPoint;
+        public void AnimateTo(PointGeo pointGeo, float timespan)
+        {
+            curPoint = new PointGeo();
+            endPoint = pointGeo;
+            int count = (int)(timespan / PhysicalField.TICK_TIME);
+            stepPoint = pointGeo / count;
+            InAnimation = true;
+        }
+        private void AnimateStep()
+        {
+            if (Math.Abs(this.curPoint.X+this.stepPoint.X)< Math.Abs(endPoint.X))
+            {
+                this.Move(stepPoint);
+                this.curPoint += this.stepPoint;
+            }else
+            {
+                this.Move(endPoint-curPoint);
+                InAnimation = false;
+            }
+           
         }
     }
     class FallingObstacle : Obstacle
@@ -758,7 +814,7 @@ namespace Painter.Models.Paint
             }
         }
         private CircleGeo HitCircle = new CircleGeo();
-        public override Shape GetOutShape()
+        public override DrawableObject GetOutShape()
         {
             return HitCircle;
         }

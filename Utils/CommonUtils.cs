@@ -10,6 +10,22 @@ using System.Threading.Tasks;
 
 namespace Utils
 {
+    public class HSLColor
+    {
+        public int Hue { get; set; }//0-360
+        public int Saturation { get; set; }//100
+        public int Lightness { get; set; }//100
+        public Color ToColor(int alpha=255)
+        {
+            var c = CommonUtils.HslToRgb(Hue, Saturation, Lightness);
+            return  System.Drawing.Color.FromArgb(alpha,c.red,c.green,c.blue);
+        }
+
+        public HSLColor Clone()
+        {
+            return new HSLColor() {Hue=this.Hue,Saturation=this.Saturation,Lightness=this.Lightness };
+        }
+    }
     public class CommonUtils
     {
         //This method converts the values to RGB

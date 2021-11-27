@@ -22,7 +22,10 @@ namespace Painter.Models.PhysicalModel
             {
                 case SCENE_OBJECT_TYPE.ROLE:
                     Role character = sceneObject as Role;
-                    character.Force.Y = Gravity*character.Mass; 
+                    if (character.IsAppliedGravity)
+                    {
+                        character.Force.Y = Gravity * character.Mass;
+                    } 
                     character.Force.X = 0;
                     if (character.Status==SCENE_OBJECT_STATUS.IN_AIR)
                     {
@@ -140,7 +143,7 @@ namespace Painter.Models.PhysicalModel
             foreach (var item in this.scenes)
             {
                 List<SceneObject> sos = item.GetSceneObject();
-                for (int i = sos.Count()-1; i >0; i--)
+                for (int i = sos.Count()-1; i >=0; i--)
                 {
                     action(sos[i]);//单物体施加物理场：重力 空气阻力 运动学  
                 } 

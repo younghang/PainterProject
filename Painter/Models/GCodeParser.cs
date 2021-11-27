@@ -56,7 +56,7 @@ namespace Painter.Models
             }
             if (actionAddMoveProcessor == null)
             {
-                actionAddMoveProcessor = (rapidLine) =>
+                actionAddMoveProcessor = (rapidLine, isLoop) =>
                 {
                     MoveGeoProcessor moveGeoProcessor = new MoveGeoProcessor();
                     Geo geo = new Geo();
@@ -67,7 +67,14 @@ namespace Painter.Models
                     moveGeoProcessor.cutSpeed = double.Parse(CalService.Input("RAPIDSPEED"));
                     moveGeoProcessor.cutDistance = rapidLine.GetPerimeter();
                     moveGeoProcessor.cutDistanceInXDirection = rapidLine.FirstPoint.X - rapidLine.SecondPoint.X;
-                    this.gCodeInterpreter.AddGeoProcessor(moveGeoProcessor);
+                    if (isLoop)
+                    {
+                        this.gCodeInterpreter.LoopProcessor.Add(moveGeoProcessor);
+                    }
+                    else
+                    {
+                        this.gCodeInterpreter.AddGeoProcessor(moveGeoProcessor);
+                    }
                 };
             }
             parseG00Code = (line) =>
@@ -75,6 +82,7 @@ namespace Painter.Models
 
                 if (line.Contains("G00"))
                 {
+                    line = line.Split(';')[0];
                     //(FIRST)G00X1200.780Y1098.000
                     int index = line.IndexOf("G00");
                     int xindex = line.IndexOf("X");
@@ -103,12 +111,12 @@ namespace Painter.Models
                             LineGeo lineGeo = new LineGeo();
                             lineGeo.FirstPoint = (rapidLine.SecondPoint - rapidLine.FirstPoint) * (1.0f * (i + 0) / breakCount) + rapidLine.FirstPoint;
                             lineGeo.SecondPoint = (rapidLine.SecondPoint - rapidLine.FirstPoint) * (1.0f * (i + 1) / breakCount) + rapidLine.FirstPoint;
-                            actionAddMoveProcessor(lineGeo);
+                            actionAddMoveProcessor(lineGeo, false);
                         }
                     }
                     else
                     {
-                        actionAddMoveProcessor(rapidLine);
+                        actionAddMoveProcessor(rapidLine, false);
                     }
                 }
 
@@ -183,7 +191,7 @@ namespace Painter.Models
                     centerPoint += curPos;
                     shape.CenterX = centerPoint.X;
                     shape.CenterY = centerPoint.Y;
-                    
+
                     //y,x 返回角度 θ，以弧度为单位，满足 - π≤θ≤π，且 tan(θ) = y / x
                     float startAngle = (float)(Math.Atan2(shape.SecondPoint.Y - shape.CenterY, shape.SecondPoint.X - shape.CenterX) / Math.PI * 180);
                     float endAngle = (float)(Math.Atan2(shape.FirstPoint.Y - shape.CenterY, shape.FirstPoint.X - shape.CenterX) / Math.PI * 180);
@@ -239,7 +247,7 @@ namespace Painter.Models
                     float endAngle = (float)(Math.Atan2(shape.SecondPoint.Y - shape.CenterY, shape.SecondPoint.X - shape.CenterX) / Math.PI * 180);
                     shape.StartAngle = startAngle;
                     shape.EndAngle = endAngle;
-                    shape.IsFinishedInitial = true; 
+                    shape.IsFinishedInitial = true;
                     curPos = shape.SecondPoint;
                 }
                 return shape;
@@ -313,10 +321,10 @@ namespace Painter.Models
         public Func<string, Shape> parseG01Code = null;
         public Func<string, Shape> parseG02Code = null;
         public Func<string, Shape> parseG03Code = null;
-        public Action<LineGeo> actionAddMoveProcessor = null;
+        public Action<LineGeo, bool> actionAddMoveProcessor = null;
         public bool InitializeGCodeInterperter()
         {
-            bool isNotFirstPart = false; 
+            bool isNotFirstPart = false;
             gCodeInterpreter.ClearGeoProcessor();
             curPos = new PointGeo(0, 0);
             for (int i = 0; i < strProcessCmdLines.Count; i++)
@@ -336,7 +344,7 @@ namespace Painter.Models
                 bool isCutProcess = false;
                 bool isPassStart = false;
                 for (int j = 0; j < singleProcess.Count; j++)
-                { 
+                {
                     string line = singleProcess[j];
                     if (line.Contains("LAST_LOOP_TACK_END"))
                     {
@@ -344,7 +352,7 @@ namespace Painter.Models
                     }
                     if (line.Contains("LAST_LOOP_TACK_START"))
                     {
-                        isPassStart = true; 
+                        isPassStart = true;
                     }
                     if (isPassStart)
                     {
@@ -375,7 +383,7 @@ namespace Painter.Models
                             cutGeo.AddShape(shape);
                         }
                     };
-                   
+
                     if (line.Contains("CUT_CONT_START"))
                     {
                         isCutProcess = true;
@@ -401,7 +409,7 @@ namespace Painter.Models
                         addCutShape(parseG01Code(line));
                         addCutShape(parseG02Code(line));
                         addCutShape(parseG03Code(line));
-                    } 
+                    }
                 }
             }
             try
@@ -413,7 +421,7 @@ namespace Painter.Models
             catch (Exception)
             {
                 throw new LaserException("ERROR", "文件读取异常LOOPGAP，GCodeParser初始化InitializeGCodeInterperter失败");
-                 
+
             }
 
             if (gCodeInterpreter.GetProcessors().Count == 0)
@@ -429,8 +437,33 @@ namespace Painter.Models
                 }
             }
             gCodeInterpreter.EndPoint = gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes()[this.gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes().Count - 1].SecondPoint.Clone();
-            //设定循环G00
-            gCodeInterpreter.SetLoopGeo();
+            //设定循环G00 
+            Geo loopRapidGeo = new Geo();
+            LineGeo loopG00Line = new LineGeo();
+            loopG00Line.FirstPoint = gCodeInterpreter.EndPoint;
+            if (ProgramController.Instance.IsNoWait)
+            {
+                loopG00Line.SecondPoint = new PointGeo((float)(gCodeInterpreter.StartPoint.X + Settings.CYCLE_LENGTH), gCodeInterpreter.StartPoint.Y);
+            }
+            else
+            {
+                loopG00Line.SecondPoint = new PointGeo((float)(gCodeInterpreter.StartPoint.X - Settings.CYCLE_LENGTH), gCodeInterpreter.StartPoint.Y);
+            }
+            if (loopG00Line.SecondPoint.X < loopG00Line.FirstPoint.X && loopG00Line.GetPerimeter() > double.Parse(CalService.Input("HEAD1LIMIT")))
+            {
+                int breakCount = 3;
+                for (int i = 0; i < breakCount; i++)
+                {
+                    LineGeo lineGeo = new LineGeo();
+                    lineGeo.FirstPoint = (loopG00Line.SecondPoint - loopG00Line.FirstPoint) * (1.0f * (i + 0) / breakCount) + loopG00Line.FirstPoint;
+                    lineGeo.SecondPoint = (loopG00Line.SecondPoint - loopG00Line.FirstPoint) * (1.0f * (i + 1) / breakCount) + loopG00Line.SecondPoint;
+                    actionAddMoveProcessor(lineGeo, true);
+                }
+            }
+            else
+            {
+                actionAddMoveProcessor(loopG00Line, true);
+            }
             return true;
         }
 
@@ -443,7 +476,7 @@ namespace Painter.Models
         private UniversalGCodeParser()
         {
             InitGCodeParser();
-        } 
+        }
         public Dictionary<int, GeoProcessorBase> LinesIndexedProcessor = new Dictionary<int, GeoProcessorBase>();
         public static UniversalGCodeParser Instance = new UniversalGCodeParser();
         //忽略的行
@@ -528,7 +561,7 @@ namespace Painter.Models
                         else
                         {
                             rapidLine.SecondPoint = point;
-                        } 
+                        }
                         if (curPos.X < 1E-3 && curPos.Y < 1E-3)
                         {
                             curPos = rapidLine.SecondPoint;
@@ -549,7 +582,7 @@ namespace Painter.Models
                 if (line.Contains("G01") || line.Contains("G1"))
                 {
                     //G01X0.000Y-323.268
-                    int index = 2; 
+                    int index = 2;
                     if (line.Contains("G01"))
                     {
                         index = line.IndexOf("G01");
@@ -565,9 +598,9 @@ namespace Painter.Models
                         return;
                     }
                     int endIndex = line.Length;
-                    for (int i = yindex+1; i < line.Length; i++)
+                    for (int i = yindex + 1; i < line.Length; i++)
                     {
-                        if (!(line[i]>='0'&& line[i]<='9' || line[i] == '.' || line[i] == '-' || line[i] == '+'))
+                        if (!(line[i] >= '0' && line[i] <= '9' || line[i] == '.' || line[i] == '-' || line[i] == '+'))
                         {
                             endIndex = i;
                             break;
@@ -592,8 +625,8 @@ namespace Painter.Models
                         }
                         shape.FirstPoint = shape.FirstPoint;
                         shape.SecondPoint = shape.SecondPoint;
-                        
-                        if (curPos.X<1E-3&&curPos.Y < 1E-3)
+
+                        if (curPos.X < 1E-3 && curPos.Y < 1E-3)
                         {
                             curPos = shape.SecondPoint;
                             return;
@@ -603,7 +636,7 @@ namespace Painter.Models
                     }
                     catch (Exception)
                     {
-                        return;
+                        return;// throw new LaserException("GCode Parse Error", "G01读取异常\n" + line); 
                     }
                 }
             };
@@ -665,7 +698,7 @@ namespace Painter.Models
                         float endAngle = (float)(Math.Atan2(shape.FirstPoint.Y - shape.CenterY, shape.FirstPoint.X - shape.CenterX) / Math.PI * 180);
                         shape.StartAngle = startAngle;
                         shape.EndAngle = endAngle;
-                        shape.IsFinishedInitial = true; 
+                        shape.IsFinishedInitial = true;
                         curPos = shape.SecondPoint;
                         actionAddCutProcessor(shape);
                     }
@@ -734,13 +767,13 @@ namespace Painter.Models
                         float endAngle = (float)(Math.Atan2(shape.SecondPoint.Y - shape.CenterY, shape.SecondPoint.X - shape.CenterX) / Math.PI * 180);
                         shape.StartAngle = startAngle;
                         shape.EndAngle = endAngle;
-                        shape.IsFinishedInitial = true; 
-                        curPos = shape.SecondPoint; 
-                        actionAddCutProcessor(shape); 
+                        shape.IsFinishedInitial = true;
+                        curPos = shape.SecondPoint;
+                        actionAddCutProcessor(shape);
                     }
                     catch (Exception)
                     {
-                        return;
+                        return;//throw new LaserException("GCode Parse Error","G03读取异常\n"+line);
                     }
                 }
 
@@ -788,6 +821,15 @@ namespace Painter.Models
             curLineIndex = -1;
             curPos = new PointGeo(0, 0);
             LinesIndexedProcessor.Clear();
+            CalService.Input("CUTSPEED1=" + Settings.DEFAULT_CUT_SPEED.ToString("f3"));
+            CalService.Input("RAPIDSPEED=" + Settings.DEFAULT_MOVE_SPEED.ToString("f3"));
+            CalService.Input("LOOPGAP=" + 0);
+            CalService.Input("ASPEED=" + 0);
+            CalService.Input("HEAD1LIMIT=" + 1000000);
+            Settings.BEAMON = 0.1;
+            Settings.BEAMOFF = 0.1;
+            Settings.A_SHAFT_SPEED = double.Parse(CalService.Input("ASPEED"));
+            Settings.CYCLE_LENGTH = double.Parse(CalService.Input("LOOPGAP"));
             for (int i = 0; i < lines.Count; i++)
             {
                 string line = lines[i];
@@ -799,29 +841,33 @@ namespace Painter.Models
                 if (line.Contains("G90"))
                 {
                     isRelative = false;
-                } 
+                }
                 parseG00Code(line);
                 parseG01Code(line);
                 parseG02Code(line);
                 parseG03Code(line);
             }
-            CalService.Input("CUTSPEED1=" + Settings.DEFAULT_CUT_SPEED.ToString("f3"));
-            CalService.Input("RAPIDSPEED=" + Settings.DEFAULT_MOVE_SPEED.ToString("f3"));
-            CalService.Input("LOOPGAP=" +0);
-            CalService.Input("ASPEED=" + 0);
-            Settings.BEAMON = 0.1;
-            Settings.BEAMOFF = 0.1;
-            Settings.A_SHAFT_SPEED = double.Parse(CalService.Input("ASPEED"));
-            Settings.CYCLE_LENGTH = double.Parse(CalService.Input("LOOPGAP"));
-            Settings.SavetSettingFile(); 
-            if (gCodeInterpreter.GetProcessors().Count==0)
+
+            Settings.SavetSettingFile();
+            if (gCodeInterpreter.GetProcessors().Count == 0)
             {
                 return false;
             }
             gCodeInterpreter.StartPoint = gCodeInterpreter.GetProcessors()[0].CutGeo.GetShapes()[0].FirstPoint.Clone();
             gCodeInterpreter.EndPoint = gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes()[this.gCodeInterpreter.GetProcessors()[gCodeInterpreter.GetProcessors().Count - 1].CutGeo.GetShapes().Count - 1].SecondPoint.Clone();
-            gCodeInterpreter.SetLoopGeo();
-            actionAddMoveProcessor((LineGeo)gCodeInterpreter.loopRapidGeo.GetShapes()[0]); 
+            //设定循环G00
+            Geo loopRapidGeo = new Geo();
+            LineGeo loopG00Line = new LineGeo();
+            loopG00Line.FirstPoint = gCodeInterpreter.EndPoint;
+            if (ProgramController.Instance.IsNoWait)
+            {
+                loopG00Line.SecondPoint = new PointGeo((float)(gCodeInterpreter.StartPoint.X + Settings.CYCLE_LENGTH), gCodeInterpreter.StartPoint.Y);
+            }
+            else
+            {
+                loopG00Line.SecondPoint = new PointGeo((float)(gCodeInterpreter.StartPoint.X - Settings.CYCLE_LENGTH), gCodeInterpreter.StartPoint.Y);
+            }
+            actionAddMoveProcessor(loopG00Line);
             return true;
         }
     }
