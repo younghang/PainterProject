@@ -287,6 +287,9 @@ namespace Painter
                 case GAME_CMDS.EDIT:
                     new PainterTest().Show();
                     break;
+                case GAME_CMDS.OBJECT_3D:
+                    new Object3DForm().Show();
+                    break;
                 default:
                     break;
             }

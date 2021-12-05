@@ -214,19 +214,8 @@ namespace Painter.Models.StageModel
         public override Scene GetScene()
         {
             return scene; 
-        }
-        private int Width = 1200;
-        private int height = 600;
-
-        public override int GetWidth()
-        {
-            return Width;
-        }
-
-        public override int GetHeight()
-        {
-            return height;
-        }
+        } 
+      
         public override void OnKeyDown(Keys keyData)
         {
             switch (keyData)

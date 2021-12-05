@@ -20,19 +20,11 @@ namespace Painter.Models.StageModel
             MaxX = 1200;
             MinY = 100;
             MaxY = 2700;
-        }
-        private int Width = 800;
-        private int Height = 1000;
-
-        DIRECTION curDirection = DIRECTION.RIGHT;
+            width = 800;
+            height = 1000; 
+         } 
         MainCharacter character = new MainCharacter();
-        DrawableText scoreText = new DrawableText();
-        Scene scene = new Scene();
-        public override void Clear()
-        {
-            scene.Clear();
-        }
-
+        DrawableText scoreText = new DrawableText(); 
 
         ShapeMeta emptyMeta = new ShapeMeta() { ForeColor = System.Drawing.Color.Lavender, LineWidth = 1, BackColor = System.Drawing.Color.OrangeRed, IsFill = false, DashLineStyle = new float[] { 1, 2, 1 } };
         ShapeMeta fillMeta = new ShapeMeta() { ForeColor = System.Drawing.Color.Lavender, LineWidth = 1, BackColor = System.Drawing.Color.OrangeRed, IsFill = true };
@@ -328,21 +320,7 @@ namespace Painter.Models.StageModel
         {
             return character;
         }
-
-        public override Scene GetScene()
-        {
-            return scene;
-        }
-
-        public override int GetWidth()
-        {
-            return Width;
-        }
-
-        public override int GetHeight()
-        {
-            return Height;
-        }
+          
         List<List<List<PointGeo>>> blocks = new List<List<List<PointGeo>>>();
         private void InitBlocks()
         {
@@ -524,15 +502,15 @@ namespace Painter.Models.StageModel
                 switch (keyData)
                 {
                     case Keys.Right:
-                        curDirection = DIRECTION.RIGHT;
+                     
                         point.X = 1; 
                         break;
                     case Keys.Left:
-                        curDirection = DIRECTION.LEFT;
+                      
                         point.X = -1; 
                         break;
                     case Keys.Up: 
-                        curDirection = DIRECTION.UP;
+                       
                         List<PointGeo> temp = TransferShape(); 
                         if (!CheckInterfer(temp))
                         {
@@ -546,7 +524,7 @@ namespace Painter.Models.StageModel
                     case Keys.Enter:
                         break;
                     case Keys.Down:
-                        curDirection = DIRECTION.DOWN;
+                        
                         point.Y = -1;
                         break;
                 }

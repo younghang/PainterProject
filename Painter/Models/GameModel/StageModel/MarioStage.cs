@@ -32,12 +32,29 @@ namespace Painter.Models.GameModel.StageModel
       
         DrawableText scoreText = new DrawableText();
  
-        Scene scene = new Scene();
-
+    
         public override Scene CreateScene()
         {
             CanvasModel.EnableTrack = false;
-            this.LoadGround(); 
+            this.LoadGround();
+
+            GroundObject floatGround = new GroundObject();
+            RectangleGeo rectangle = new RectangleGeo(new PointGeo(3400, 350), new PointGeo(4000, 450));
+            rectangle.SetDrawMeta(new ShapeMeta() { IsFill=false,LineWidth=2,ForeColor=Color.ForestGreen});
+            floatGround.Add(rectangle);
+            floatGround.ReflectResistance = 1E-5f;
+            scene.AddObject(floatGround);
+            floatGround.StatusUpdateEvent += () => {
+                if (rectangle.FirstPoint.X<3900&&floatGround.IsInAnimate==false)
+                {
+                    floatGround.AnimateTo(new PointGeo(500, 400), 5000);
+                }
+                if (rectangle.FirstPoint.X >= 3900 && floatGround.IsInAnimate == false)
+                {
+                    floatGround.AnimateTo(new PointGeo(-500, -400), 5000);
+                }
+            };
+
             Obstacle TextObject = new Obstacle();
             scoreText.pos = new PointGeo(1200, 500);
             scoreText.SetDrawMeta(new TextMeta("你好呀 Hello") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
@@ -53,12 +70,7 @@ namespace Painter.Models.GameModel.StageModel
                 board.IsAppliedGravity = false;
                 board.AvoidFallingDown = false;
             }
-
-      
-            
-         
-    
-            
+             
             scene.AddObject(character);
             return scene;
         }
@@ -118,18 +130,7 @@ namespace Painter.Models.GameModel.StageModel
 
             }
         }
-
-        private int width = 1200;
-        private int height = 600;
-        public override int GetWidth()
-        {
-            return width;
-        }
-
-        public override int GetHeight()
-        {
-            return height;
-        }
+ 
 
         public void AnimateDistance(float moveDistance, int timespan, bool isGraph)
         {

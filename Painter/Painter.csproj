@@ -82,6 +82,8 @@
     <Compile Include="Models\GameModel\CameraModel\ScreenCamera.cs" />
     <Compile Include="Models\CmdControl\InputCmds.cs" />
     <Compile Include="Models\GameModel\StageModel\MarioStage.cs" />
+    <Compile Include="Models\GameModel\StageModel\MinerStage.cs" />
+    <Compile Include="Models\GameModel\StageModel\SecondStage.cs" />
     <Compile Include="Models\GameModel\StageModel\WeldStage.cs" />
     <Compile Include="Models\GeoModel\3DObject.cs" />
     <Compile Include="Models\PainterModel\GeoControls.cs" />

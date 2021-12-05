@@ -8,12 +8,12 @@ using System.Windows.Forms;
 namespace Painter.Models.CmdControl
 {
  
-    public enum GAME_CMDS { NONE,AUTO_FOCUS,DISABLE_FOCUS,INTERFER_ON,INTERFER_OFF,MOMENTA_ON,MOMENTA_OFF,TRACK_ON,TRACK_OFF,NEXT_SCENE,FOR_SCENE,EDIT,GCODE}
+    public enum GAME_CMDS { NONE,AUTO_FOCUS,DISABLE_FOCUS,INTERFER_ON,INTERFER_OFF,MOMENTA_ON,MOMENTA_OFF,TRACK_ON,TRACK_OFF,NEXT_SCENE,FOR_SCENE,EDIT,GCODE,OBJECT_3D}
 
     class GameInputCmds
     {
         GAME_CMDS curCMD = GAME_CMDS.NONE;
-        static List<string> cmds = new List<string>() { "NONE","FOCUS","DEFOCUS","INTERFER","DEINTERFER","MOMENTA","DEMOMENTA","TRACK","DETRACK","NEXT","FOR","EDIT", "GCODE" };
+        static List<string> cmds = new List<string>() { "NONE","FOCUS","DEFOCUS","INTERFER","DEINTERFER","MOMENTA","DEMOMENTA","TRACK","DETRACK","NEXT","FOR","EDIT", "GCODE","THREE" };
         string strWords = "";
         bool isTyping = false;
         public event Action<GAME_CMDS> CMDEvent;

@@ -25,6 +25,7 @@ namespace Painter.Models.Paint
     public enum SCENE_OBJECT_INTERFER { NONE, INTERFER };
     public class SceneObject
     {
+        public event Action StatusUpdateEvent; 
         protected PointGeo Center = new PointGeo();//这个不准啊，不知为啥，GetOuterShape().GetShapeCenter()比较好
         public Scene CurrenScene;
         public SCENE_OBJECT_STATUS Status;
@@ -80,15 +81,8 @@ namespace Painter.Models.Paint
                 if (_isDisposed)
                 {
                     foreach (var item in this.elements)
-                    {
-                        if (item is Shape)
-                        {
-                            (item as Shape).IsDisposed = true;
-                        }
-                        else if (item is RandomLines)
-                        {
-                            (item as RandomLines).IsDisposed = true;
-                        }
+                    { 
+                        item.IsDisposed = true; 
                     }
                 }
             }
@@ -168,14 +162,48 @@ namespace Painter.Models.Paint
             Center += pos;
         }
         public virtual void SetStatus()
-        { 
+        {
+            if (InAnimation)
+            {
+                AnimateStep();
+            }
+            StatusUpdateEvent?.Invoke();
+        }
+        private bool InAnimation = false;
+        public bool IsInAnimate
+        {
+            get { return InAnimation; }
+        }
+        private PointGeo curPoint;
+        private PointGeo endPoint;
+        private PointGeo stepPoint;
+        public void AnimateTo(PointGeo pointGeo, float timespan)
+        {
+            curPoint = new PointGeo();
+            endPoint = pointGeo;
+            int count = (int)(timespan / PhysicalField.TICK_TIME);
+            stepPoint = pointGeo / count;
+            InAnimation = true;
+        }
+        private void AnimateStep()
+        {
+            if (Math.Abs(this.curPoint.X + this.stepPoint.X) < Math.Abs(endPoint.X))
+            {
+                this.Move(stepPoint);
+                this.curPoint += this.stepPoint;
+            }
+            else
+            {
+                this.Move(endPoint - curPoint);
+                InAnimation = false;
+            } 
         }
     }
     public enum DIRECTION { UP, DOWN, LEFT, RIGHT }
 
     class GroundObject : SceneObject
     {
-        //最好定义为一个矩形
+        //最好定义为一个矩形,越小物体越无法弹起来（1E-6f就弹不动了）
         public float ReflectResistance = 0.8f;
         public int CarrayCount = 0;
         public GroundObject()
@@ -191,8 +219,8 @@ namespace Painter.Models.Paint
             {
                 return null;
             }
-            if (ReflectedLine == null)
-            {
+            //if (ReflectedLine == null)
+            //{
                 switch (ReflectionDirection)
                 {
                     case DIRECTION.UP:
@@ -210,7 +238,7 @@ namespace Painter.Models.Paint
                     default:
                         break;
                 }
-            }
+            //}
             return ReflectedLine;
         }
         public DIRECTION ReflectionDirection;
@@ -236,6 +264,7 @@ namespace Painter.Models.Paint
             //    double y = rectange.GetMinY() + rectange.Heigth * Math.Sin(-rectange.Angle / 180 * Math.PI);
             //    ReflectedLine = new LineGeo(new PointGeo(rectange.GetMinX(), rectange.GetMinY()), new PointGeo());
             //}
+            base.SetStatus();
         }
     }
     public class Role : SceneObject
@@ -605,10 +634,7 @@ namespace Painter.Models.Paint
                 ((this.elements[2] as Shape).GetDrawMeta() as ShapeMeta).BackColor = System.Drawing.Color.Red;
                 ((this.elements[2] as Shape).GetDrawMeta() as ShapeMeta).IsFill = true;
             }
-            if (InAnimation)
-            {
-                AnimateStep();
-            }
+            base.SetStatus();
 
         }
         public void OnAttack()
@@ -643,31 +669,7 @@ namespace Painter.Models.Paint
             Center += pos;
             PositionChange?.Invoke();
         }
-        private bool InAnimation = false;
-        private PointGeo curPoint;
-        private PointGeo endPoint;
-        private PointGeo stepPoint;
-        public void AnimateTo(PointGeo pointGeo, float timespan)
-        {
-            curPoint = new PointGeo();
-            endPoint = pointGeo;
-            int count = (int)(timespan / PhysicalField.TICK_TIME);
-            stepPoint = pointGeo / count;
-            InAnimation = true;
-        }
-        private void AnimateStep()
-        {
-            if (Math.Abs(this.curPoint.X+this.stepPoint.X)< Math.Abs(endPoint.X))
-            {
-                this.Move(stepPoint);
-                this.curPoint += this.stepPoint;
-            }else
-            {
-                this.Move(endPoint-curPoint);
-                InAnimation = false;
-            }
-           
-        }
+       
     }
     class FallingObstacle : Obstacle
     {

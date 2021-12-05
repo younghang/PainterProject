@@ -16,33 +16,30 @@ namespace Painter.Models.StageModel
         public double MinX = 0;
         public double MinY = 0;
         public double MaxY = 600;
+        protected int width = 1200;
+        protected int height = 600;
+        protected Scene scene = new Scene();
         public abstract MainCharacter GetMainCharacter();
-        public abstract Scene GetScene();
+        public virtual Scene GetScene() { return this.scene; }
         public abstract Scene CreateScene();
-        public abstract void Clear();
-        public abstract void OnKeyDown(Keys keyData);
-        public abstract int GetWidth();
-        public abstract int GetHeight();
+        public virtual void Clear() { this.scene.Clear(); }
+        public virtual void OnKeyDown(Keys keyData) { }
+        public virtual int GetWidth() { return this.width; }
+        public virtual int GetHeight() { return this.height; }
     }
     class FirstStageScene: StageScene
     {
-        public override void Clear()
-        {
-            this.scene.Clear();
-        }
+        
         MainCharacter character = new MainCharacter();
         DrawableText scoreText = new DrawableText();
         DrawableText illustrateText = new DrawableText(); 
-        Scene scene = new Scene();
+      
         //获取场景中的键鼠操作对象
         public override MainCharacter GetMainCharacter()
         {
             return character;
         }
-        public override Scene GetScene()
-        {
-            return this.scene;
-        }
+        
         public override Scene CreateScene()
         { 
             GroundObject groundObj = new GroundObject();
@@ -260,8 +257,7 @@ namespace Painter.Models.StageModel
                     break;
             }
         }
-        private int width = 1200;
-        private int height = 600;
+
 
         public override int GetWidth()
         {
@@ -276,62 +272,5 @@ namespace Painter.Models.StageModel
         static Random rand = new Random();
 
     }
-    class SecondStageScene : StageScene
-    {
-        public override void Clear()
-        {
-            this.scene.Clear();
-            CanvasModel.EnableTrack = false;
-        }
-        MainCharacter character = new MainCharacter();
-        DrawableText scoreText = new DrawableText(); 
-        Scene scene = new Scene();
-       
-        public override Scene CreateScene()
-        {
-            CanvasModel.EnableTrack = true; 
-            scene.Background = Color.Black;
-            Obstacle TextObject = new Obstacle(); 
-            scoreText.pos = new PointGeo(1200, 500);
-            scoreText.SetDrawMeta(new TextMeta("你好呀 Hello") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
-            RectangleGeo rect = new RectangleGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
-            TextObject.Add(rect);
-            TextObject.Add(scoreText);
-            scene.AddObject(TextObject,false);
-            return scene;
-        }
-
-        public override MainCharacter  GetMainCharacter()
-        {
-            return character;
-        }
-
-        public override Scene GetScene()
-        {
-            return scene;
-        }
-
-        public override void OnKeyDown(Keys keyData)
-        {
-            switch (keyData)
-            {
-                case Keys.Space:
-                    character.Move(new PointGeo());
-                    break;
-
-            }
-        }
-
-        private int width = 1200;
-        private int height = 600;
-        public override int GetWidth()
-        {
-            return width;
-        }
-
-        public override int GetHeight()
-        {
-            return height;
-        }
-    }
+   
 }
