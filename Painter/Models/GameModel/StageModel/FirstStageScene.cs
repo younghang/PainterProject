@@ -89,6 +89,7 @@ namespace Painter.Models.StageModel
             illustrateText.GetTextMeta().Text += "\n\t Command \"FOCUS/DEFOCUS\" enable/disable camera following";
             illustrateText.GetTextMeta().Text += "\n\t Command \"MOMENTA/DEMOMENTA\" enable/disable object collision";
             illustrateText.GetTextMeta().Text += "\n\t Command \"INTERFER/DEINTERFER\" enable/disable main character collision";
+            illustrateText.GetTextMeta().Text += "\n\t Command \"EDIT/THREE/GCODE\" show other forms";
 
             character.Move(new PointGeo(100, 200));
             character.HitEnemyEvent += () => {
