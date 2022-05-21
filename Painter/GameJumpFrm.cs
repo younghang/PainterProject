@@ -290,6 +290,9 @@ namespace Painter
                 case GAME_CMDS.OBJECT_3D:
                     new Object3DForm().Show();
                     break;
+                case GAME_CMDS.GCODE:
+                    new GCodeLaserHeadForm().Show();
+                    break;
                 default:
                     break;
             }

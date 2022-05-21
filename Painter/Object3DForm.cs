@@ -253,7 +253,11 @@ namespace Painter
                 case Keys.Down:
                     break;
             }
-            curStage.OnKeyDown(keyData);
+            if (curStage != null)
+            {
+                curStage.OnKeyDown(keyData);
+            }
+           
             canvasModel.OnInvalidate();
             return base.ProcessCmdKey(ref msg, keyData);
         }
