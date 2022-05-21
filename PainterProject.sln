@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwoArm", "TwoArm\TwoArm.csproj", "{CBC1836D-46A6-4EF0-BA65-BB3E0372160F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActivityLog", "ActivityLog\ActivityLog.csproj", "{3DC30017-992B-4D2A-AC96-A32DC27E67C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{CBC1836D-46A6-4EF0-BA65-BB3E0372160F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBC1836D-46A6-4EF0-BA65-BB3E0372160F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBC1836D-46A6-4EF0-BA65-BB3E0372160F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DC30017-992B-4D2A-AC96-A32DC27E67C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DC30017-992B-4D2A-AC96-A32DC27E67C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DC30017-992B-4D2A-AC96-A32DC27E67C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DC30017-992B-4D2A-AC96-A32DC27E67C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
