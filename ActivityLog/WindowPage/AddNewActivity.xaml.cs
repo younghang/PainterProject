@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ActivityLog.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +20,14 @@ namespace ActivityLog.WindowPage
     /// </summary>
     public partial class AddNewActivity : Window
     {
+        private bool isEditMode = true;
+        public bool IsEdit { get { return isEditMode; } set { isEditMode = value; } }
+        private Activity activity = new Activity();
+        public Activity CurActivity { get { return activity; }set { activity = value; } }
         public AddNewActivity()
         {
             InitializeComponent();
+            this.DataContext = CurActivity;
         }
         private void CloseWindow(object sender, MouseButtonEventArgs e)
         {
@@ -29,7 +35,15 @@ namespace ActivityLog.WindowPage
         }
         private void MoveWindow(object sender, MouseButtonEventArgs e)
         {
-            this.DragMove();
+            if (e.ChangedButton==MouseButton.Left)
+            {
+                this.DragMove();
+            }
+            
+        } 
+        private void Confirm_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = true; 
         }
     }
 

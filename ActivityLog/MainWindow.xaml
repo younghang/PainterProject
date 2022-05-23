@@ -11,37 +11,110 @@
         <DropShadowEffect ShadowDepth="0" Opacity="0.7" BlurRadius="30"></DropShadowEffect>
     </Window.Effect>
     <Border BorderBrush="Wheat" MouseDown="MoveWindow" Margin="20"  CornerRadius="10" Background="#2d2d30">
-    <Grid >
-        <Grid.RowDefinitions>
-            <RowDefinition Height="60" />
+        <Grid >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60" />
+              
                 <RowDefinition Height="0.6"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
             <Image HorizontalAlignment="Left" Margin="20,0" Source="Resources/Image/activity_log_horizontal_w.png"/>
+            <Border x:Name="minButton" HorizontalAlignment="Right" Margin="50,0"   CornerRadius="15" Width="30" Height="30" Grid.Row="0" MouseDown="MinWindow">
+                <Border.Style>
+                    <Style TargetType="{x:Type Border}">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter  Property="Background" Value="LimeGreen"/>
+                                <!--<Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="90" CenterX="20" CenterY="20"/>
+                                    </Setter.Value>
+                                </Setter>-->
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="False">
+                                <Setter  Property="Background" Value="Green"/>
+                            </Trigger>
+                            <EventTrigger RoutedEvent="MouseEnter">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation To="40" Duration="0:0:0.2"
+                         	Storyboard.TargetProperty="Width"/>
+                                        <DoubleAnimation To="40" Duration="0:0:0.2"
+                        	Storyboard.TargetProperty="Height"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+
+                            <EventTrigger RoutedEvent="MouseLeave">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0:0:0.2"
+                             	Storyboard.TargetProperty="Width"/>
+                                        <DoubleAnimation Duration="0:0:0.2"
+                            	Storyboard.TargetProperty="Height"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Line X1="0" Y1="0" X2="20" Y2="0" StrokeThickness="3" Stroke="#fff"/>
+                </Grid>
+
+            </Border>
+
             <Border x:Name="closeButton" HorizontalAlignment="Right" Margin="10,0"   CornerRadius="15" Width="30" Height="30" Grid.Row="0" MouseDown="CloseWindow">
                 <Border.Style>
                     <Style TargetType="{x:Type Border}">
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter  Property="Background" Value="Red"/>
+                                <!--<Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="90" CenterX="20" CenterY="20"/>
+                                    </Setter.Value>
+                                </Setter>-->
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="False">
                                 <Setter  Property="Background" Value="#FFFCA810"/>
                             </Trigger>
+                            <EventTrigger RoutedEvent="MouseEnter">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation To="40" Duration="0:0:0.2"
+                         	Storyboard.TargetProperty="Width"/>
+                                        <DoubleAnimation To="40" Duration="0:0:0.2"
+                        	Storyboard.TargetProperty="Height"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+
+                            <EventTrigger RoutedEvent="MouseLeave">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0:0:0.2"
+                             	Storyboard.TargetProperty="Width"/>
+                                        <DoubleAnimation Duration="0:0:0.2"
+                            	Storyboard.TargetProperty="Height"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
                         </Style.Triggers>
                     </Style>
-                </Border.Style>    
-            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                </Border.Style>
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Line X1="0" Y1="0" X2="20" Y2="20" StrokeThickness="3" Stroke="#2d2d30"/>
                     <Line X1="0" Y1="20" X2="20" Y2="0" StrokeThickness="3" Stroke="#2d2d30"/>
-             </Grid>
-            
-        </Border>
+                </Grid>
+
+            </Border>
+
             <Border Grid.Row="1" Background="White" />
-    
+
             <StackPanel VerticalAlignment="Center"  Grid.Row="2" >
-             <widgets:ButtonEx CornerRadius="5" Content="OK" Width="80" Height="40"  Grid.Row="2"  >
-            </widgets:ButtonEx>
+                <widgets:ButtonEx CornerRadius="5" Content="OK" Width="80" Height="40"  Grid.Row="2" Click="ButtonEx_Click"  >
+                </widgets:ButtonEx>
                 <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Name="textInfo" Text="你好"  >
                     <TextBlock.Style>
                         <Style TargetType="{x:Type TextBlock}">
@@ -54,7 +127,7 @@
                     </TextBlock.Style>
                 </TextBlock>
             </StackPanel>
-           
+
         </Grid>
     </Border>
 </Window>

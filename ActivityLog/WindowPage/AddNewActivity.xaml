@@ -4,9 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:widgets="clr-namespace:ActivityLog.Widgets"
+         xmlns:convertor="clr-namespace:ActivityLog.Resources.Style"
         mc:Ignorable="d"  AllowsTransparency="True" Background="Transparent" WindowStyle="None"
-        Title="MainWindow" Height="600" Width="800" BorderThickness="15">
-    <Window.Effect>
+        WindowStartupLocation="CenterScreen" Title="MainWindow" Height="600" Width="800" BorderThickness="15">
+    <Window.Resources>
+        <convertor:BoolToWindowTitle x:Key="boolToTitle"/>
+    </Window.Resources>
+     <Window.Effect>
         <DropShadowEffect ShadowDepth="0" Opacity="0.7" BlurRadius="30"></DropShadowEffect>
     </Window.Effect>
     <Border BorderBrush="Wheat" MouseDown="MoveWindow" Margin="20"  CornerRadius="10" Background="#2d2d30">
@@ -16,21 +20,47 @@
                 <RowDefinition Height="0.6"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <Grid  Grid.Row="0" Height="30" Width="30"  HorizontalAlignment="Left" Margin="10,0" VerticalAlignment="Center">
-                <Line X1="15" Y1="0" X2="15" Y2="30" StrokeThickness="5" Stroke="White"/>
-                <Line X1="0" Y1="15" X2="30" Y2="15" StrokeThickness="5" Stroke="White"/>
+            <Grid  Grid.Row="0" Height="24" Width="24"  HorizontalAlignment="Left" Margin="10,0" VerticalAlignment="Center">
+                <Line X1="12" Y1="0" X2="12" Y2="24" StrokeThickness="3" Stroke="White"/>
+                <Line X1="0" Y1="12" X2="24" Y2="12" StrokeThickness="3" Stroke="White"/>
             </Grid>
-            <TextBlock Grid.Row="0" Margin="60,0" Text="Add New Activity" Foreground="White" VerticalAlignment="Center" FontSize="30" />
+            <TextBlock Grid.Row="0" Margin="50,0" Text="{Binding IsEdit,  RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}, Converter={StaticResource boolToTitle}}" Foreground="White" VerticalAlignment="Center" FontSize="24" />
             <Border x:Name="closeButton" HorizontalAlignment="Right" Margin="10,0"   CornerRadius="15" Width="30" Height="30" Grid.Row="0" MouseDown="CloseWindow">
                 <Border.Style>
                     <Style TargetType="{x:Type Border}">
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter  Property="Background" Value="Red"/>
+                                <!--<Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="90" CenterX="20" CenterY="20"/>
+                                    </Setter.Value>
+                                </Setter>-->
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="False">
                                 <Setter  Property="Background" Value="#FFFCA810"/>
                             </Trigger>
+                            <EventTrigger RoutedEvent="MouseEnter">
+                                <BeginStoryboard>
+                                    <Storyboard>  
+                                        <DoubleAnimation To="40" Duration="0:0:0.2"
+                         	Storyboard.TargetProperty="Width"/>
+                                        <DoubleAnimation To="40" Duration="0:0:0.2"
+                        	Storyboard.TargetProperty="Height"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+
+                            <EventTrigger RoutedEvent="MouseLeave">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0:0:0.2"
+                             	Storyboard.TargetProperty="Width"/>
+                                        <DoubleAnimation Duration="0:0:0.2"
+                            	Storyboard.TargetProperty="Height"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
@@ -43,69 +73,63 @@
             <Border Grid.Row="1" Background="White" />
             <Grid  Grid.Row="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="60"/>
-                    <RowDefinition Height="60"/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
+                    <RowDefinition Height="100"/>
+                    <RowDefinition Height="100"/>
+                    <RowDefinition Height="80"/>
+                    <RowDefinition Height="100"/>
+                    <RowDefinition Height="100"/>
                 </Grid.RowDefinitions>
                 <UniformGrid Grid.Row="0" Columns="3" >
-                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Name" Margin="10" FontSize="20" Foreground="Wheat"/>
-                        <TextBox Text="nihao" Margin="10" />
+                    <StackPanel Margin="40,0" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="Name"  Style="{StaticResource labelTextBlock}"  />
+                        <TextBox Text="{Binding Title}" Width="200" FontWeight="Bold"  Margin="0" Style="{StaticResource TextBoxStyle}" Background="Transparent"  /> 
                     </StackPanel>
-                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="ID" Margin="10" FontSize="20" Foreground="Wheat"/>
-                        <TextBox Text="3" Margin="10" IsEnabled="False"/>
+                    <StackPanel  Margin="40,0" HorizontalAlignment="Center" Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="Priority" Style="{StaticResource labelTextBlock}"/>
+                        <TextBox  Text="{Binding Priority}" Width="100" FontWeight="Bold"  Margin="0" Style="{StaticResource TextBoxStyle}" Background="Transparent"  />
                     </StackPanel>
-                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Priority" Margin="10" FontSize="20" Foreground="Wheat"/>
-                        <TextBox Text="6" Margin="10" />
+                    <StackPanel  Margin="40,0" HorizontalAlignment="Center" Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="Status" Style="{StaticResource labelTextBlock}"/>
+                        <TextBox Text="3" IsEnabled="False" Width="100" FontWeight="Bold"  Margin="0" Style="{StaticResource TextBoxStyle}" Background="Transparent"  />
                     </StackPanel>
+
                 </UniformGrid>
                
-                <UniformGrid Grid.Row="1" Columns="2" >
-                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Total Episodes" Margin="10" FontSize="20" Foreground="Wheat"/>
-                        <TextBox Text="20" Margin="10" />
+                <UniformGrid  Grid.Row="1" Columns="3" >
+                    <StackPanel  Margin="40,0" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="Total Episodes"  Style="{StaticResource labelTextBlock}"/>
+                        <TextBox Text="{Binding TotalProgress}" Width="150"  FontWeight="Bold"   Style="{StaticResource TextBoxStyle}" Background="Transparent"  />
                     </StackPanel>
-                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Estimate Hours" Margin="10" FontSize="20" Foreground="Wheat"/>
-                        <TextBox Text="3" Margin="10"  />
+                    <StackPanel  Margin="40,0" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="Estimate Hours" Style="{StaticResource labelTextBlock}"/>
+                        <TextBox Text="{Binding EstimateHour}" Width="150"  FontWeight="Bold"   Style="{StaticResource TextBoxStyle}" Background="Transparent"  />
                     </StackPanel>
-                     
-                </UniformGrid>
-                <UniformGrid Grid.Row="2" Grid.Column="2">
-                    <StackPanel   Height="60" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock  Text="StartDate" Margin="10" FontSize="20" Foreground="Wheat"/>
-                        <DatePicker Height="60" Width="100" />
-                    </StackPanel>
-                    <StackPanel Height="60" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="DueDate" Margin="10" FontSize="20" Foreground="Wheat"/>
-                        <DatePicker  Width="100" />
+                    <StackPanel  Margin="40,0" HorizontalAlignment="Center" Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="ID" Style="{StaticResource labelTextBlock}"/>
+                        <TextBox Text="{Binding ID}" IsEnabled="False" Width="100" FontWeight="Bold"  Margin="0" Style="{StaticResource TextBoxStyle}" Background="Transparent"  />
                     </StackPanel>
                 </UniformGrid>
-                <StackPanel Orientation="Vertical"  Grid.Row="3">
-                    <TextBlock Text="Remark" Margin="10"  FontSize="20" Foreground="Wheat"/>
-
-                    <TextBox Margin="10" Text="Content"/>
+                <UniformGrid  Grid.Row="2"  Columns="2" VerticalAlignment="Center">
+                    <StackPanel   Margin="40,0" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="Start Date" Style="{StaticResource labelTextBlock}"/>
+                        <DatePicker Height="36" SelectedDate="{Binding StartDate}"  Width="200" Style="{StaticResource PickerStyle}" />
+                    </StackPanel>
+                    <StackPanel  Margin="40,0" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="Due Date" Style="{StaticResource labelTextBlock}"/>
+                        <DatePicker Height="36" SelectedDate="{Binding DueDate}" Width="200" Style="{StaticResource PickerStyle}" />
+                    </StackPanel> 
+                </UniformGrid>
+                <StackPanel   Margin="40,0" Orientation="Vertical"  Grid.Row="3" >
+                    <TextBlock Text="Remark" Style="{StaticResource labelTextBlock}"/>
+                    <TextBox Margin="10" Tag="Remark" Text="{Binding Remark}"  Width="{Binding Width}" Style="{StaticResource TextBoxStyle}"/>
                 </StackPanel>
-                <StackPanel Grid.Row="4" HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center"  >
-                    <widgets:ButtonEx CornerRadius="5" Content="OK" Width="80" Height="40"  Grid.Row="2"  >
-                    </widgets:ButtonEx>
-                    <widgets:ButtonEx CornerRadius="5" Background="Orange" MouseOverBackground="DarkOrange" MousePressedBackground="OrangeRed"  Content="Cancle" Margin="60,0" Width="80" Height="40"  Grid.Row="2"  />
+                <StackPanel Grid.Row="4" HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Top"  >
+                    <!--<widgets:ButtonEx CornerRadius="5" Content="OK" Width="80" Height="40"  Grid.Row="2"  >
+                    </widgets:ButtonEx>-->
+                    <Button x:Name="Confirm" FontSize="16" Padding="5" FontWeight="Bold" Margin="0,16"  Content="Confirm"  Style="{StaticResource normalButton}" Click="Confirm_Click"/>
+                    <!--<widgets:ButtonEx CornerRadius="5" Background="Orange" MouseOverBackground="DarkOrange" MousePressedBackground="OrangeRed"  Content="Cancle" Margin="60,0" Width="80" Height="40"  Grid.Row="2"  />-->
 
-                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Name="textInfo" Text="你好"  >
-                        <TextBlock.Style>
-                            <Style TargetType="{x:Type TextBlock}">
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="Red"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    
                 </StackPanel>
             </Grid>
            

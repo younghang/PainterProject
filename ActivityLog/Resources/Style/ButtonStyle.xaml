@@ -111,6 +111,34 @@
         </Setter>
     </Style>
 
+    <Style x:Key="normalButton" TargetType="Button">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Width" Value="170"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#fdfefe"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="25" BorderThickness="0.5" BorderBrush="White" Padding="15">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#e8e8e8"/>
+                <Setter Property="Foreground" Value="DimGray"/>
+            </Trigger>
+            <Trigger Property="IsMouseCaptured" Value="True">
+                <Setter Property="Background" Value="#d9d9d9"/>
+                <Setter Property="Foreground" Value="DimGray"/>
+            </Trigger>
+        </Style.Triggers>
+
+
+    </Style>
     <Style TargetType="{x:Type local:ButtonEx}">
         <Style.Triggers>
             <Trigger Property="ButtonType" Value="Normal">

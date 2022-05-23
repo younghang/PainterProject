@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ActivityLog.Model;
+using ActivityLog.WindowPage;
+
 namespace ActivityLog
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace ActivityLog
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
         }
-
+       
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             ActivityLog.Model.Activity activity = new Model.Activity();
@@ -35,11 +37,29 @@ namespace ActivityLog
 
         private void CloseWindow(object sender, MouseButtonEventArgs e)
         {
-            this.Close();
+            Application.Current.Shutdown();
         }
         private void MoveWindow(object sender, MouseButtonEventArgs e)
         {
-            this.DragMove();
-        } 
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                this.DragMove();
+            }
+        }
+
+        private void ButtonEx_Click(object sender, RoutedEventArgs e)
+        {
+            AddNewActivity addnew = new AddNewActivity();
+            addnew.ShowDialog();
+            if (addnew.DialogResult==true)
+            {
+                Activity activity = addnew.CurActivity;
+            } 
+        }
+
+        private void MinWindow(object sender, MouseButtonEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
     }
 }
