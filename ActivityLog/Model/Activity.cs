@@ -18,7 +18,15 @@ namespace ActivityLog.Model
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         } 
-        public ACTIVITY_STATE State = ACTIVITY_STATE.TBD;
+        private ACTIVITY_STATE state = ACTIVITY_STATE.TBD;
+        public ACTIVITY_STATE ACState {
+            get { return state; }
+            set
+            {
+                state = value;
+                OnPropertyChanged();
+            }
+        }
         private string _title;
         public string Title
         {

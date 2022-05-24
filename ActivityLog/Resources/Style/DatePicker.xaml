@@ -5,12 +5,12 @@
     <!--Window窗体-->
     <SolidColorBrush x:Key="WindowBackground" Color="#007ACB"></SolidColorBrush>
     <SolidColorBrush x:Key="WindowInnerBackground" Color="Transparent"></SolidColorBrush>
-    <SolidColorBrush x:Key="WindowBorderBrush" Color="#920892"></SolidColorBrush>
+    <SolidColorBrush x:Key="WindowBorderBrush" Color="Wheat"></SolidColorBrush>
     <DropShadowEffect x:Key="WindowDropShadow" Color="Red" BlurRadius="8" ShadowDepth="0" Direction="0" Opacity="0.7" />
     <SolidColorBrush x:Key="CaptionForeground" Color="White"></SolidColorBrush>
     <LinearGradientBrush x:Key="CaptionBackground" StartPoint="0.5,0" EndPoint="0.5,1">
-        <GradientStop Color="#571457" Offset="0"/>
-        <GradientStop Color="#6A196A" Offset="1"/>
+        <GradientStop Color="Orange" Offset="0"/>
+        <GradientStop Color="DarkOrange" Offset="1"/>
     </LinearGradientBrush>
     <!--MessageBoxX-->
     <SolidColorBrush x:Key="InfoForeground" Color="White"></SolidColorBrush>
@@ -39,9 +39,9 @@
     <!--ItemsControl:DataGrid,Tree-->
     <system:Double x:Key="HeaderFontSize">14</system:Double>
     <SolidColorBrush x:Key="HeaderBorderBrush" Color="#A6FFA500"></SolidColorBrush>
-    <SolidColorBrush x:Key="HeaderBackground" Color="Purple"></SolidColorBrush>
-    <SolidColorBrush x:Key="ItemsContentBackground" Color="#1389D7"></SolidColorBrush>
-    <SolidColorBrush x:Key="ItemsAlternationContentBackground" Color="#128EE0"></SolidColorBrush>
+    <SolidColorBrush x:Key="HeaderBackground" Color="Orange"></SolidColorBrush>
+    <SolidColorBrush x:Key="ItemsContentBackground" Color="Orange"></SolidColorBrush>
+    <SolidColorBrush x:Key="ItemsAlternationContentBackground" Color="Orange"></SolidColorBrush>
     <SolidColorBrush x:Key="GridLinesBrush" Color="#A6D0C2A7"></SolidColorBrush>
     <SolidColorBrush x:Key="ItemSelectedForeground" Color="White"></SolidColorBrush>
     <SolidColorBrush x:Key="ItemSelectedBackground" Color="#BC8BEA"></SolidColorBrush>
@@ -54,7 +54,7 @@
     <!--普通无背景按钮-->
     <SolidColorBrush x:Key="CheckedForeground" Color="#F7B63E"></SolidColorBrush>
     <SolidColorBrush x:Key="MouseOverForeground" Color="Orange"></SolidColorBrush>
-    <SolidColorBrush x:Key="PressedForeground" Color="Purple"></SolidColorBrush>
+    <SolidColorBrush x:Key="PressedForeground" Color="#1389D7"></SolidColorBrush>
     <SolidColorBrush x:Key="LinkForeground" Color="#0816BB"></SolidColorBrush>
     <!--Popup,ComboBox-->
     <SolidColorBrush x:Key="PopupBackground" Color="White"></SolidColorBrush>
@@ -66,7 +66,7 @@
     <SolidColorBrush x:Key="ButtonPressedBackground" Color="DarkOrange"></SolidColorBrush>
     <SolidColorBrush x:Key="ButtonPressedForeground" Color="White"></SolidColorBrush>
     <!--Menu-->
-    <SolidColorBrush x:Key="MenuForeground" Color="#920892"></SolidColorBrush>
+    <SolidColorBrush x:Key="MenuForeground" Color="Wheat"></SolidColorBrush>
     <SolidColorBrush x:Key="MenuBackground" Color="#DDD1D1"></SolidColorBrush>
     <SolidColorBrush x:Key="MenuBorderBrush" Color="DarkBlue"></SolidColorBrush>
     <SolidColorBrush x:Key="MenuMouseOverBackground" Color="#0D3CD2"></SolidColorBrush>
@@ -86,7 +86,7 @@
         <Setter Property="FontSize" Value="18"></Setter>
         <Setter Property="CalendarButtonStyle" Value="{DynamicResource ButtonStyle}"></Setter>
         <Setter Property="CalendarDayButtonStyle" Value="{DynamicResource DayButtonStyle}"></Setter>
-        <Setter Property="BorderBrush" Value="Purple"></Setter>
+        <Setter Property="BorderBrush" Value="DarkOrange"></Setter>
         <Setter Property="CalendarItemStyle" Value="{DynamicResource CalendarItemsStyle}"></Setter>
 
     </Style>
@@ -105,7 +105,7 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="Purple"></Setter>
+                            <Setter Property="Background" Value="Wheat"></Setter>
                             <Setter Property="Foreground" Value="White"></Setter>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -127,7 +127,7 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="Purple"></Setter>
+                            <Setter Property="Background" Value="Wheat"></Setter>
                             <Setter Property="Foreground" Value="White"></Setter>
                         </Trigger>
                         <Trigger Property="IsToday" Value="True">
@@ -135,7 +135,7 @@
                             <Setter Property="Foreground" Value="White"></Setter>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="Purple"></Setter>
+                            <Setter Property="Background" Value="Wheat"></Setter>
                             <Setter Property="Foreground" Value="White"></Setter>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -147,11 +147,11 @@
 
     <Style x:Key="FButton_Transparency" TargetType="{x:Type Button}">
         <Setter Property="Background" Value="White" />
-        <Setter Property="Foreground" Value="Purple" />
+        <Setter Property="Foreground" Value="OrangeRed" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="Height" Value="Auto" />
         <Setter Property="Width" Value="Auto" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="16" />
         <Setter Property="Padding" Value="3,1,3,1" />
         <Setter Property="Cursor" Value="Hand"></Setter>
         <Setter Property="BorderBrush" Value="Transparent"></Setter>
@@ -166,7 +166,7 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="Purple"></Setter>
+                <Setter Property="Background" Value="Wheat"></Setter>
             </Trigger>
         </Style.Triggers>
     </Style>

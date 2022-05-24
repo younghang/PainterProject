@@ -90,7 +90,14 @@
                     </StackPanel>
                     <StackPanel  Margin="40,0" HorizontalAlignment="Center" Orientation="Vertical" VerticalAlignment="Center">
                         <TextBlock Text="Status" Style="{StaticResource labelTextBlock}"/>
-                        <TextBox Text="3" IsEnabled="False" Width="100" FontWeight="Bold"  Margin="0" Style="{StaticResource TextBoxStyle}" Background="Transparent"  />
+                        <ComboBox Width="140" Height="30" SelectedIndex="{Binding ACState}" Tag="{Binding ACState}" Name="AcState" FontWeight="Bold" Margin="0">
+                            <ComboBoxItem Name="TBD"  Background="Aqua">TBD</ComboBoxItem>
+                            <ComboBoxItem Name="ON_GOING" Background="Lime">ON_GOING</ComboBoxItem>
+                            <ComboBoxItem Name="PAUSE" Background="Orange">PAUSE</ComboBoxItem>
+                            <ComboBoxItem Name="ABORT" Background="Red">ABORT</ComboBoxItem>
+                            <ComboBoxItem Name="FINISH" Background="Purple">FINISH</ComboBoxItem>
+                        </ComboBox>
+                         
                     </StackPanel>
 
                 </UniformGrid>

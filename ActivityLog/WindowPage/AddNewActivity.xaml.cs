@@ -43,7 +43,9 @@ namespace ActivityLog.WindowPage
         } 
         private void Confirm_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = true; 
+            int a =AcState.SelectedIndex;
+            int b =(int) AcState.Tag;
+            //this.DialogResult = true; 
         }
     }
 
