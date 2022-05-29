@@ -5,18 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ActivityLog"
         xmlns:widgets="clr-namespace:ActivityLog.Widgets"
+        WindowStartupLocation="CenterScreen"
         mc:Ignorable="d"  AllowsTransparency="True" Background="Transparent" WindowStyle="None"
         Title="MainWindow" Height="800" Width="1200" BorderThickness="15">
     <Window.Effect>
         <DropShadowEffect ShadowDepth="0" Opacity="0.7" BlurRadius="30"></DropShadowEffect>
     </Window.Effect>
-    <Border BorderBrush="Wheat" MouseDown="MoveWindow" Margin="20"  CornerRadius="10" Background="#2d2d30">
+    <Border BorderBrush="Wheat" MouseDown="MoveWindow" Margin="20"  CornerRadius="10" Background="{StaticResource themBG}">
         <Grid >
             <Grid.RowDefinitions>
                 <RowDefinition Height="60" />
-              
                 <RowDefinition Height="0.6"/>
-                <RowDefinition />
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Image HorizontalAlignment="Left" Margin="20,0" Source="Resources/Image/activity_log_horizontal_w.png"/>
             <Border x:Name="minButton" HorizontalAlignment="Right" Margin="50,0"   CornerRadius="15" Width="30" Height="30" Grid.Row="0" MouseDown="MinWindow">
@@ -111,23 +111,16 @@
             </Border>
 
             <Border Grid.Row="1" Background="White" />
-
-            <StackPanel VerticalAlignment="Center"  Grid.Row="2" >
-                <widgets:ButtonEx CornerRadius="5" Content="OK" Width="80" Height="40"  Grid.Row="2" Click="ButtonEx_Click"  >
-                </widgets:ButtonEx>
-                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Name="textInfo" Text="你好"  >
-                    <TextBlock.Style>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="Red"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </StackPanel>
-
+            <Grid  Grid.Row="2" >
+ 
+                <StackPanel Panel.ZIndex="6" Height="60" x:Name="spSwitchMain" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="20,0" Grid.Row="0">
+                    <widgets:ButtonEx Click="MainFrmSwitchClick" x:Name="btnOverview" Content="Overview" BorderBrush="AliceBlue" BorderThickness="1"  IsChecked="True" CheckedBackground="#43a9c7" Background="Transparent" CornerRadius="12" Margin="10,0" Width="70" Height="24"></widgets:ButtonEx>
+                    <widgets:ButtonEx Click="MainFrmSwitchClick" x:Name="btnActivity" Content="Activity" BorderBrush="AliceBlue" BorderThickness="1"  IsChecked="False" CheckedBackground="#43a9c7" Background="Transparent" CornerRadius="12" Margin="10,0" Width="70" Height="24"></widgets:ButtonEx>
+                    <widgets:ButtonEx Click="MainFrmSwitchClick" x:Name="btnRecord" Content="Record" BorderBrush="AliceBlue" BorderThickness="1"  IsChecked="False" CheckedBackground="#43a9c7" Background="Transparent" CornerRadius="12" Margin="10,0" Width="70" Height="24"></widgets:ButtonEx>
+                </StackPanel>
+                <StackPanel x:Name="mainFrm" Grid.Row="0"/>
+ 
+            </Grid> 
         </Grid>
     </Border>
 </Window>

@@ -99,6 +99,26 @@ namespace ActivityLog.Widgets
 
         public static readonly DependencyProperty MousePressedBackgroundProperty =
          DependencyProperty.Register("MousePressedBackground", typeof(Brush), typeof(ButtonEx), new PropertyMetadata());
+
+        public Brush CheckedBackground
+        {
+            get { return (Brush)GetValue(CheckedBackgroundProperty); }
+            set { SetValue(CheckedBackgroundProperty, value); }
+        }
+
+        public static readonly DependencyProperty CheckedBackgroundProperty =
+         DependencyProperty.Register("CheckedBackground", typeof(Brush), typeof(ButtonEx), new PropertyMetadata());
+
+
+        public bool IsChecked
+        {
+            get { return (bool)GetValue(IsCheckedProperty); }
+            set { SetValue(IsCheckedProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsCheckedProperty =
+         DependencyProperty.Register("IsChecked", typeof(bool), typeof(ButtonEx), new PropertyMetadata());
+
     }
 
     public enum ButtonType

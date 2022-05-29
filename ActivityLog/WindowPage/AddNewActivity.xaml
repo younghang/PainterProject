@@ -4,16 +4,54 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:widgets="clr-namespace:ActivityLog.Widgets"
-         xmlns:convertor="clr-namespace:ActivityLog.Resources.Style"
+        Name="addNewAc"
+        xmlns:convertor="clr-namespace:ActivityLog.Resources.Style"
         mc:Ignorable="d"  AllowsTransparency="True" Background="Transparent" WindowStyle="None"
         WindowStartupLocation="CenterScreen" Title="MainWindow" Height="600" Width="800" BorderThickness="15">
     <Window.Resources>
         <convertor:BoolToWindowTitle x:Key="boolToTitle"/>
+        <convertor:ActivityStateToString x:Key="ActivityStateToString"/>
+        <Storyboard x:Key="closeDW2" Completed="closeStoryBoard_Completed" >
+            <DoubleAnimation Storyboard.TargetName="MainBorder"
+                        Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX"
+                        From="1" To="1.2" Duration="0:0:0.1"  AutoReverse="True">
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="MainBorder"
+                        Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
+                        From="1" To="1.2" Duration="0:0:0.1"  AutoReverse="True">
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="MainBorder"
+                        Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX"
+                          From="1" To="0.0" Duration="0:0:0.2" BeginTime="0:0:0.1" >
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="MainBorder"
+                        Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
+                         From="1" To="0.0" Duration="0:0:0.2" BeginTime="0:0:0.1">
+            </DoubleAnimation> 
+        </Storyboard>
     </Window.Resources>
+    <Window.Triggers>
+        <EventTrigger SourceName="addNewAc" RoutedEvent="Window.Loaded">
+            <BeginStoryboard Name="showQueryCanvasStoryboard2" 
+                      Storyboard="{StaticResource showDW3}">
+            </BeginStoryboard>
+        </EventTrigger> 
+    </Window.Triggers>
      <Window.Effect>
         <DropShadowEffect ShadowDepth="0" Opacity="0.7" BlurRadius="30"></DropShadowEffect>
     </Window.Effect>
-    <Border BorderBrush="Wheat" MouseDown="MoveWindow" Margin="20"  CornerRadius="10" Background="#2d2d30">
+    <Grid x:Name="MainBorder">
+        <Grid.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform CenterX="400" CenterY="300"></ScaleTransform>
+                <!--缩放中心为100,50。RenderTransform.Children[0]-->
+                <RotateTransform CenterX="400" CenterY="300"></RotateTransform>
+                <!--旋转中心为100,50。RenderTransform.Children[1]-->
+            </TransformGroup>
+        </Grid.RenderTransform>
+
+        <Border BorderBrush="Wheat"  MouseDown="MoveWindow" Margin="20"  CornerRadius="10" Background="{StaticResource themBG}">
+        
         <Grid >
             <Grid.RowDefinitions>
                 <RowDefinition Height="60" />
@@ -88,9 +126,9 @@
                         <TextBlock Text="Priority" Style="{StaticResource labelTextBlock}"/>
                         <TextBox  Text="{Binding Priority}" Width="100" FontWeight="Bold"  Margin="0" Style="{StaticResource TextBoxStyle}" Background="Transparent"  />
                     </StackPanel>
-                    <StackPanel  Margin="40,0" HorizontalAlignment="Center" Orientation="Vertical" VerticalAlignment="Center">
+                    <StackPanel  Margin="40,0,40,0" HorizontalAlignment="Right" Orientation="Vertical" VerticalAlignment="Center">
                         <TextBlock Text="Status" Style="{StaticResource labelTextBlock}"/>
-                        <ComboBox Width="140" Height="30" SelectedIndex="{Binding ACState}" Tag="{Binding ACState}" Name="AcState" FontWeight="Bold" Margin="0">
+                        <ComboBox   Width="140" Height="30" SelectedIndex="{Binding ACState}" Text="{Binding ACState, Converter={StaticResource ActivityStateToString},Mode=OneWay}"   Tag="{Binding ACState}" Name="AcState" FontWeight="Bold" Margin="0">
                             <ComboBoxItem Name="TBD"  Background="Aqua">TBD</ComboBoxItem>
                             <ComboBoxItem Name="ON_GOING" Background="Lime">ON_GOING</ComboBoxItem>
                             <ComboBoxItem Name="PAUSE" Background="Orange">PAUSE</ComboBoxItem>
@@ -111,17 +149,17 @@
                         <TextBlock Text="Estimate Hours" Style="{StaticResource labelTextBlock}"/>
                         <TextBox Text="{Binding EstimateHour}" Width="150"  FontWeight="Bold"   Style="{StaticResource TextBoxStyle}" Background="Transparent"  />
                     </StackPanel>
-                    <StackPanel  Margin="40,0" HorizontalAlignment="Center" Orientation="Vertical" VerticalAlignment="Center">
+                    <StackPanel  Margin="40,0,80,0" HorizontalAlignment="Right" Orientation="Vertical" VerticalAlignment="Center">
                         <TextBlock Text="ID" Style="{StaticResource labelTextBlock}"/>
                         <TextBox Text="{Binding ID}" IsEnabled="False" Width="100" FontWeight="Bold"  Margin="0" Style="{StaticResource TextBoxStyle}" Background="Transparent"  />
                     </StackPanel>
                 </UniformGrid>
                 <UniformGrid  Grid.Row="2"  Columns="2" VerticalAlignment="Center">
-                    <StackPanel   Margin="40,0" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Center">
+                    <StackPanel   Margin="40,0,0,0" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Center">
                         <TextBlock Text="Start Date" Style="{StaticResource labelTextBlock}"/>
                         <DatePicker Height="36" SelectedDate="{Binding StartDate}"  Width="200" Style="{StaticResource PickerStyle}" />
                     </StackPanel>
-                    <StackPanel  Margin="40,0" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Center">
+                    <StackPanel  Margin="40,0,40,0" HorizontalAlignment="Right" Orientation="Vertical" VerticalAlignment="Center">
                         <TextBlock Text="Due Date" Style="{StaticResource labelTextBlock}"/>
                         <DatePicker Height="36" SelectedDate="{Binding DueDate}" Width="200" Style="{StaticResource PickerStyle}" />
                     </StackPanel> 
@@ -143,4 +181,5 @@
 
         </Grid>
     </Border>
+    </Grid>
 </Window>

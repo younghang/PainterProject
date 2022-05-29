@@ -11,7 +11,7 @@ namespace ActivityLog.Model
 {
     public enum ACTIVITY_STATE { TBD, ON_GOING, PAUSE, ABORT, FINISH }
 
-    public class Activity:INotifyPropertyChanged
+    public class Activity : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string propertyName = null)

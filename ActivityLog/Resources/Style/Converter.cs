@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -108,6 +109,25 @@ namespace ActivityLog.Resources.Style
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+    }
+    public class ActivityStateToString : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value != null)
+            {
+                ActivityLog.Model.ACTIVITY_STATE acState = (Model.ACTIVITY_STATE)System.Convert.ToInt32(value);
+                return acState.ToString();
+            }
+            return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            ComboBoxItem item = (ComboBoxItem)value; 
+            return (ActivityLog.Model.ACTIVITY_STATE)Enum.Parse(typeof(ActivityLog.Model.ACTIVITY_STATE), item.Name.ToString().Trim());
         }
     }
 }

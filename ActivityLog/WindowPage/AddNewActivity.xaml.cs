@@ -10,6 +10,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
@@ -26,11 +27,21 @@ namespace ActivityLog.WindowPage
         public Activity CurActivity { get { return activity; }set { activity = value; } }
         public AddNewActivity()
         {
-            InitializeComponent();
-            this.DataContext = CurActivity;
+            InitializeComponent(); 
+            this.DataContext = CurActivity; 
         }
         private void CloseWindow(object sender, MouseButtonEventArgs e)
         {
+            Storyboard storyboard= (Storyboard)Resources["closeDW2"];
+            if (!closeStoryBoardCompleted)
+            {
+                storyboard.Begin(); 
+            }
+        }
+        private bool closeStoryBoardCompleted = false;
+        private void closeStoryBoard_Completed(object sender, EventArgs e)
+        {
+            closeStoryBoardCompleted = true;
             this.Close();
         }
         private void MoveWindow(object sender, MouseButtonEventArgs e)
@@ -43,9 +54,9 @@ namespace ActivityLog.WindowPage
         } 
         private void Confirm_Click(object sender, RoutedEventArgs e)
         {
-            int a =AcState.SelectedIndex;
-            int b =(int) AcState.Tag;
-            //this.DialogResult = true; 
+            //int a =AcState.SelectedIndex;
+            //int b =(int) AcState.Tag;
+            this.DialogResult = true; 
         }
     }
 
