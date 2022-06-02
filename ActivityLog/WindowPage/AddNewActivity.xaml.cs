@@ -24,7 +24,7 @@ namespace ActivityLog.WindowPage
         private bool isEditMode = true;
         public bool IsEdit { get { return isEditMode; } set { isEditMode = value; } }
         private Activity activity = new Activity();
-        public Activity CurActivity { get { return activity; }set { activity = value; } }
+        public Activity CurActivity { get { return activity; }set { activity = value; this.DataContext = value; } }
         public AddNewActivity()
         {
             InitializeComponent(); 

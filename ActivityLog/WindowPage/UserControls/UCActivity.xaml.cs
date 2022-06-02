@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ActivityLog.Model;
+using ActivityLog.Model.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,16 +21,17 @@ namespace ActivityLog.WindowPage.UserControls
     /// <summary>
     /// UCActivity.xaml 的交互逻辑
     /// </summary>
-    public partial class UCActivity : UserControl,IUCSwitch
+    public partial class UCActivity : UserControl, IUCSwitch
     {
         public event Action AttachNextEvent;
 
         public UserControl GetUC() { return this; }
-        public void Detach() { 
-            Storyboard sb = (Storyboard)App.Current.FindResource("closeDW2"); 
-            if(sb.IsFrozen)
+        public void Detach()
+        { 
+            Storyboard sb = (Storyboard)App.Current.FindResource("closeDW2");
+            if (sb.IsFrozen)
             {
-                sb=sb.Clone();
+                sb = sb.Clone();
             }
             sb.Completed += Sb_Completed;
             sb.Begin(this);
@@ -49,6 +52,38 @@ namespace ActivityLog.WindowPage.UserControls
         public UCActivity()
         {
             InitializeComponent();
+            this.DataContext = VMActivity.Instance;
+            VMActivity.Instance.OnActivityEditEvent += Instance_OnActivityEditEvent;
+            this.Loaded += UCActivity_Loaded;
+ 
         }
+
+        private void Instance_OnActivityEditEvent(Activity obj)
+        {
+            AddNewActivity addnew = new AddNewActivity();
+            addnew.CurActivity = obj;
+            addnew.IsEdit = true;
+            addnew.ShowDialog(); 
+        }
+
+        private void UCActivity_Loaded(object sender, RoutedEventArgs e)
+        {
+ 
+        }
+
+        private void addNewActivity_Click(object sender, RoutedEventArgs e)
+        {
+            AddNewActivity addnew = new AddNewActivity();
+            addnew.ShowDialog();
+            if (addnew.DialogResult == true)
+            {
+                Activity activity = addnew.CurActivity;
+                if (!VMActivity.Instance.Activities.Contains(activity))
+                {
+                    VMActivity.Instance.Activities.Add(activity); 
+                }
+            }
+        }
+
     }
 }

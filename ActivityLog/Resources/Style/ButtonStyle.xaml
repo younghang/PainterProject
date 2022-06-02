@@ -154,18 +154,22 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type local:ButtonEx}">
+                            
                             <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" SnapsToDevicePixels="True">
-                                <TextBlock x:Name="txt" Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <Grid>
+                                    <!--<TextBlock x:Name="txt" Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>-->
+                                    <ContentPresenter x:Name="txt" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="border" Property="Background" Value="{Binding MouseOverBackground,RelativeSource={RelativeSource TemplatedParent}}"/>
-                                    <Setter TargetName="txt" Property="Foreground" Value="{Binding MouseOverForeground,RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <!--<Setter TargetName="txt" Property="Foreground" Value="{Binding MouseOverForeground,RelativeSource={RelativeSource TemplatedParent}}"/>-->
                                     <Setter TargetName="border" Property="BorderBrush" Value="{Binding MouseOverBorderbrush,RelativeSource={RelativeSource TemplatedParent}}"/>
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
                                     <Setter TargetName="border" Property="Background" Value="{Binding MousePressedBackground,RelativeSource={RelativeSource TemplatedParent}}"/>
-                                    <Setter TargetName="txt" Property="Foreground" Value="{Binding MousePressedForeground,RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <!--<Setter TargetName="txt" Property="Foreground" Value="{Binding MousePressedForeground,RelativeSource={RelativeSource TemplatedParent}}"/>-->
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
                                     <Setter TargetName="border" Property="Background" Value="{Binding CheckedBackground,RelativeSource={RelativeSource TemplatedParent}}"/>

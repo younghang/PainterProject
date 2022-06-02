@@ -358,6 +358,7 @@
                             </Button>
                             <DatePickerTextBox x:Name="PART_TextBox"
                                Grid.Column="0" 
+                               Text="{TemplateBinding SelectedDate}"
                                Foreground="{TemplateBinding Foreground}"
                                Focusable="{TemplateBinding Focusable}"
                                HorizontalContentAlignment="Stretch"

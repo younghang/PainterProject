@@ -157,7 +157,7 @@
                 <UniformGrid  Grid.Row="2"  Columns="2" VerticalAlignment="Center">
                     <StackPanel   Margin="40,0,0,0" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Center">
                         <TextBlock Text="Start Date" Style="{StaticResource labelTextBlock}"/>
-                        <DatePicker Height="36" SelectedDate="{Binding StartDate}"  Width="200" Style="{StaticResource PickerStyle}" />
+                        <DatePicker Height="36" SelectedDate="{Binding StartDate,Mode=OneWay}"  Width="200" Style="{StaticResource PickerStyle}" />
                     </StackPanel>
                     <StackPanel  Margin="40,0,40,0" HorizontalAlignment="Right" Orientation="Vertical" VerticalAlignment="Center">
                         <TextBlock Text="Due Date" Style="{StaticResource labelTextBlock}"/>

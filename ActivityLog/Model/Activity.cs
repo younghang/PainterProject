@@ -42,26 +42,24 @@ namespace ActivityLog.Model
                 id = value;
                 OnPropertyChanged();
             } }
-        private DateTime startDate;
+        private DateTime startDate = DateTime.Now;
         public DateTime StartDate
         {
             get
-            {
-                startDate = DateTime.Now;
+            { 
                 return this.startDate;
             }
             set
             {
-                //startDate = value;
-                //OnPropertyChanged(); 
+                startDate = value;
+                OnPropertyChanged();
             }
         }
-        private DateTime dueDate;
+        private DateTime dueDate=DateTime.Now;
         public DateTime DueDate
         {
             get
-            {
-                dueDate = DateTime.Now;
+            { 
                 return this.dueDate;
             }
             set

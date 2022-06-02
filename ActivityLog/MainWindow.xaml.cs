@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ActivityLog.Model;
+using ActivityLog.Model.ViewModel;
 using ActivityLog.Widgets;
 using ActivityLog.WindowPage;
 using ActivityLog.WindowPage.UserControls;
@@ -29,16 +30,19 @@ namespace ActivityLog
         {
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
+            VMActivity.Instance.LoadDataFromJson();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             ucOverview = new UCOverview();
             UCActivity = new UCActivity();
+            UCRecord = new UCRecord();
             ucOverview.AttachNextEvent += AttachNextEventHandle;
             UCActivity.AttachNextEvent += AttachNextEventHandle;
+            UCRecord.AttachNextEvent += AttachNextEventHandle;
             ActivityLog.Model.Activity activity = new Model.Activity();
-            SwitchToUC(ucOverview);
+            SwitchToUC(UCActivity);
         }
 
         private void AttachNextEventHandle()
@@ -55,6 +59,7 @@ namespace ActivityLog
 
         private void CloseWindow(object sender, MouseButtonEventArgs e)
         {
+            VMActivity.Instance.SaveData(); 
             Application.Current.Shutdown();
         }
         private void MoveWindow(object sender, MouseButtonEventArgs e)
@@ -67,13 +72,7 @@ namespace ActivityLog
 
         private void ButtonEx_Click(object sender, RoutedEventArgs e)
         {
-            AddNewActivity addnew = new AddNewActivity();
-
-            addnew.ShowDialog();
-            if (addnew.DialogResult == true)
-            {
-                Activity activity = addnew.CurActivity;
-            }
+           
         }
 
         private void MinWindow(object sender, MouseButtonEventArgs e)
@@ -82,6 +81,7 @@ namespace ActivityLog
         }
         private UCOverview ucOverview = null;
         private UCActivity UCActivity = null;
+        private UCRecord UCRecord = null;
         private IUCSwitch currentUC = null;
         private void SwitchToUC(IUCSwitch uc)
         {
@@ -118,7 +118,7 @@ namespace ActivityLog
                     SwitchToUC(UCActivity);
                     break;
                 case "btnRecord":
-                    SwitchToUC(null);
+                    SwitchToUC(UCRecord);
                     break;
             }
         }

@@ -46,19 +46,19 @@
     <Storyboard x:Key="closeDW0"  >
         <DoubleAnimation Storyboard.TargetName="MainBorder" 
                       Storyboard.TargetProperty="RenderTransform.Children[1].Angle"
-                      To="360" Duration="0:0:1.5" >
+                      To="180" Duration="0:0:0.3" >
         </DoubleAnimation>
         <DoubleAnimation Storyboard.TargetName="MainBorder" 
                       Storyboard.TargetProperty="Opacity"
-                      To="0" Duration="0:0:3">
+                      To="0" Duration="0:0:0.3">
         </DoubleAnimation>
         <DoubleAnimation Storyboard.TargetName="MainBorder" 
                       Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX"
-                      To="0" Duration="0:0:1.5" AccelerationRatio="1">
+                      To="0" Duration="0:0:0.3" AccelerationRatio="1">
         </DoubleAnimation>
         <DoubleAnimation Storyboard.TargetName="MainBorder"
                       Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
-                      To="0" Duration="0:0:1.5" AccelerationRatio="1">
+                      To="0" Duration="0:0:0.3" AccelerationRatio="1">
         </DoubleAnimation>
     </Storyboard>
 
@@ -87,6 +87,14 @@
     <!--弹出来-->
     <Storyboard x:Key="showDW3">
         <DoubleAnimation Storyboard.TargetName="MainBorder"
+                        Storyboard.TargetProperty="RenderTransform.Children[1].Angle"
+                        From="180" To="0" Duration="0:0:0.2" >
+        </DoubleAnimation>
+        <DoubleAnimation Storyboard.TargetName="MainBorder"
+                        Storyboard.TargetProperty="Opacity"
+                        From="0" To="1" Duration="0:0:0.2">
+        </DoubleAnimation>
+        <DoubleAnimation Storyboard.TargetName="MainBorder"
                         Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX"
                         From="0.2" To="0.5" Duration="0:0:0.05" >
         </DoubleAnimation>
@@ -104,11 +112,11 @@
         </DoubleAnimation>
         <DoubleAnimation Storyboard.TargetName="MainBorder"
                         Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX"
-                         From="1" To="1.2" Duration="0:0:0.1" BeginTime="0:0:0.15" AutoReverse="True" >
+                          From="1" To="1.02" Duration="0:0:0.15" BeginTime="0:0:0.15" AutoReverse="True" >
         </DoubleAnimation>
         <DoubleAnimation Storyboard.TargetName="MainBorder"
                         Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
-                        From="1"  To="1.2" Duration="0:0:0.1" BeginTime="0:0:0.15" AutoReverse="True">
+                         From="1" To="1.02" Duration="0:0:0.15" BeginTime="0:0:0.15" AutoReverse="True" >
         </DoubleAnimation>
     </Storyboard>
     <!--转回去-->

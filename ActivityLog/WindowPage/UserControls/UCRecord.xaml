@@ -1,17 +1,15 @@
-﻿<UserControl x:Class="ActivityLog.WindowPage.UserControls.UCActivity"
+﻿<UserControl x:Class="ActivityLog.WindowPage.UserControls.UCRecord"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ActivityLog.WindowPage.UserControls"
-             xmlns:widgets="clr-namespace:ActivityLog.Widgets"
              mc:Ignorable="d"  Background="{StaticResource themBG}"
-             x:Name="ucActivity"
-             Width="1200" MinHeight="600">
+             x:Name="ucRecord"
+             xmlns:widgets="clr-namespace:ActivityLog.Widgets"
+             Width="1200" Height="800">
     <UserControl.Resources>
-        <Geometry x:Key="deleteIcon">M 25.3333,23.75L 50.6667,23.75C 51.5411,23.75 51.8541,27.3125 51.8541,27.3125L 24.1458,27.3125C 24.1458,27.3125 24.4589,23.75 25.3333,23.75 Z M 35.625,19.7917L 40.375,19.7917C 40.8122,19.7917 41.9583,20.9378 41.9583,21.375C 41.9583,21.8122 40.8122,22.9584 40.375,22.9584L 35.625,22.9584C 35.1878,22.9584 34.0416,21.8122 34.0416,21.375C 34.0416,20.9378 35.1878,19.7917 35.625,19.7917 Z M 27.7083,28.5L 48.2916,28.5C 49.1661,28.5 49.875,29.2089 49.875,30.0834L 48.2916,53.8334C 48.2916,54.7078 47.5828,55.4167 46.7083,55.4167L 29.2917,55.4167C 28.4172,55.4167 27.7083,54.7078 27.7083,53.8334L 26.125,30.0834C 26.125,29.2089 26.8339,28.5 27.7083,28.5 Z M 30.0833,31.6667L 30.4792,52.25L 33.25,52.25L 32.8542,31.6667L 30.0833,31.6667 Z M 36.4167,31.6667L 36.4167,52.25L 39.5833,52.25L 39.5833,31.6667L 36.4167,31.6667 Z M 43.1458,31.6667L 42.75,52.25L 45.5208,52.25L 45.9167,31.6667L 43.1458,31.6667 Z</Geometry>
-        <Geometry x:Key="editIcon">M21.04 12.13C21.18 12.13 21.31 12.19 21.42 12.3L22.7 13.58C22.92 13.79 22.92 14.14 22.7 14.35L21.7 15.35L19.65 13.3L20.65 12.3C20.76 12.19 20.9 12.13 21.04 12.13M19.07 13.88L21.12 15.93L15.06 22H13V19.94L19.07 13.88M11 19L9 21H5C3.9 21 3 20.1 3 19V5C3 3.9 3.9 3 5 3H9.18C9.6 1.84 10.7 1 12 1C13.3 1 14.4 1.84 14.82 3H19C20.1 3 21 3.9 21 5V9L19 11V5H17V7H7V5H5V19H11M12 3C11.45 3 11 3.45 11 4C11 4.55 11.45 5 12 5C12.55 5 13 4.55 13 4C13 3.45 12.55 3 12 3Z</Geometry>
         <Style x:Key="ContentStyle"  
                TargetType="{x:Type TextBlock}">
             <Setter Property="HorizontalAlignment"  
@@ -19,10 +17,12 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
+        <Geometry x:Key="deleteIcon">M 25.3333,23.75L 50.6667,23.75C 51.5411,23.75 51.8541,27.3125 51.8541,27.3125L 24.1458,27.3125C 24.1458,27.3125 24.4589,23.75 25.3333,23.75 Z M 35.625,19.7917L 40.375,19.7917C 40.8122,19.7917 41.9583,20.9378 41.9583,21.375C 41.9583,21.8122 40.8122,22.9584 40.375,22.9584L 35.625,22.9584C 35.1878,22.9584 34.0416,21.8122 34.0416,21.375C 34.0416,20.9378 35.1878,19.7917 35.625,19.7917 Z M 27.7083,28.5L 48.2916,28.5C 49.1661,28.5 49.875,29.2089 49.875,30.0834L 48.2916,53.8334C 48.2916,54.7078 47.5828,55.4167 46.7083,55.4167L 29.2917,55.4167C 28.4172,55.4167 27.7083,54.7078 27.7083,53.8334L 26.125,30.0834C 26.125,29.2089 26.8339,28.5 27.7083,28.5 Z M 30.0833,31.6667L 30.4792,52.25L 33.25,52.25L 32.8542,31.6667L 30.0833,31.6667 Z M 36.4167,31.6667L 36.4167,52.25L 39.5833,52.25L 39.5833,31.6667L 36.4167,31.6667 Z M 43.1458,31.6667L 42.75,52.25L 45.5208,52.25L 45.9167,31.6667L 43.1458,31.6667 Z</Geometry>
+        <Geometry x:Key="editIcon">M21.04 12.13C21.18 12.13 21.31 12.19 21.42 12.3L22.7 13.58C22.92 13.79 22.92 14.14 22.7 14.35L21.7 15.35L19.65 13.3L20.65 12.3C20.76 12.19 20.9 12.13 21.04 12.13M19.07 13.88L21.12 15.93L15.06 22H13V19.94L19.07 13.88M11 19L9 21H5C3.9 21 3 20.1 3 19V5C3 3.9 3.9 3 5 3H9.18C9.6 1.84 10.7 1 12 1C13.3 1 14.4 1.84 14.82 3H19C20.1 3 21 3.9 21 5V9L19 11V5H17V7H7V5H5V19H11M12 3C11.45 3 11 3.45 11 4C11 4.55 11.45 5 12 5C12.55 5 13 4.55 13 4C13 3.45 12.55 3 12 3Z</Geometry>
     </UserControl.Resources>
     <UserControl.Triggers>
-        <EventTrigger RoutedEvent="Window.Loaded" SourceName="ucActivity">
-            <BeginStoryboard Name="showUCOverview" Storyboard="{StaticResource showDW1}">
+        <EventTrigger RoutedEvent="Window.Loaded" SourceName="ucRecord">
+            <BeginStoryboard Name="showUCRecord" Storyboard="{StaticResource showDW3}">
             </BeginStoryboard>
         </EventTrigger>
 
@@ -41,7 +41,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition />
+            <RowDefinition Height="200"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
@@ -50,18 +50,18 @@
                 <RowDefinition Height="60"/>
                 <RowDefinition  Height="560"/>
             </Grid.RowDefinitions>
-            <TextBlock Margin="15,0" Text="Activity" Foreground="Wheat" FontSize="20" VerticalAlignment="Center" Grid.Row="0"  HorizontalAlignment="Left"/>
+            <TextBlock Margin="15,0" Text="Record" Foreground="Wheat" FontSize="20" VerticalAlignment="Center" Grid.Row="0"  HorizontalAlignment="Left"/>
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="60"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <widgets:ButtonEx Background="Transparent" x:Name="addNewActivity" Click="addNewActivity_Click" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Row="1" Height="30"  Width="30" CornerRadius="15"   MouseOverBackground="Gray" MousePressedBackground="DimGray" >
+                    <widgets:ButtonEx Background="Transparent" x:Name="addNewRecord" Click="AddNewRecord" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Row="1" Height="30"  Width="30" CornerRadius="15"   MouseOverBackground="Gray" MousePressedBackground="DimGray" >
                         <iconPacks:PackIconMaterial Kind="Plus" />
                     </widgets:ButtonEx>
                     <widgets:SearchTextBox Height="36"  Width="300" HintText="  输入搜索内容"/>
-                   
+
                 </StackPanel>
                 <DataGrid Grid.Row="1" Background="Transparent" HeadersVisibility="Column"
                           AutoGenerateColumns="False" CanUserAddRows="False"
@@ -130,11 +130,11 @@
                                                 <DataGridRowHeader Grid.RowSpan="2"
                                            SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical"
                                            Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Row}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
-                                               <Path Grid.Row="2" Grid.ColumnSpan="2"
+                                                <Path Grid.Row="2" Grid.ColumnSpan="2"
                                       Data="M0,0.5 L1,0.5"
                                       Stretch="Fill" Stroke="DarkGray" StrokeThickness="1"
                                       StrokeDashArray="1.0 2.0"/>
-                                            </SelectiveScrollingGrid> 
+                                            </SelectiveScrollingGrid>
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver"
@@ -192,7 +192,5 @@
             </Grid>
 
         </Grid>
-
-
     </Grid>
 </UserControl>
