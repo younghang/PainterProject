@@ -37,7 +37,7 @@ namespace ActivityLog.Model
                 OnPropertyChanged();
             }
         }
-        private int id;
+        private int id =new Random(System.DateTime.Now.Millisecond).GetHashCode();
         public int ID { get { return id; } set {
                 id = value;
                 OnPropertyChanged();
@@ -145,20 +145,49 @@ namespace ActivityLog.Model
                 OnPropertyChanged();
             }
         }
-        public DateTime FromDate=DateTime.Now;
+        private DateTime fromDate=DateTime.Now;
+        public DateTime FromDate
+        {
+            get { return fromDate; }
+            set
+            {
+                fromDate = value;
+                OnPropertyChanged();
+            }
+        }
         public Record() { }
+        public static string ToJsonStr(Record activity)
+        {
+            string jsonStr = "";
+            jsonStr = JsonConvert.SerializeObject(activity);
+            return jsonStr;
+        }
+        public static Record LoadFromJson(string strJson)
+        {
+            Record activity = JsonConvert.DeserializeObject<Record>(strJson);
+            return activity;
+        }
     }
     class RecordActivity : Record
     {
         private Activity _activity;
-        public Activity Activity {
+        public Activity Activity{
             get { return _activity; }
             set {
                 _activity = value;
                 OnPropertyChanged();
             }
         }
-        public DateTime ToDate = DateTime.Now;
+        private DateTime toDate = DateTime.Now;
+        public DateTime ToDate
+        {
+            get { return toDate; }
+            set
+            {
+                toDate = value;
+                OnPropertyChanged();
+            }
+        }
         private int _currentProgress;
         public int CurrentProgress {
             get { return _currentProgress; }
@@ -168,12 +197,32 @@ namespace ActivityLog.Model
                 OnPropertyChanged();
             }
         }
-
+        private int _hourSpend;
+        public int Hours
+        {
+            get { return _hourSpend; }
+            set
+            {
+                _hourSpend = value;
+                OnPropertyChanged();
+            }
+        }
         private RecordActivity preRecord=null;
 
         public int GetProgress()
         {
             return this.CurrentProgress - this.preRecord.CurrentProgress;
+        }
+        public static string ToJsonStr(RecordActivity activity)
+        {
+            string jsonStr = "";
+            jsonStr = JsonConvert.SerializeObject(activity);
+            return jsonStr;
+        }
+        public new static RecordActivity LoadFromJson(string strJson)
+        {
+            RecordActivity activity = JsonConvert.DeserializeObject<RecordActivity>(strJson);
+            return activity;
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using ActivityLog.WindowPage;
 using Newtonsoft.Json;
 using Utils.MVVM;
 
@@ -78,8 +79,11 @@ namespace ActivityLog.Model.ViewModel
                        {
                            if (list.Count > 0)
                            {
-                               this.Activities.Remove((Activity)list[0]);
-
+                               if (MessageWin.Confirm("确定删除？"))
+                               {
+                                   this.Activities.Remove((Activity)list[0]);
+                                   MessageWin.MSG("已经删除");
+                               } 
                            }
                        }),
                         new Func<object, bool>(o => true));

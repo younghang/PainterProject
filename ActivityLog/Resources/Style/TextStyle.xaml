@@ -37,7 +37,7 @@
                             <!--<SolidColorBrush Color="White"/>-->
                         <!--</Border.Background>-->
                         <Grid>
-                        <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"></ScrollViewer>
+                        <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden"></ScrollViewer>
                             <Label x:Name="waterMark" 
                                    Foreground="{TemplateBinding Foreground}" 
                                    Visibility="Collapsed"

@@ -68,7 +68,13 @@ namespace ActivityLog.WindowPage.UserControls
 
         private void UCActivity_Loaded(object sender, RoutedEventArgs e)
         {
- 
+            //Activity activity = new Activity();
+            //RecordActivity recordActivity = new RecordActivity();
+            //recordActivity.Hours = 3;
+            //recordActivity.Activity = activity;
+            //recordActivity.Remark = "nihao";
+            //string str = RecordActivity.ToJsonStr(recordActivity);
+            //MessageWin.MSG(str);
         }
 
         private void addNewActivity_Click(object sender, RoutedEventArgs e)

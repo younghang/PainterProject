@@ -120,7 +120,7 @@
                 <UniformGrid Grid.Row="0" Columns="3" >
                     <StackPanel Margin="40,0" HorizontalAlignment="Left" Orientation="Vertical" VerticalAlignment="Center">
                         <TextBlock Text="Name"  Style="{StaticResource labelTextBlock}"  />
-                        <TextBox Text="{Binding Title}" Width="200" FontWeight="Bold"  Margin="0" Style="{StaticResource TextBoxStyle}" Background="Transparent"  /> 
+                        <TextBox Text="{Binding Title}" Width="200" FontWeight="Bold"  Margin="0" Style="{StaticResource TextBoxStyle}" TextWrapping="Wrap"   Background="Transparent"  /> 
                     </StackPanel>
                     <StackPanel  Margin="40,0" HorizontalAlignment="Center" Orientation="Vertical" VerticalAlignment="Center">
                         <TextBlock Text="Priority" Style="{StaticResource labelTextBlock}"/>

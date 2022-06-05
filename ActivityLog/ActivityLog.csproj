@@ -78,11 +78,20 @@
     <Compile Include="Model\ViewModel\VMActivity.cs" />
     <Compile Include="Resources\Style\Converter.cs" />
     <Compile Include="Widgets\ButtonEx.cs" />
+    <Compile Include="Widgets\LogSnackBar.xaml.cs">
+      <DependentUpon>LogSnackBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Widgets\SearchTextBox.xaml.cs">
       <DependentUpon>SearchTextBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="WindowPage\AddNewActivity.xaml.cs">
       <DependentUpon>AddNewActivity.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WindowPage\AddRecord.xaml.cs">
+      <DependentUpon>AddRecord.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WindowPage\MessageWin.xaml.cs">
+      <DependentUpon>MessageWin.xaml</DependentUpon>
     </Compile>
     <Compile Include="WindowPage\UserControls\UCActivity.xaml.cs">
       <DependentUpon>UCActivity.xaml</DependentUpon>
@@ -141,11 +150,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Widgets\LogSnackBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Widgets\SearchTextBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="WindowPage\AddNewActivity.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WindowPage\AddRecord.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WindowPage\MessageWin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

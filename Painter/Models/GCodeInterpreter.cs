@@ -43,7 +43,7 @@ namespace Painter.Models
         private GeoProcessorBase curGeoProcessor;
         public int CurProcessorIndex = 0;
         public int CurCycleTimes = 0;
-        public int CutIndex = 0;
+        public int CutIndex = 0;//20220603好像没有什么用，不知道去年写的时候是干嘛的
         private List<PointGeo> HeadTrack = new List<PointGeo>();
         public static int MAX_TRACK_COUNT = 3000;
         public double CurrentY = 0;

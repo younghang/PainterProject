@@ -12,6 +12,11 @@ namespace ActivityLog
     /// App.xaml 的交互逻辑
     /// </summary>
     public partial class App : Application
-    {
+    { 
+        public static MainWindow GetMainWindow()
+        { 
+            return (MainWindow)Application.Current.MainWindow;
+        }
     }
+   
 }

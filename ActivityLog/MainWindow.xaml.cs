@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -10,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -31,8 +33,8 @@ namespace ActivityLog
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
             VMActivity.Instance.LoadDataFromJson();
-        }
-
+            
+        }  
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             ucOverview = new UCOverview();
@@ -56,7 +58,7 @@ namespace ActivityLog
                 }
             }
         }
-
+         
         private void CloseWindow(object sender, MouseButtonEventArgs e)
         {
             VMActivity.Instance.SaveData(); 
@@ -120,6 +122,67 @@ namespace ActivityLog
                 case "btnRecord":
                     SwitchToUC(UCRecord);
                     break;
+            }
+        }
+        public enum TOAST_TYPE { MESSAGE,ERROR,ALERT}
+        public void ToastMessage(string msgStr,TOAST_TYPE msgType )
+        {
+            string Title = "Message";
+            System.Windows.Media.Color txtColor = Colors.Gray;
+            System.Windows.Media.Color iconColor = Colors.White;
+            MahApps.Metro.IconPacks.PackIconMaterialKind icon= MahApps.Metro.IconPacks.PackIconMaterialKind.BellAlert;  
+            switch (msgType)
+            {
+                case TOAST_TYPE.MESSAGE:
+                    Title = "Message";
+                    icon = MahApps.Metro.IconPacks.PackIconMaterialKind.BellAlert; ;
+                    txtColor = Colors.Gray;
+                    iconColor = Colors.White;
+                    break;
+                case TOAST_TYPE.ALERT:
+                    Title = "Alert";
+                    icon = MahApps.Metro.IconPacks.PackIconMaterialKind.AlertCircleOutline; ;
+                    txtColor = Colors.Orange;
+                    iconColor = Colors.Wheat;
+                    break;
+                case TOAST_TYPE.ERROR:
+                    Title = "Error";
+                    iconColor = Colors.Red;
+                    icon = MahApps.Metro.IconPacks.PackIconMaterialKind.Alert; ;
+                    txtColor = Colors.OrangeRed;
+                    break;
+            }
+            if (Dispatcher.CheckAccess())
+            { 
+                LogSnackBar toast = new LogSnackBar();
+                toast.LogMsg.Text = msgStr;
+                toast.msgIcon.Kind = icon;
+                toast.msgIcon.Foreground = new SolidColorBrush(iconColor); 
+                toast.LogMsg.Foreground = new SolidColorBrush(txtColor);
+                toast.LogType.Text = Title; 
+                toast.ChangeHeight();
+                ((Storyboard)toast.Resources["Storyboard1"]).Completed += new EventHandler(this.Toast_Completed);
+                this.SnackBar.Children.Add(toast); 
+            }
+            else
+            {
+                Dispatcher.BeginInvoke(new Action(delegate {
+                    this.ToastMessage( msgStr,msgType );
+                }));
+            }
+        }
+
+        private void Toast_Completed(object sender, EventArgs e)
+        {
+            ClockGroup clockGroup = sender as ClockGroup;
+            if (clockGroup == null)
+            {
+                return;
+            }
+            LogSnackBar toast = Storyboard.GetTarget(clockGroup.Children[2].Timeline) as LogSnackBar;
+            if (toast != null)
+            {
+                this.SnackBar.Children.Remove(toast);
             }
         }
     }

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ActivityLog"
+        xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:widgets="clr-namespace:ActivityLog.Widgets"
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d"  AllowsTransparency="True" Background="Transparent" WindowStyle="None"
@@ -118,9 +119,9 @@
                     <widgets:ButtonEx Click="MainFrmSwitchClick" x:Name="btnActivity" Content="Activity" BorderBrush="AliceBlue" BorderThickness="1"  IsChecked="False" CheckedBackground="#43a9c7" Background="Transparent" CornerRadius="12" Margin="10,0" Width="70" Height="24"></widgets:ButtonEx>
                     <widgets:ButtonEx Click="MainFrmSwitchClick" x:Name="btnRecord" Content="Record" BorderBrush="AliceBlue" BorderThickness="1"  IsChecked="False" CheckedBackground="#43a9c7" Background="Transparent" CornerRadius="12" Margin="10,0" Width="70" Height="24"></widgets:ButtonEx>
                 </StackPanel>
-                <StackPanel x:Name="mainFrm" Grid.Row="0"/>
- 
-            </Grid> 
+                <StackPanel x:Name="mainFrm" Grid.Row="0"/> 
+            </Grid>
+            <StackPanel HorizontalAlignment="Right" Name="SnackBar" Grid.Row="2" VerticalAlignment="Bottom" SnapsToDevicePixels="True" />
         </Grid>
     </Border>
 </Window>

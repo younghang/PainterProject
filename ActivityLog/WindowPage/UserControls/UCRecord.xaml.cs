@@ -58,10 +58,11 @@ namespace ActivityLog.WindowPage.UserControls
                 AttachNextEvent();
             }
         }
-
+        int i = 0;
         private void AddNewRecord(object sender, RoutedEventArgs e)
         {
-
+            new AddRecord().ShowDialog();
+            App.GetMainWindow().ToastMessage("nihao"+(i++),(MainWindow.TOAST_TYPE)(i%3));
         }
     }
 }

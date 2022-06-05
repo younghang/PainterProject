@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
                     xmlns:local="clr-namespace:ActivityLog.Widgets"
                     >
     <Style x:Key="BorderStyle2" TargetType="{x:Type Border}">
@@ -186,7 +187,10 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type local:ButtonEx}">
                             <Border Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
+                                <Grid> 
                                 <Image x:Name="Img" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{TemplateBinding Icon}" Stretch="None"/>
+                                    <icon:PackIconMaterial Foreground="{TemplateBinding Foreground}" Kind="{TemplateBinding PathIcon}"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Grid>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
@@ -229,18 +233,28 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type local:ButtonEx}">
-                            <Border>
+                            <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Grid>
                                     <Image Source="{TemplateBinding Icon}" Stretch="None"/>
+                                       <icon:PackIconMaterial Margin="0 0 5 0" Foreground="{TemplateBinding Foreground}" Kind="{TemplateBinding PathIcon}"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Grid>
                                     <TextBlock x:Name="Txt" Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Foreground" Value="{Binding MouseOverForeground,RelativeSource={RelativeSource TemplatedParent}}" TargetName="Txt"/>
+                                    <Setter TargetName="border" Property="Background" Value="{Binding MouseOverBackground,RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <!--<Setter TargetName="txt" Property="Foreground" Value="{Binding MouseOverForeground,RelativeSource={RelativeSource TemplatedParent}}"/>-->
+                                    <Setter TargetName="border" Property="BorderBrush" Value="{Binding MouseOverBorderbrush,RelativeSource={RelativeSource TemplatedParent}}"/>
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
-                                    <Setter Property="Foreground" Value="{Binding MousePressedForeground,RelativeSource={RelativeSource TemplatedParent}}" TargetName="Txt"/>
+                                    <Setter TargetName="border" Property="Background" Value="{Binding MousePressedBackground,RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <!--<Setter TargetName="txt" Property="Foreground" Value="{Binding MousePressedForeground,RelativeSource={RelativeSource TemplatedParent}}"/>-->
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="{Binding CheckedBackground,RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <Setter TargetName="border" Property="BorderThickness" Value="0"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>

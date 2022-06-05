@@ -40,6 +40,14 @@ namespace ActivityLog.Widgets
         public static readonly DependencyProperty IconProperty =
          DependencyProperty.Register("Icon", typeof(ImageSource), typeof(ButtonEx), new PropertyMetadata(null));
 
+        public MahApps.Metro.IconPacks.PackIconMaterialKind PathIcon
+        {
+            get { return (MahApps.Metro.IconPacks.PackIconMaterialKind)GetValue(PathIconProperty); }
+            set { SetValue(PathIconProperty, value); }
+        }
+
+        public static readonly DependencyProperty PathIconProperty =
+         DependencyProperty.Register("PathIcon", typeof(MahApps.Metro.IconPacks.PackIconMaterialKind), typeof(ButtonEx), new PropertyMetadata(null));
 
         public CornerRadius CornerRadius
         {

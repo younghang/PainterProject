@@ -1,5 +1,4 @@
-﻿using ActivityLog.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,25 +16,20 @@ using System.Windows.Shapes;
 namespace ActivityLog.WindowPage
 {
     /// <summary>
-    /// AddNewActivity.xaml 的交互逻辑
+    /// AddRecord.xaml 的交互逻辑
     /// </summary>
-    public partial class AddNewActivity : Window
+    public partial class AddRecord : Window
     {
-        private bool isEditMode = true;
-        public bool IsEdit { get { return isEditMode; } set { isEditMode = value; } }
-        private Activity activity = new Activity();
-        public Activity CurActivity { get { return activity; }set { activity = value; this.DataContext = value; } }
-        public AddNewActivity()
+        public AddRecord()
         {
-            InitializeComponent(); 
-            this.DataContext = CurActivity; 
+            InitializeComponent();
         }
         private void CloseWindow(object sender, MouseButtonEventArgs e)
         {
-            Storyboard storyboard= (Storyboard)Resources["closeDW2"];
+            Storyboard storyboard = (Storyboard)Resources["closeDW2"];
             if (!closeStoryBoardCompleted)
             {
-                storyboard.Begin(); 
+                storyboard.Begin();
             }
         }
         private bool closeStoryBoardCompleted = false;
@@ -46,17 +40,16 @@ namespace ActivityLog.WindowPage
         }
         private void MoveWindow(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton==MouseButton.Left)
+            if (e.ChangedButton == MouseButton.Left)
             {
                 this.DragMove();
-            } 
-        } 
+            }
+        }
         private void Confirm_Click(object sender, RoutedEventArgs e)
         {
             //int a =AcState.SelectedIndex;
             //int b =(int) AcState.Tag;
-            this.DialogResult = true; 
+            this.DialogResult = true;
         }
     }
-
 }
