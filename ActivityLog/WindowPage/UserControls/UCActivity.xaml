@@ -61,17 +61,40 @@
                         <iconPacks:PackIconMaterial Kind="Plus" />
                     </widgets:ButtonEx>
                     <widgets:SearchTextBox Height="36"  Width="300" HintText="  输入搜索内容"/>
-                   
+
                 </StackPanel>
                 <DataGrid Grid.Row="1" Background="Transparent" HeadersVisibility="Column"
                           AutoGenerateColumns="False" CanUserAddRows="False"
                           Margin="20,5,10,0"
-                          IsReadOnly="True"
+                          IsReadOnly="True"  
                           GridLinesVisibility="Horizontal"
                             x:Name="dataGridAc"
+                          CellStyle="{DynamicResource DataGridCellStyle1}"
                           VerticalGridLinesBrush="Transparent" HorizontalGridLinesBrush="Transparent"
                           BorderThickness="0" ItemsSource="{Binding Activities}" 
                           Template="{DynamicResource DataGridControlTemplate1}"  >
+                    <DataGrid.Style>
+                        <Style TargetType="DataGrid">
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="RowDetailsVisibilityMode" Value="VisibleWhenSelected"/>
+                            <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+                            <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+                            <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+                            <Setter Property="AutoGenerateColumns" Value="False" />
+                            <Setter Property="HeadersVisibility" Value="Column" />
+                            <Setter Property="Margin" Value="0 10 0 0" />
+                            <Setter Property="Grid.Row" Value="5" />
+                            <Setter Property="SelectionMode" Value="Single" />
+                            <Setter Property="SelectionUnit" Value="FullRow" />
+                            <Setter Property="CanUserAddRows" Value="False" />
+                            <Setter Property="CanUserDeleteRows" Value="False" />
+                            <Setter Property="CanUserReorderColumns" Value="False" />
+                            <Setter Property="CanUserResizeRows" Value="False" />
+                            <Setter Property="FontSize" Value="13" />
+                            <Setter Property="GridLinesVisibility" Value="None" />
+                            <Setter Property="ColumnWidth" Value="*" />
+                        </Style>
+                    </DataGrid.Style>
                     <DataGrid.ContextMenu>
                         <ContextMenu Name="activityMenu" StaysOpen="true">
                             <MenuItem x:Name="menuEdit" Tag="Orange" Icon="{StaticResource editIcon}" Header="修改" Command="{Binding EditACCommand}"  CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItems}"/>
@@ -86,7 +109,7 @@
                             <Setter Property="VerticalAlignment" Value="Center"/>
                             <Setter Property="HorizontalContentAlignment" Value="Center"/>
                             <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="WhiteSmoke"/>
+                            <Setter Property="Foreground" Value="{StaticResource themeTxt}"/>
                             <Setter Property="FontWeight" Value="Bold"/>
                             <Setter Property="Height" Value="35"/>
                         </Style>
@@ -95,9 +118,11 @@
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Setter Property="BorderThickness"    Value="0.1" />
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Height" Value="40"/>
-                            <Setter Property="Foreground" Value="WhiteSmoke"/>
+                            <Setter Property="Background" Value="{StaticResource themBG}"/>
+                            <Setter Property="Height" Value="40"/> 
+                            <Setter Property="SnapsToDevicePixels" Value="true"/>
+                            <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+                            <Setter Property="Foreground" Value="{StaticResource themeTxt}"/>
                             <Setter Property="VerticalAlignment" Value="Center"/>
                             <Setter Property="VerticalContentAlignment" Value="Center"/>
                             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -130,39 +155,41 @@
                                                 <DataGridRowHeader Grid.RowSpan="2"
                                            SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical"
                                            Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Row}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
-                                               <Path Grid.Row="2" Grid.ColumnSpan="2"
+                                                <Path Grid.Row="2" Grid.ColumnSpan="2"
                                       Data="M0,0.5 L1,0.5"
                                       Stretch="Fill" Stroke="DarkGray" StrokeThickness="1"
                                       StrokeDashArray="1.0 2.0"/>
-                                            </SelectiveScrollingGrid> 
+                                            </SelectiveScrollingGrid>
                                         </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver"
-                             Value="True">
-                                                <Setter TargetName="DGR_Border"
-                                Property="Background"
-                                Value="Transparent" />
-                                            </Trigger>
-                                            <Trigger Property="IsSelected"
-                             Value="True">
-                                                <Setter TargetName="DGR_Border"
-                                Property="Background"
-                                Value="Transparent" />
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
                             <Style.Triggers>
+                                <Trigger Property="IsMouseOver"
+                             Value="True">
+                                    <Setter  Property="Background"
+                              Value="{StaticResource themBG}"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected"   Value="True">
+                                    <Setter  Property="Background"  Value="ForestGreen"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected"   Value="False">
+                                    <Setter  Property="Foreground"  Value="{StaticResource themeTxt}"/>
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsSelected" Value="true"/>
+                                        <Condition Property="Selector.IsSelectionActive" Value="false"/>
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="Background" Value="{StaticResource themBG}"/>
+                                </MultiTrigger>
                                 <Trigger Property="IsEditing" Value="True">
-                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Background" Value="Red"/> 
                                 </Trigger>
                                 <Trigger Property="IsFocused" Value="True">
-                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Background" Value="Orange"/>
                                 </Trigger>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                </Trigger>
+ 
                             </Style.Triggers>
 
                         </Style>

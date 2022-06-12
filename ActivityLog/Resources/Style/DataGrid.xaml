@@ -46,7 +46,23 @@
             </Setter.Value>
         </Setter>
     </Style>
-   
+    <Style x:Key="DataGridCellStyle1" TargetType="{x:Type DataGridCell}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Margin" Value="0 0" />
+        <Setter Property="Foreground" Value="{StaticResource themeTxt}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type DataGridCell}">
+                    <Border Background="{TemplateBinding Background}" BorderThickness="0" SnapsToDevicePixels="True">
+                        <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <ControlTemplate x:Key="DataGridControlTemplate1" TargetType="{x:Type DataGrid}">
         <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
             <ScrollViewer x:Name="DG_ScrollViewer" Focusable="False" Style="{StaticResource for_scrollviewer}">
@@ -180,5 +196,5 @@
             </ScrollViewer>
         </Border>
     </ControlTemplate>
-   
+     
 </ResourceDictionary>

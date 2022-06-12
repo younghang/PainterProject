@@ -6,9 +6,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ActivityLog.WindowPage.UserControls"
              mc:Ignorable="d"  Background="{StaticResource themBG}"
-             x:Name="ucRecord"
+             x:Name="ucRecord" MinHeight="600"
              xmlns:widgets="clr-namespace:ActivityLog.Widgets"
-             Width="1200" Height="800">
+             Width="1200"  >
     <UserControl.Resources>
         <Style x:Key="ContentStyle"  
                TargetType="{x:Type TextBlock}">
@@ -41,7 +41,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="200"/>
+            <RowDefinition />
             <RowDefinition/>
         </Grid.RowDefinitions>
 
@@ -58,24 +58,24 @@
                 </Grid.RowDefinitions>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <widgets:ButtonEx Background="Transparent" x:Name="addNewRecord" Click="AddNewRecord" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Row="1" Height="30"  Width="30" CornerRadius="15"   MouseOverBackground="Gray" MousePressedBackground="DimGray" >
-                        <iconPacks:PackIconMaterial Kind="Plus" />
+                        <iconPacks:PackIconMaterial Kind="Plus" Foreground="{StaticResource themeTxt}" />
                     </widgets:ButtonEx>
                     <widgets:SearchTextBox Height="36"  Width="300" HintText="  输入搜索内容"/>
-
                 </StackPanel>
                 <DataGrid Grid.Row="1" Background="Transparent" HeadersVisibility="Column"
                           AutoGenerateColumns="False" CanUserAddRows="False"
-                          Margin="20,5,10,0"
+                          Margin="20,5,10,0"  
                           IsReadOnly="True"
+                           CellStyle="{DynamicResource DataGridCellStyle1}"
                           GridLinesVisibility="Horizontal"
                             x:Name="dataGridAc"
                           VerticalGridLinesBrush="Transparent" HorizontalGridLinesBrush="Transparent"
-                          BorderThickness="0" ItemsSource="{Binding Activities}" 
+                          BorderThickness="0" ItemsSource="{Binding Records}" 
                           Template="{DynamicResource DataGridControlTemplate1}"  >
                     <DataGrid.ContextMenu>
                         <ContextMenu Name="activityMenu" StaysOpen="true">
-                            <MenuItem x:Name="menuEdit" Tag="Orange" Icon="{StaticResource editIcon}" Header="修改" Command="{Binding EditACCommand}"  CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItems}"/>
-                            <MenuItem x:Name="menuDelete" Tag="Red" Icon="{StaticResource deleteIcon}" Header="删除" Command="{Binding DeleteACCommand}"  CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItems}"/>
+                            <MenuItem x:Name="menuEdit" Tag="Orange" Icon="{StaticResource editIcon}" Header="修改" Command="{Binding EditRecordCommand}"  CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItems}"/>
+                            <MenuItem x:Name="menuDelete" Tag="Red" Icon="{StaticResource deleteIcon}" Header="删除" Command="{Binding DeleteRecordCommand}"  CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItems}"/>
                         </ContextMenu>
                     </DataGrid.ContextMenu>
                     <DataGrid.ColumnHeaderStyle>
@@ -86,7 +86,7 @@
                             <Setter Property="VerticalAlignment" Value="Center"/>
                             <Setter Property="HorizontalContentAlignment" Value="Center"/>
                             <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="Foreground" Value="WhiteSmoke"/>
+                            <Setter Property="Foreground" Value="{StaticResource themeTxt}"/>
                             <Setter Property="FontWeight" Value="Bold"/>
                             <Setter Property="Height" Value="35"/>
                         </Style>
@@ -97,7 +97,7 @@
                             <Setter Property="BorderThickness"    Value="0.1" />
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="Height" Value="40"/>
-                            <Setter Property="Foreground" Value="WhiteSmoke"/>
+                            <Setter Property="Foreground" Value="{StaticResource themeTxt}"/>
                             <Setter Property="VerticalAlignment" Value="Center"/>
                             <Setter Property="VerticalContentAlignment" Value="Center"/>
                             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -136,57 +136,38 @@
                                       StrokeDashArray="1.0 2.0"/>
                                             </SelectiveScrollingGrid>
                                         </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver"
-                             Value="True">
-                                                <Setter TargetName="DGR_Border"
-                                Property="Background"
-                                Value="Transparent" />
-                                            </Trigger>
-                                            <Trigger Property="IsSelected"
-                             Value="True">
-                                                <Setter TargetName="DGR_Border"
-                                Property="Background"
-                                Value="Transparent" />
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
+                                        
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsEditing" Value="True">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                </Trigger>
-                                <Trigger Property="IsFocused" Value="True">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                </Trigger>
+                            <Style.Triggers> 
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Background" Value="Green"/>
                                 </Trigger>
+                                
                             </Style.Triggers>
 
                         </Style>
                     </DataGrid.RowStyle>
 
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Name" Width="*"  Binding="{Binding Title}"   ElementStyle="{StaticResource ContentStyle}" />
+                        <DataGridTextColumn Header="Activity" Width="*"  Binding="{Binding Activity.Title}"   ElementStyle="{StaticResource ContentStyle}" />
                         <DataGridTemplateColumn Header="Status" Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid VerticalAlignment="Center"  >
-                                        <Ellipse Height="20" Margin="5,0" HorizontalAlignment="Left" Width="20" Fill="{Binding ACState, Converter={StaticResource activityStateToColor}}"  >
+                                        <Ellipse Height="20" Margin="5,0" HorizontalAlignment="Left" Width="20" Fill="{Binding Activity.ACState, Converter={StaticResource activityStateToColor}}"  >
                                         </Ellipse>
                                         <TextBlock  Margin="36,0,0,0"  VerticalAlignment="Center"
-                                            Text="{Binding ACState}" Foreground="Wheat"
+                                            Text="{Binding Activity.ACState}" Foreground="Wheat"
                                             Background="Transparent"/>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="Priority" Width="*" Binding="{Binding Priority}"    ElementStyle="{StaticResource ContentStyle}" />
-
-                        <DataGridTextColumn Header="Total Episodes" Width="*"     Binding="{Binding TotalProgress}"    ElementStyle="{StaticResource ContentStyle}" />
-                        <DataGridTextColumn Header="Start Date" Width="*"    Binding="{Binding StartDate}"  ElementStyle="{StaticResource ContentStyle}"   />
+                        <DataGridTextColumn Header="Remark" Width="*" Binding="{Binding Remark}"    ElementStyle="{StaticResource ContentStyle}" />
+                        <DataGridTextColumn Header="Current Episode" Width="*"     Binding="{Binding CurrentProgress}"    ElementStyle="{StaticResource ContentStyle}" />
+                        <DataGridTextColumn Header="Hours" Width="*"    Binding="{Binding Hours}"  ElementStyle="{StaticResource ContentStyle}"   />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

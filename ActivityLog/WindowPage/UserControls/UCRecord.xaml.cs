@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ActivityLog.Model;
+using ActivityLog.Model.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,7 +26,21 @@ namespace ActivityLog.WindowPage.UserControls
         public UCRecord()
         {
             InitializeComponent();
+            this.DataContext = VMActivity.Instance;
+            VMActivity.Instance.OnRecordEditEvent += Instance_OnRecordEditEvent;
             this.Loaded += UCRecord_Loaded;
+        }
+
+        private void Instance_OnRecordEditEvent(Record obj)
+        {
+            AddRecord addnew = new AddRecord();
+            addnew.CurRecord = (RecordActivity)obj;
+            addnew.IsEdit = true;
+            int index=VMActivity.Instance.Activities.IndexOf( addnew.CurRecord.Activity);
+            addnew.ACTitleCombox.SelectedIndex = index;
+            addnew.ShowDialog();
+            RecordActivity record = addnew.CurRecord;
+            record.Activity = (Activity)addnew.ACTitleCombox.SelectedItem;
         }
 
         private void UCRecord_Loaded(object sender, RoutedEventArgs e)
@@ -58,11 +74,21 @@ namespace ActivityLog.WindowPage.UserControls
                 AttachNextEvent();
             }
         }
-        int i = 0;
+ 
         private void AddNewRecord(object sender, RoutedEventArgs e)
         {
-            new AddRecord().ShowDialog();
-            App.GetMainWindow().ToastMessage("nihao"+(i++),(MainWindow.TOAST_TYPE)(i%3));
+            AddRecord addnew = new AddRecord();
+            addnew.ShowDialog();
+            if (addnew.DialogResult == true)
+            {
+                RecordActivity record = addnew.CurRecord;
+                record.Activity = (Activity)addnew.ACTitleCombox.SelectedItem;
+                if (!VMActivity.Instance.Records.Contains(record))
+                {
+                    VMActivity.Instance.Records.Add(record);
+                    App.GetMainWindow().ToastMessage("add a new record",(MainWindow.TOAST_TYPE.MESSAGE));
+                }
+            }
         }
     }
 }

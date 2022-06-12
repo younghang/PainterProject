@@ -44,7 +44,7 @@ namespace ActivityLog
             UCActivity.AttachNextEvent += AttachNextEventHandle;
             UCRecord.AttachNextEvent += AttachNextEventHandle;
             ActivityLog.Model.Activity activity = new Model.Activity();
-            SwitchToUC(UCActivity);
+            SwitchToUC(UCRecord);
         }
 
         private void AttachNextEventHandle()

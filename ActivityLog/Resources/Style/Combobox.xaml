@@ -53,7 +53,37 @@
     <ControlTemplate x:Key="ComboBoxTextBox" TargetType="{x:Type TextBox}">
         <Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}" />
     </ControlTemplate>
-    <Style x:Key="{x:Type ComboBoxItem}" TargetType="{x:Type ComboBoxItem}">
+    <Style x:Key="titleComboItem" TargetType="{x:Type ComboBoxItem}">
+        <Setter Property="SnapsToDevicePixels" Value="true"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="Height" Value="24"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                    <Border Name="Border"
+                              Padding="2"
+                                CornerRadius="3"
+                              SnapsToDevicePixels="true">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Margin="0" VerticalAlignment="Center" Width="20" Height="20" Fill="{Binding ACState, Converter={StaticResource activityStateToColor}}"  />
+                            <TextBlock Margin="15,0" Width="{Binding Width, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType= ComboBox}}" VerticalAlignment="Center" TextAlignment="Center" Text="{Binding Title}"/>
+                            <!--<ContentPresenter />-->
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="true">
+                            <Setter TargetName="Border" Property="Background" Value="#FF4F4F4F"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="#888888"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="stateComboItem" TargetType="{x:Type ComboBoxItem}">
         <Setter Property="SnapsToDevicePixels" Value="true"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -83,7 +113,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style x:Key="{x:Type ComboBox}" TargetType="{x:Type ComboBox}">
+    <Style x:Key="stateCombobox" TargetType="{x:Type ComboBox}">
         <Setter Property="SnapsToDevicePixels" Value="true"/>
         <Setter Property="OverridesDefaultStyle" Value="true"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
@@ -91,15 +121,14 @@
         <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
         <Setter Property="MinWidth" Value="120"/>
         <Setter Property="MinHeight" Value="20"/>
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Foreground" Value="White"/> 
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ComboBox}">
+                <ControlTemplate TargetType="{x:Type ComboBox}"> 
                     <Grid>
                         <ToggleButton 
                             Name="ToggleButton" 
-                            Template="{StaticResource ComboBoxToggleButton}" 
-                           
+                            Template="{StaticResource ComboBoxToggleButton}"  
                             Focusable="false"
                             IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
                             ClickMode="Press">
@@ -107,11 +136,11 @@
                         <ContentPresenter Name="ContentSite" IsHitTestVisible="False" 
                             ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                             ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                            Margin="42,3,23,3"
-                             Content="{TemplateBinding SelectionBoxItem}"             
+                            Margin="42,3,23,3" 
+                             Content="{TemplateBinding SelectionBoxItem}"   
                             VerticalAlignment="Center"
                             HorizontalAlignment="Left" />
-                        <Ellipse Height="20" Width="20" Fill="{TemplateBinding Tag, Converter={StaticResource activityStateToColor}}" HorizontalAlignment="Left" Margin="5"   >
+                        <Ellipse Height="20" Width="20" Fill="{TemplateBinding Tag,  Converter={StaticResource activityStateToColor}}" HorizontalAlignment="Left" Margin="5"   >
                             <!--<Ellipse.Fill>
                                 <SolidColorBrush Color="{Binding Tag, Converter={StaticResource activityStateToColor }}"/>
                             </Ellipse.Fill>-->
@@ -132,7 +161,7 @@
                             Placement="Bottom"
                             IsOpen="{TemplateBinding IsDropDownOpen}"
                             AllowsTransparency="True" 
-                            Focusable="False"
+                            Focusable="False" 
                             PopupAnimation="Slide">
 
                             <Grid Name="DropDown"

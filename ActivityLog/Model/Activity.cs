@@ -6,9 +6,25 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Utils.MVVM;
 
 namespace ActivityLog.Model
 {
+    public class ChinaDateTimeConverter : DateTimeConverterBase
+    {
+        private static IsoDateTimeConverter dtConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd" };
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            return dtConverter.ReadJson(reader, objectType, existingValue, serializer);
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            dtConverter.WriteJson(writer, value, serializer);
+        }
+    }
     public enum ACTIVITY_STATE { TBD, ON_GOING, PAUSE, ABORT, FINISH }
 
     public class Activity : INotifyPropertyChanged
@@ -56,6 +72,7 @@ namespace ActivityLog.Model
             }
         }
         private DateTime dueDate=DateTime.Now;
+        [JsonConverter(typeof(ChinaDateTimeConverter))]
         public DateTime DueDate
         {
             get
@@ -128,7 +145,7 @@ namespace ActivityLog.Model
         }
     }
 
-    class Record:INotifyPropertyChanged
+    public class Record:INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -168,7 +185,7 @@ namespace ActivityLog.Model
             return activity;
         }
     }
-    class RecordActivity : Record
+    public class RecordActivity : Record
     {
         private Activity _activity;
         public Activity Activity{
@@ -179,6 +196,7 @@ namespace ActivityLog.Model
             }
         }
         private DateTime toDate = DateTime.Now;
+        [JsonConverter(typeof(ChinaDateTimeConverter))]
         public DateTime ToDate
         {
             get { return toDate; }
@@ -197,6 +215,7 @@ namespace ActivityLog.Model
                 OnPropertyChanged();
             }
         }
+        public List<string> Tags = new List<string>();
         private int _hourSpend;
         public int Hours
         {
@@ -218,11 +237,11 @@ namespace ActivityLog.Model
             string jsonStr = "";
             jsonStr = JsonConvert.SerializeObject(activity);
             return jsonStr;
-        }
+        } 
         public new static RecordActivity LoadFromJson(string strJson)
         {
             RecordActivity activity = JsonConvert.DeserializeObject<RecordActivity>(strJson);
             return activity;
-        }
+        } 
     }
 }

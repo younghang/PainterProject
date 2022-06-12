@@ -59,10 +59,10 @@ namespace ActivityLog.Resources.Style
                 bool isEdit = System.Convert.ToBoolean(value);
                 if(isEdit)
                 {
-                    return "Edit Activity";
+                    return "Edit "+ parameter.ToString();
                 }else
                 {
-                    return "Add New Activity";
+                    return "Add New "+ parameter.ToString();
                 }
             }
             return null;

@@ -7,7 +7,7 @@
         Name="addNewAc"
         xmlns:convertor="clr-namespace:ActivityLog.Resources.Style"
         mc:Ignorable="d"  AllowsTransparency="True" Background="Transparent" WindowStyle="None"
-        WindowStartupLocation="CenterScreen" Title="MainWindow" Height="600" Width="800" BorderThickness="15">
+        WindowStartupLocation="CenterScreen" Title="Activity" Height="600" Width="800" BorderThickness="15">
     <Window.Resources>
         <convertor:BoolToWindowTitle x:Key="boolToTitle"/>
         <convertor:ActivityStateToString x:Key="ActivityStateToString"/>
@@ -62,7 +62,7 @@
                 <Line X1="12" Y1="0" X2="12" Y2="24" StrokeThickness="3" Stroke="White"/>
                 <Line X1="0" Y1="12" X2="24" Y2="12" StrokeThickness="3" Stroke="White"/>
             </Grid>
-            <TextBlock Grid.Row="0" Margin="50,0" Text="{Binding IsEdit,  RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}, Converter={StaticResource boolToTitle}}" Foreground="White" VerticalAlignment="Center" FontSize="24" />
+            <TextBlock Grid.Row="0" Margin="50,0" Text="{Binding IsEdit,  RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=Window}, Converter={StaticResource boolToTitle}, ConverterParameter=Activity}" Foreground="White" VerticalAlignment="Center" FontSize="24" />
             <Border x:Name="closeButton" HorizontalAlignment="Right" Margin="10,0"   CornerRadius="15" Width="30" Height="30" Grid.Row="0" MouseDown="CloseWindow">
                 <Border.Style>
                     <Style TargetType="{x:Type Border}">
@@ -128,7 +128,7 @@
                     </StackPanel>
                     <StackPanel  Margin="40,0,40,0" HorizontalAlignment="Right" Orientation="Vertical" VerticalAlignment="Center">
                         <TextBlock Text="Status" Style="{StaticResource labelTextBlock}"/>
-                        <ComboBox   Width="140" Height="30" SelectedIndex="{Binding ACState}" Text="{Binding ACState, Converter={StaticResource ActivityStateToString},Mode=OneWay}"   Tag="{Binding ACState}" Name="AcState" FontWeight="Bold" Margin="0">
+                            <ComboBox  Style="{StaticResource stateCombobox}" ItemContainerStyle="{StaticResource stateComboItem}"  Width="140" Height="30" SelectedIndex="{Binding ACState}" Text="{Binding ACState, Converter={StaticResource ActivityStateToString},Mode=OneWay}"   Tag="{Binding ACState}" Name="AcState" FontWeight="Bold" Margin="0">
                             <ComboBoxItem Name="TBD"  Background="Aqua">TBD</ComboBoxItem>
                             <ComboBoxItem Name="ON_GOING" Background="Lime">ON_GOING</ComboBoxItem>
                             <ComboBoxItem Name="PAUSE" Background="Orange">PAUSE</ComboBoxItem>

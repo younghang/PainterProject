@@ -55,8 +55,7 @@ namespace ActivityLog.WindowPage
             Instance.spConfirm.Visibility = Visibility.Hidden;
             Instance.spMsg.Visibility = Visibility.Visible;
             Instance.ShowAnimation();
-            Instance.ShowDialog();
-            
+            Instance.ShowDialog(); 
         }
         protected override void OnClosing(CancelEventArgs e)
         {
