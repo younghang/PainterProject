@@ -32,8 +32,10 @@ namespace ActivityLog
         {
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
-            VMActivity.Instance.LoadDataFromJson();
+     
             
+            VMActivity.Instance.LoadFromDatabase();
+
         }  
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -44,7 +46,7 @@ namespace ActivityLog
             UCActivity.AttachNextEvent += AttachNextEventHandle;
             UCRecord.AttachNextEvent += AttachNextEventHandle;
             ActivityLog.Model.Activity activity = new Model.Activity();
-            SwitchToUC(UCRecord);
+            SwitchToUC(ucOverview);
         }
 
         private void AttachNextEventHandle()
@@ -61,7 +63,7 @@ namespace ActivityLog
          
         private void CloseWindow(object sender, MouseButtonEventArgs e)
         {
-            VMActivity.Instance.SaveData(); 
+            //VMActivity.Instance.SaveData(); 
             Application.Current.Shutdown();
         }
         private void MoveWindow(object sender, MouseButtonEventArgs e)

@@ -83,11 +83,9 @@ namespace ActivityLog.WindowPage.UserControls
             {
                 RecordActivity record = addnew.CurRecord;
                 record.Activity = (Activity)addnew.ACTitleCombox.SelectedItem;
-                if (!VMActivity.Instance.Records.Contains(record))
-                {
-                    VMActivity.Instance.Records.Add(record);
-                    App.GetMainWindow().ToastMessage("add a new record",(MainWindow.TOAST_TYPE.MESSAGE));
-                }
+
+                VMActivity.Instance.AddRecord(record); 
+                App.GetMainWindow().ToastMessage("add a new record",(MainWindow.TOAST_TYPE.MESSAGE));
             }
         }
     }

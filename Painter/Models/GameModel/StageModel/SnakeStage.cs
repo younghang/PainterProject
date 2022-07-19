@@ -17,7 +17,7 @@ namespace Painter.Models.StageModel
         DIRECTION curDirection = DIRECTION.RIGHT;
         MainCharacter character = new MainCharacter();
         DrawableText scoreText = new DrawableText();
-        Scene scene = new Scene();
+        
         public override void Clear()
         {
             scene.Clear();

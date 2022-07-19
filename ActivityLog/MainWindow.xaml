@@ -8,7 +8,7 @@
         xmlns:widgets="clr-namespace:ActivityLog.Widgets"
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d"  AllowsTransparency="True" Background="Transparent" WindowStyle="None"
-        Title="MainWindow" Height="800" Width="1200" BorderThickness="15">
+        Title="MainWindow" Height="800" Width="1240" BorderThickness="15">
     <Window.Effect>
         <DropShadowEffect ShadowDepth="0" Opacity="0.7" BlurRadius="30"></DropShadowEffect>
     </Window.Effect>

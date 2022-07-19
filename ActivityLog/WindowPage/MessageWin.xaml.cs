@@ -29,22 +29,50 @@ namespace ActivityLog.WindowPage
 
         private void MessageWin_Loaded(object sender, RoutedEventArgs e)
         {
-             
+
         }
 
-        private static MessageWin _instance=null;
+        private static MessageWin _instance = null;
         private static MessageWin Instance
         {
             get
             {
-                if (_instance == null )//|| (_instance != null&&_)
+                if (_instance == null)//|| (_instance != null&&_)
                 {
-                    _instance = new MessageWin();  
+                    _instance = new MessageWin();
                 }
                 return _instance;
             }
         }
         private bool IsConfirm = false;
+
+        public static async Task<bool> Working(Func<bool> action)
+        {
+            var task = Task<bool>.Run(action);
+            bool result = await task;
+            Instance.Hide();
+            return result;
+        }
+        public static void SetLoadingMsg(string msg)
+        {
+            Instance.txtLoadingMsg.Dispatcher.Invoke(
+                ()=> { 
+            Instance.txtLoadingMsg.Text = msg;
+                });
+        }
+        public static bool LoadingAsync(Func<bool> action)
+        {
+            Instance.gridWaiting.Visibility = Visibility.Visible;
+            Instance.gridMsg.Visibility = Visibility.Hidden;
+            Storyboard storyboard = Instance.FindResource("loadingAnimation") as Storyboard;
+            storyboard.Begin();
+            var taskResult = Working(action);
+            Instance.ShowAnimation();
+            Instance.ShowDialog();
+            bool result = taskResult.Result;
+            storyboard.Stop();
+            return result;
+        }
         public static void MSG(string msg)
         {
             Instance.Left = SystemParameters.PrimaryScreenWidth / 2 - Instance.Width / 2;
@@ -54,8 +82,10 @@ namespace ActivityLog.WindowPage
             Instance.msgIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.Bell;
             Instance.spConfirm.Visibility = Visibility.Hidden;
             Instance.spMsg.Visibility = Visibility.Visible;
+            Instance.gridWaiting.Visibility = Visibility.Hidden;
+            Instance.gridMsg.Visibility = Visibility.Visible;
             Instance.ShowAnimation();
-            Instance.ShowDialog(); 
+            Instance.ShowDialog();
         }
         protected override void OnClosing(CancelEventArgs e)
         {
@@ -71,16 +101,18 @@ namespace ActivityLog.WindowPage
             Instance.msgIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.HelpCircleOutline;
             Instance.spMsg.Visibility = Visibility.Hidden;
             Instance.spConfirm.Visibility = Visibility.Visible;
+            Instance.gridWaiting.Visibility = Visibility.Hidden;
+            Instance.gridMsg.Visibility = Visibility.Visible;
             Instance.ShowAnimation();
             Instance.ShowDialog();
-            
-            return Instance.IsConfirm; 
+
+            return Instance.IsConfirm;
         }
-        
+
 
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton==MouseButton.Left)
+            if (e.ChangedButton == MouseButton.Left)
             {
                 this.DragMove();
             }
@@ -95,7 +127,7 @@ namespace ActivityLog.WindowPage
         private void ButtonEx_Click_1(object sender, RoutedEventArgs e)
         {
             IsConfirm = false;
-            HideAnimation(); 
+            HideAnimation();
         }
 
         private void ButtonEx_Click_2(object sender, RoutedEventArgs e)

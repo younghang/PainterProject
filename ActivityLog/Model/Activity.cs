@@ -29,6 +29,35 @@ namespace ActivityLog.Model
 
     public class Activity : INotifyPropertyChanged
     {
+        public Activity()
+        {
+            //if (ViewModel.VMActivity.Instance.Activities.Contains(this))
+            //{
+            //    return;
+            //}
+            while (true)
+            {
+                bool isContains = false;
+                var items = ViewModel.VMActivity.Instance.Activities;
+                foreach (var item in items)
+                {
+                    if (item == this)
+                    {
+                        continue;
+                    }
+                    if (item.id == id)
+                    {
+                        id++;
+                        isContains = true;
+                        break;
+                    }
+                }
+                if (isContains == false)
+                {
+                    break;
+                }
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -54,7 +83,9 @@ namespace ActivityLog.Model
             }
         }
         private int id =new Random(System.DateTime.Now.Millisecond).GetHashCode();
-        public int ID { get { return id; } set {
+        public int ID { get { 
+                return id;
+            } set {
                 id = value;
                 OnPropertyChanged();
             } }
@@ -115,7 +146,7 @@ namespace ActivityLog.Model
                 OnPropertyChanged();
             }
         } 
-        public Activity() { }
+        
         public double GetEstimateDay()
         {
             return this.EstimateHour / 12;
@@ -173,21 +204,58 @@ namespace ActivityLog.Model
             }
         }
         public Record() { }
-        public static string ToJsonStr(Record activity)
+        public string ToJsonStr()
         {
-            string jsonStr = "";
-            jsonStr = JsonConvert.SerializeObject(activity);
-            return jsonStr;
+            var jsonSerializerSettings = new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.All
+            };
+            string recordStr = JsonConvert.SerializeObject(this, jsonSerializerSettings); 
+            return recordStr;
         }
         public static Record LoadFromJson(string strJson)
         {
-            Record activity = JsonConvert.DeserializeObject<Record>(strJson);
+            var jsonSerializerSettings = new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.All
+            }; 
+            Record record = JsonConvert.DeserializeObject<Record>(strJson, jsonSerializerSettings);
+            return record;
+        }
+    }
+    public class RAConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(Activity);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            Activity activity = new Activity();
+            activity.ID= int.Parse(reader.Value.ToString());
             return activity;
         }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            writer.WriteValue(((Activity)(value)).ID);
+        }
+
+        //public DateTime ConvertIntDateTime(long aSeconds)
+        //{
+        //    return new DateTime(1970, 1, 1).AddMilliseconds(aSeconds);
+        //}
+
+        //public long ConvertDateTimeInt(DateTime aDT)
+        //{
+        //    return (long)(aDT - new DateTime(1970, 1, 1)).TotalMilliseconds;
+        //}
     }
     public class RecordActivity : Record
     {
         private Activity _activity;
+        [JsonConverter(typeof(RAConverter))]
         public Activity Activity{
             get { return _activity; }
             set {
@@ -232,16 +300,7 @@ namespace ActivityLog.Model
         {
             return this.CurrentProgress - this.preRecord.CurrentProgress;
         }
-        public static string ToJsonStr(RecordActivity activity)
-        {
-            string jsonStr = "";
-            jsonStr = JsonConvert.SerializeObject(activity);
-            return jsonStr;
-        } 
-        public new static RecordActivity LoadFromJson(string strJson)
-        {
-            RecordActivity activity = JsonConvert.DeserializeObject<RecordActivity>(strJson);
-            return activity;
-        } 
+ 
+ 
     }
 }

@@ -300,7 +300,7 @@ namespace Painter.Models
             {
                 DrawOnCanvas(e.Graphics); 
             }
-            catch (OutOfMemoryException ee)
+            catch (OutOfMemoryException)
             {
                 isError = true;
                 //this.CmdMgr.Undo();

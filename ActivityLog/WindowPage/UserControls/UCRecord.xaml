@@ -7,9 +7,11 @@
              xmlns:local="clr-namespace:ActivityLog.WindowPage.UserControls"
              mc:Ignorable="d"  Background="{StaticResource themBG}"
              x:Name="ucRecord" MinHeight="600"
+             xmlns:convertor="clr-namespace:ActivityLog.Resources.Style"
              xmlns:widgets="clr-namespace:ActivityLog.Widgets"
              Width="1200"  >
     <UserControl.Resources>
+        <convertor:DateTimeToDaysAgo x:Key="DateTimeToDaysAgo"/>
         <Style x:Key="ContentStyle"  
                TargetType="{x:Type TextBlock}">
             <Setter Property="HorizontalAlignment"  
@@ -135,39 +137,39 @@
                                       Stretch="Fill" Stroke="DarkGray" StrokeThickness="1"
                                       StrokeDashArray="1.0 2.0"/>
                                             </SelectiveScrollingGrid>
-                                        </Border>
-                                        
+                                        </Border> 
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
                             <Style.Triggers> 
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="Green"/>
-                                </Trigger>
-                                
-                            </Style.Triggers>
-
+                                </Trigger> 
+                            </Style.Triggers> 
                         </Style>
                     </DataGrid.RowStyle>
 
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Activity" Width="*"  Binding="{Binding Activity.Title}"   ElementStyle="{StaticResource ContentStyle}" />
+                        <DataGridTextColumn Header="Activity" Width="1.5*"  Binding="{Binding Activity.Title}"   ElementStyle="{StaticResource ContentStyle}" />
                         <DataGridTemplateColumn Header="Status" Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid VerticalAlignment="Center"  >
-                                        <Ellipse Height="20" Margin="5,0" HorizontalAlignment="Left" Width="20" Fill="{Binding Activity.ACState, Converter={StaticResource activityStateToColor}}"  >
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Ellipse Height="20" Margin="5,0"  Width="20" Fill="{Binding Activity.ACState, Converter={StaticResource activityStateToColor}}"  >
                                         </Ellipse>
-                                        <TextBlock  Margin="36,0,0,0"  VerticalAlignment="Center"
+                                        <TextBlock  Margin="0,0,0,0"  VerticalAlignment="Center"
                                             Text="{Binding Activity.ACState}" Foreground="Wheat"
                                             Background="Transparent"/>
+                                        </StackPanel>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="Remark" Width="*" Binding="{Binding Remark}"    ElementStyle="{StaticResource ContentStyle}" />
-                        <DataGridTextColumn Header="Current Episode" Width="*"     Binding="{Binding CurrentProgress}"    ElementStyle="{StaticResource ContentStyle}" />
-                        <DataGridTextColumn Header="Hours" Width="*"    Binding="{Binding Hours}"  ElementStyle="{StaticResource ContentStyle}"   />
+                        <DataGridTextColumn Header="Date" Width="1.2*" Binding="{Binding FromDate}"    ElementStyle="{StaticResource ContentStyle}" />
+                        <DataGridTextColumn Header="Current" Width="0.5*"     Binding="{Binding CurrentProgress}"    ElementStyle="{StaticResource ContentStyle}" />
+                        <DataGridTextColumn Header="Hours" Width="0.5*"    Binding="{Binding Hours}"  ElementStyle="{StaticResource ContentStyle}"   />
+                        <DataGridTextColumn Header="Days" Width="1*"    Binding="{Binding FromDate, Converter={StaticResource DateTimeToDaysAgo}, Mode=OneWay}"  ElementStyle="{StaticResource ContentStyle}"   />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

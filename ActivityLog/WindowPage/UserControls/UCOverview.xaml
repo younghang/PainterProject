@@ -7,9 +7,27 @@
              mc:Ignorable="d" 
              x:Name="ucOverview"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-            Width="1200" Height="400" Background="{StaticResource themBG}">
+            Width="1200" Height="660" Background="{StaticResource themBG}">
     <UserControl.Resources>
+        <SolidColorBrush x:Key="level0" Color="#3B3B40"/>
+        <SolidColorBrush x:Key="level1" Color="#0e4429"/>
+        <SolidColorBrush x:Key="level2" Color="#006d32"/>
+        <SolidColorBrush x:Key="level3" Color="#26a641"/>
+        <SolidColorBrush x:Key="level4" Color="#39d353"/>
         
+        <Style TargetType="Rectangle">
+            <Setter Property="Width" Value="15"/>
+            <Setter Property="Height" Value="15"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="RadiusX" Value="3"/>
+            <Setter Property="RadiusY" Value="3"/>
+            <Setter Property="Fill" Value="Green"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="monthTextStyle">
+            <Setter Property="Foreground" Value="{StaticResource themeTxt}"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
     </UserControl.Resources>
     <UserControl.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded" SourceName="ucOverview">
@@ -32,8 +50,10 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="200"/>
+            <RowDefinition Height="300"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
+
         <Grid Grid.Row="0" Grid.Column="0"  Margin="10,0,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
@@ -61,12 +81,16 @@
                                 </Grid.ColumnDefinitions>
                                 <Border Background="#ffffff" Opacity="0.2" Width="35" Height="35" CornerRadius="35"/>
                                 <iconPacks:PackIconMaterial Kind="Graph" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
-                                <TextBlock Text="Started sending at" Grid.Column="1" Foreground="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="Activities" FontSize="16" Grid.Column="1" Foreground="White" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="ActivitiesCount" FontSize="16" Text="3" Margin="80 0 0 0" Grid.Column="1" Foreground="White" VerticalAlignment="Center"/>
 
                             </Grid>
                             <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="15 0 0 0">
-                                <TextBlock Text="Decemeber 05th's 19" FontSize="22" Foreground="White"/>
-                                <TextBlock Text="Decemeber 05th's 19" Foreground="White"/>
+                                <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="ActivitiesOngoing" Text="20" FontSize="22" Foreground="White"/>
+                                <TextBlock  Text=" Ongoing" FontSize="20" Foreground="White"/>
+                                </StackPanel>
+                                <TextBlock x:Name="LastActivityDate" Text="Decemeber 05th's 19" Foreground="White" />
                             </StackPanel>
                         </Grid>
 
@@ -78,7 +102,7 @@
                             <DropShadowEffect Color="#FFC100" ShadowDepth="30" Opacity="0.8" BlurRadius="50" RenderingBias="Quality" Direction="270"/>
                         </Border.Effect>
                     </Border>
-                    <Border CornerRadius="10" Margin="15,0" Background="#FFC100">
+                    <Border   CornerRadius="10" Margin="15,0" Background="#FFC100">
                         <Grid Height="130">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
@@ -91,13 +115,17 @@
                                     <ColumnDefinition Width="4*"/>
                                 </Grid.ColumnDefinitions>
                                 <Border Background="#ffffff" Opacity="0.2" Width="35" Height="35" CornerRadius="35"/>
-                                <iconPacks:PackIconMaterial Kind="Graph" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
-                                <TextBlock Text="Started sending at" Grid.Column="1" Foreground="White" VerticalAlignment="Center"/>
+                                <iconPacks:PackIconMaterial Kind="Notebook" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
+                                <TextBlock Text="Records" FontSize="16" Grid.Column="1" Foreground="White" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="RecordsCount" FontSize="16" Text="3" Margin="80 0 0 0" Grid.Column="1" Foreground="White" VerticalAlignment="Center"/>
 
                             </Grid>
                             <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="15 0 0 0">
-                                <TextBlock Text="Decemeber 05th's 19" FontSize="22" Foreground="White"/>
-                                <TextBlock Text="Decemeber 05th's 19" Foreground="White"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="RecordsHours" Text="20" FontSize="22" Foreground="White"/>
+                                    <TextBlock  Text=" Hours" FontSize="20" Foreground="White"/>
+                                </StackPanel>
+                                <TextBlock x:Name="LastRecordDate" Text="Decemeber 05th's 19" Foreground="White" />
                             </StackPanel>
                         </Grid>
 
@@ -109,7 +137,7 @@
                             <DropShadowEffect Color="#59E6B5" ShadowDepth="30" Opacity="0.8" BlurRadius="50" RenderingBias="Quality" Direction="270"/>
                         </Border.Effect>
                     </Border>
-                    <Border CornerRadius="10" Margin="15,0" Background="#59E6B5">
+                    <Border   CornerRadius="10" Margin="15,0" Background="#59E6B5">
                         <Grid Height="130">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
@@ -122,20 +150,71 @@
                                     <ColumnDefinition Width="4*"/>
                                 </Grid.ColumnDefinitions>
                                 <Border Background="#ffffff" Opacity="0.2" Width="35" Height="35" CornerRadius="35"/>
-                                <iconPacks:PackIconMaterial Kind="Graph" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
-                                <TextBlock Text="Started sending at" Grid.Column="1" Foreground="White" VerticalAlignment="Center"/>
-
+                                <iconPacks:PackIconMaterial Kind="Timelapse" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"/>
+                                <TextBlock Text="Latest Month Records" FontSize="16" Grid.Column="1" Foreground="White" VerticalAlignment="Center"/>
                             </Grid>
                             <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="15 0 0 0">
-                                <TextBlock Text="Decemeber 05th's 19" FontSize="22" Foreground="White"/>
-                                <TextBlock Text="Decemeber 05th's 19" Foreground="White"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="RecordsCountRecent" FontSize="22" Text="3" Margin="0 0 0 0" Grid.Column="1" Foreground="White" VerticalAlignment="Center"/>
+                                    <TextBlock  Text=" Records" FontSize="20" Foreground="White"/>
+                                    <TextBlock x:Name="RecordsHoursRecent" Margin="20 0 0 0" Text="20" FontSize="22" Foreground="White"/>
+                                    <TextBlock  Text=" Hours" FontSize="20" Foreground="White"/>
+                                </StackPanel>
+                                <TextBlock x:Name="LastRecordDateRecent" Text="Decemeber 05th's 19" Foreground="White" />
                             </StackPanel>
+                        
                         </Grid>
 
                     </Border>
-                </Grid>
+                </Grid> 
             </UniformGrid>
+           
+        </Grid>
+
+        <Grid Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="170"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0 0">
+                <UniformGrid Columns="12"  Width="1120"  Name="spMonth" HorizontalAlignment="Left">
+                    <TextBlock Text="Jan" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="Feb" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="Mar" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="Apr" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="May" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="Jun" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="Jul" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="Aug" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="Sep" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="Oct" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="Nov" Style="{StaticResource monthTextStyle}"/>
+                    <TextBlock Text="Dec" Style="{StaticResource monthTextStyle}"/> 
+                </UniformGrid>
+            </Grid>
+        <Grid Grid.Row="1"  >
+                <WrapPanel x:Name="calendarGraph" Orientation="Vertical" Margin="10" Height="147">
+                <Rectangle Fill="#FF3B3B40"/>
+                <Rectangle Fill="#FF3B3B40"/>
+                <Rectangle Fill="#FF3B3B40"/>
+                <Rectangle Fill="#FF3B3B40"/>
+                <Rectangle Fill="{StaticResource level0}"/>
+                <Rectangle Fill="{StaticResource level1}"/>
+                <Rectangle Fill="{StaticResource level2}"/>
+                <Rectangle Fill="{StaticResource level3}"/>
+                <Rectangle Fill="{StaticResource level4}"/>
+            </WrapPanel> 
+        </Grid>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Top" Height="30" >
+                <TextBlock Text="Less" Margin="5 10 5 5"  Width="30" VerticalAlignment="Center" HorizontalAlignment="Center" Height="20" Foreground="{StaticResource themeTxt}"/>
+                <Rectangle Fill="{StaticResource level0}"/>
+                <Rectangle Fill="{StaticResource level1}"/>
+                <Rectangle Fill="{StaticResource level2}"/>
+                <Rectangle Fill="{StaticResource level3}"/>
+                <Rectangle Fill="{StaticResource level4}"/>
+                <TextBlock Text="More" Margin="5 10 5 5" Width="30" VerticalAlignment="Center" HorizontalAlignment="Center" Height="20" Foreground="{StaticResource themeTxt}"/>
+            </StackPanel>
         </Grid>
     </Grid>
-    
 </UserControl>

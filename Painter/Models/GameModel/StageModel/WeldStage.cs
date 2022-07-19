@@ -32,7 +32,7 @@ namespace Painter.Models.GameModel.StageModel
         MainCharacter graph = new MainCharacter();
         DrawableText scoreText = new DrawableText();
         Obstacle 气槽工字板 = new Obstacle();
-        Scene scene = new Scene();
+         
 
         public override Scene CreateScene()
         {
@@ -124,8 +124,7 @@ namespace Painter.Models.GameModel.StageModel
             }
         }
 
-        private int width = 1200;
-        private int height = 600;
+       
         public override int GetWidth()
         {
             return width;

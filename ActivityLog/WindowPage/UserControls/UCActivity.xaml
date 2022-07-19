@@ -196,16 +196,18 @@
                     </DataGrid.RowStyle>
 
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Name" Width="*"  Binding="{Binding Title}"   ElementStyle="{StaticResource ContentStyle}" />
+                        <DataGridTextColumn Header="Name" Width="1.5*"  Binding="{Binding Title}"   ElementStyle="{StaticResource ContentStyle}" />
                         <DataGridTemplateColumn Header="Status" Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid VerticalAlignment="Center"  >
-                                        <Ellipse Height="20" Margin="5,0" HorizontalAlignment="Left" Width="20" Fill="{Binding ACState, Converter={StaticResource activityStateToColor}}"  >
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Ellipse Height="20" Margin="5,0"  Width="20" Fill="{Binding ACState, Converter={StaticResource activityStateToColor}}"  >
                                         </Ellipse>
-                                        <TextBlock  Margin="36,0,0,0"  VerticalAlignment="Center"
+                                        <TextBlock  Margin="0,0,0,0"  VerticalAlignment="Center"
                                             Text="{Binding ACState}" Foreground="Wheat"
-                                            Background="Transparent"/>
+                                            Background="Transparent"/> 
+                                        </StackPanel> 
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -213,7 +215,7 @@
                         <DataGridTextColumn Header="Priority" Width="*" Binding="{Binding Priority}"    ElementStyle="{StaticResource ContentStyle}" />
 
                         <DataGridTextColumn Header="Total Episodes" Width="*"     Binding="{Binding TotalProgress}"    ElementStyle="{StaticResource ContentStyle}" />
-                        <DataGridTextColumn Header="Start Date" Width="*"    Binding="{Binding StartDate}"  ElementStyle="{StaticResource ContentStyle}"   />
+                        <DataGridTextColumn Header="Start Date" Width="1.5*"    Binding="{Binding StartDate}"  ElementStyle="{StaticResource ContentStyle}"   />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

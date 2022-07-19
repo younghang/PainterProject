@@ -84,12 +84,10 @@ namespace ActivityLog.WindowPage.UserControls
             if (addnew.DialogResult == true)
             {
                 Activity activity = addnew.CurActivity;
-                if (!VMActivity.Instance.Activities.Contains(activity))
-                {
-                    VMActivity.Instance.Activities.Add(activity); 
-                }
-            }
-        }
+                VMActivity.Instance.AddActivity(activity);
+                App.GetMainWindow().ToastMessage("add a new acitivity", (MainWindow.TOAST_TYPE.MESSAGE));
 
+            }
+        } 
     }
 }

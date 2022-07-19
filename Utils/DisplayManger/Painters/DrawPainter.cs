@@ -537,7 +537,7 @@ namespace Painter.Painters
                     }
                     graphics.DrawArc(pen, (leftcorner), (topcorner), Math.Abs((arc.Radius * 2) * Scale.X), Math.Abs((arc.Radius * 2) * Scale.Y), (float)sa, (float)(ea - sa));
                 }
-                catch (Exception e)
+                catch (Exception )
                 {
                     arc.IsDisposed=true;
                 }

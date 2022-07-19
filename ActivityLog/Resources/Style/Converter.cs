@@ -130,4 +130,23 @@ namespace ActivityLog.Resources.Style
             return (ActivityLog.Model.ACTIVITY_STATE)Enum.Parse(typeof(ActivityLog.Model.ACTIVITY_STATE), item.Name.ToString().Trim());
         }
     }
+    public class DateTimeToDaysAgo : IValueConverter
+    {
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value != null)
+            {
+               DateTime date = (DateTime)(value);
+                
+                return (DateTime.Now-date).Days.ToString()+" Days Ago";
+            }
+            return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
 }

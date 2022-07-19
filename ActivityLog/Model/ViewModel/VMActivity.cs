@@ -6,11 +6,12 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
- 
+using System.Threading;
 using System.Windows;
+using ActivityLog.Model.DataBase;
 using ActivityLog.WindowPage;
 using Newtonsoft.Json;
- 
+using Utils.Database;
 using Utils.MVVM;
 
 namespace ActivityLog.Model.ViewModel
@@ -18,10 +19,37 @@ namespace ActivityLog.Model.ViewModel
      
     class VMActivity : INotifyPropertyChanged
     {
+        
         private VMActivity()
         {
             Activities = new ObservableCollection<Activity>();
             Records = new ObservableCollection<Record>();
+
+        }
+        public void LoadFromDatabase()
+        {             
+            var result = MessageWin.LoadingAsync(() => {
+                MessageWin.SetLoadingMsg("Loading DataBase...");
+                ActivityDataBase.Instance.CreateActivityTable();
+                var activities = ActivityDataBase.Instance.LoadActivitiesFromDataBase();
+                foreach (var item in activities)
+                {
+                    Instance.Activities.Add(item);
+                }
+                Thread.Sleep(500);
+                MessageWin.SetLoadingMsg("Loading Records...");
+                RecordDataBase.Instance.CreateRecordsTable();
+                var records = RecordDataBase.Instance.LoadRecordsFromDataBase();
+                foreach (var item in records)
+                {
+                    Instance.Records.Add(item);
+                } 
+                return true;
+            });
+        }
+        private void saveToDatabase()
+        {
+            //no need
         }
         private static VMActivity _instance = null;
         public static VMActivity Instance
@@ -36,6 +64,22 @@ namespace ActivityLog.Model.ViewModel
             }
 
         }
+        public void AddActivity(Activity activity)
+        {
+            if (! Instance.Activities.Contains(activity))
+            {
+                Instance.Activities.Add(activity);
+                ActivityDataBase.Instance.InsertActivity(activity);
+            } 
+        }
+        public void AddRecord(Record record)
+        {
+            if (!Instance.Records.Contains(record))
+            {
+                Instance.Records.Add(record);
+                RecordDataBase.Instance.InsertRecord(record);
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -44,6 +88,8 @@ namespace ActivityLog.Model.ViewModel
         public ObservableCollection<Activity> Activities { get; set; }
         public ObservableCollection<Record> Records { get; set; }
         public static string FILE_NAME = "data.json";
+
+        #region For data.txt. No Use anymore
         public void LoadDataFromJson()
         {
             if (!File.Exists(FILE_NAME))
@@ -85,6 +131,8 @@ namespace ActivityLog.Model.ViewModel
                     }
                     Records.Add(item);
                 }
+                int a = 0;
+                int b = a + 2;
             }
             catch (Exception)
             {
@@ -106,6 +154,7 @@ namespace ActivityLog.Model.ViewModel
             string text = JsonConvert.SerializeObject(keyValuePairs);
             File.WriteAllText(FILE_NAME, text);
         }
+        #endregion
 
         #region Commands
         #region Add/Edit Activity Commands 
@@ -122,6 +171,7 @@ namespace ActivityLog.Model.ViewModel
                            {
                                if (MessageWin.Confirm("确定删除？"))
                                {
+                                   ActivityDataBase.Instance.DeleteActivity((Activity)list[0]);
                                    this.Activities.Remove((Activity)list[0]);
                                    MessageWin.MSG("已经删除");
                                } 
@@ -143,6 +193,7 @@ namespace ActivityLog.Model.ViewModel
                             if (list.Count > 0)
                             {
                                 OnActivityEditEvent?.Invoke((Activity)list[0]);
+                                _ = ActivityDataBase.Instance.UpdateActivity((Activity)list[0]);
                             }
                         }),
                         new Func<object, bool>(o => true));
@@ -165,6 +216,7 @@ namespace ActivityLog.Model.ViewModel
                             {
                                 if (MessageWin.Confirm("确定删除？"))
                                 {
+                                    RecordDataBase.Instance.DeleteRecord((Record)list[0]);
                                     this.Records.Remove((Record)list[0]);
                                     MessageWin.MSG("已经删除");
                                 }
@@ -186,6 +238,7 @@ namespace ActivityLog.Model.ViewModel
                             if (list.Count > 0)
                             {
                                 OnRecordEditEvent?.Invoke((Record)list[0]);
+                                _ = RecordDataBase.Instance.UpdateRecord((Record)list[0]);
                             }
                         }),
                         new Func<object, bool>(o => true));
