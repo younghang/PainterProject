@@ -118,6 +118,7 @@
                     <widgets:ButtonEx Click="MainFrmSwitchClick" x:Name="btnOverview" Content="Overview" BorderBrush="AliceBlue" BorderThickness="1"  IsChecked="True" CheckedBackground="#43a9c7" Background="Transparent" CornerRadius="12" Margin="10,0" Width="70" Height="24"></widgets:ButtonEx>
                     <widgets:ButtonEx Click="MainFrmSwitchClick" x:Name="btnActivity" Content="Activity" BorderBrush="AliceBlue" BorderThickness="1"  IsChecked="False" CheckedBackground="#43a9c7" Background="Transparent" CornerRadius="12" Margin="10,0" Width="70" Height="24"></widgets:ButtonEx>
                     <widgets:ButtonEx Click="MainFrmSwitchClick" x:Name="btnRecord" Content="Record" BorderBrush="AliceBlue" BorderThickness="1"  IsChecked="False" CheckedBackground="#43a9c7" Background="Transparent" CornerRadius="12" Margin="10,0" Width="70" Height="24"></widgets:ButtonEx>
+                    <widgets:ButtonEx Click="MainFrmSwitchClick" x:Name="btnTools" Content="Tools" BorderBrush="AliceBlue" BorderThickness="1"  IsChecked="False" CheckedBackground="#43a9c7" Background="Transparent" CornerRadius="12" Margin="10,0" Width="70" Height="24"></widgets:ButtonEx>
                 </StackPanel>
                 <StackPanel x:Name="mainFrm" Grid.Row="0"/> 
             </Grid>

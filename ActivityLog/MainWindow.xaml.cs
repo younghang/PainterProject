@@ -42,9 +42,11 @@ namespace ActivityLog
             ucOverview = new UCOverview();
             UCActivity = new UCActivity();
             UCRecord = new UCRecord();
+            UCTool = new UCTool();
             ucOverview.AttachNextEvent += AttachNextEventHandle;
             UCActivity.AttachNextEvent += AttachNextEventHandle;
             UCRecord.AttachNextEvent += AttachNextEventHandle;
+            UCTool.AttachNextEvent += AttachNextEventHandle;
             ActivityLog.Model.Activity activity = new Model.Activity();
             SwitchToUC(ucOverview);
         }
@@ -86,6 +88,7 @@ namespace ActivityLog
         private UCOverview ucOverview = null;
         private UCActivity UCActivity = null;
         private UCRecord UCRecord = null;
+        private UCTool UCTool = null;
         private IUCSwitch currentUC = null;
         private void SwitchToUC(IUCSwitch uc)
         {
@@ -123,6 +126,9 @@ namespace ActivityLog
                     break;
                 case "btnRecord":
                     SwitchToUC(UCRecord);
+                    break;
+                case "btnTools":
+                    SwitchToUC(UCTool);
                     break;
             }
         }

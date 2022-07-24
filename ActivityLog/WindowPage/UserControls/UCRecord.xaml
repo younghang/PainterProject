@@ -62,7 +62,7 @@
                     <widgets:ButtonEx Background="Transparent" x:Name="addNewRecord" Click="AddNewRecord" Margin="10" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Row="1" Height="30"  Width="30" CornerRadius="15"   MouseOverBackground="Gray" MousePressedBackground="DimGray" >
                         <iconPacks:PackIconMaterial Kind="Plus" Foreground="{StaticResource themeTxt}" />
                     </widgets:ButtonEx>
-                    <widgets:SearchTextBox Height="36"  Width="300" HintText="  输入搜索内容"/>
+                    <widgets:SearchTextBox TextChanged="SearchTextBox_TextChanged" Height="36"  Width="300" HintText="  输入搜索内容"/>
                 </StackPanel>
                 <DataGrid Grid.Row="1" Background="Transparent" HeadersVisibility="Column"
                           AutoGenerateColumns="False" CanUserAddRows="False"

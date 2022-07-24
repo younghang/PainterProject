@@ -1,7 +1,7 @@
 ﻿
 namespace Painter.TempTest
 {
-    partial class PainterTest
+    public partial class PainterTest
     {
         /// <summary>
         /// Required designer variable.

@@ -88,6 +88,27 @@ namespace ActivityLog.WindowPage.UserControls
                 App.GetMainWindow().ToastMessage("add a new acitivity", (MainWindow.TOAST_TYPE.MESSAGE));
 
             }
-        } 
+        }
+        ListCollectionView listCollectionView = null;
+        private void SearchTextBox_TextChanged(string msg)
+        {
+            listCollectionView=  CollectionViewSource.GetDefaultView(dataGridAc.ItemsSource) as ListCollectionView;
+            listCollectionView.Filter=(item) => {
+                Activity activity = item as Activity;
+                if (activity==null)
+                {
+                    return false;
+                }
+                if (activity.Title.ToLower().Contains(msg.ToLower()))
+                {
+                    return true;
+                }
+                if (activity.Remark.ToLower().Contains(msg.ToLower()))
+                {
+                    return true;
+                }
+                return false;
+            }; 
+        }
     }
 }

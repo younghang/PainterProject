@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Painter.Models.CameraModel
 {
-    
+     
     public class ScreenCamera
     {
         PointGeo FocusPoint;

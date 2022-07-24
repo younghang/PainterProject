@@ -212,7 +212,8 @@ namespace ActivityLog.Model.DataBase
                 records.Add(record);
             }
             Close();
-            return records;
+            var rs = from r in records orderby r.FromDate descending select r;
+            return rs.ToList();
         }
         public async Task UpdateRecord(Record record)
         {

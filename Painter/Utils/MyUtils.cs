@@ -1,5 +1,6 @@
 ﻿using Painter.Controller;
 using Painter.Models;
+using Painter.TempTest;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Painter.Utils
 {
-    class MyUtils
+    public class MyUtils
     {
 
         /// <summary>
@@ -89,6 +90,6 @@ namespace Painter.Utils
             string strMilli = ((int)milliseconds).ToString("D3");//ToString("000")
             string totalTime = strMin + ":" + strSecond + "." + strMilli;
             return totalTime;
-        }
+        } 
     }
 }

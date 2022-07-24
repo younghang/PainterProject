@@ -16,6 +16,6 @@ namespace Painter
             Application.SetCompatibleTextRenderingDefault(false);
             Settings.LoadSettingFile();
             Application.Run(new GameJumpFrm());
-        }
+        } 
     }
 }

@@ -68,15 +68,18 @@ namespace ActivityLog.Model.ViewModel
         {
             if (! Instance.Activities.Contains(activity))
             {
-                Instance.Activities.Add(activity);
+                Instance.Activities.Insert(0,activity);
                 ActivityDataBase.Instance.InsertActivity(activity);
-            } 
+            } else
+            {
+                App.GetMainWindow().ToastMessage("Already exist", (MainWindow.TOAST_TYPE.ERROR));
+            }
         }
         public void AddRecord(Record record)
         {
             if (!Instance.Records.Contains(record))
             {
-                Instance.Records.Add(record);
+                Instance.Records.Insert(0,record);
                 RecordDataBase.Instance.InsertRecord(record);
             }
         }
@@ -90,6 +93,7 @@ namespace ActivityLog.Model.ViewModel
         public static string FILE_NAME = "data.json";
 
         #region For data.txt. No Use anymore
+        [Obsolete]
         public void LoadDataFromJson()
         {
             if (!File.Exists(FILE_NAME))
@@ -139,6 +143,7 @@ namespace ActivityLog.Model.ViewModel
                 MessageBox.Show("Fail to load data.");
             }
         }
+        [Obsolete]
         public void SaveData()
         {
             string activityStr = JsonConvert.SerializeObject(Activities);
@@ -219,6 +224,7 @@ namespace ActivityLog.Model.ViewModel
                                     RecordDataBase.Instance.DeleteRecord((Record)list[0]);
                                     this.Records.Remove((Record)list[0]);
                                     MessageWin.MSG("已经删除");
+                                    App.GetMainWindow().ToastMessage("delete a record", (MainWindow.TOAST_TYPE.ALERT));
                                 }
                             }
                         }),

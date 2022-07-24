@@ -88,5 +88,32 @@ namespace ActivityLog.WindowPage.UserControls
                 App.GetMainWindow().ToastMessage("add a new record",(MainWindow.TOAST_TYPE.MESSAGE));
             }
         }
+        ListCollectionView listCollectionView = null;
+        private void SearchTextBox_TextChanged(string msg)
+        {
+            listCollectionView = CollectionViewSource.GetDefaultView(dataGridAc.ItemsSource) as ListCollectionView;
+            listCollectionView.Filter = (item) => {
+                Record record = item as Record;
+                if (record == null)
+                {
+                    return false;
+                }
+                if (record.Remark.ToLower().Contains(msg.ToLower()))
+                {
+                    return true;
+                }
+                RecordActivity activity = item as RecordActivity;
+                if (activity == null)
+                {
+                    return false;
+                }
+                if (activity.Activity.Title.ToLower().Contains(msg.ToLower()))
+                {
+                    return true;
+                }
+ 
+                return false;
+            };
+        }
     }
 }

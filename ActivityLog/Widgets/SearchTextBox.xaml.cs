@@ -85,6 +85,7 @@ namespace ActivityLog.Widgets
     public partial class SearchTextBox : UserControl
     {
         public event OnTextChanged OnSearchFinished;
+        public event OnTextChanged TextChanged;
         public event OnSearchItemSelected OnItemSelected;
         public Action OnHeaderDoubleClick;
         double imageHeight;
@@ -126,15 +127,35 @@ namespace ActivityLog.Widgets
                 this.models.Add(item as ISearchDataSource);
             }
         }
+
+
+        public bool IsEnableSearch
+        {
+            get { return (bool)GetValue(IsEnableSearchProperty); }
+            set { SetValue(IsEnableSearchProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsEnableSearch.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsEnableSearchProperty =
+            DependencyProperty.Register("IsEnableSearch", typeof(bool), typeof(SearchTextBox), new PropertyMetadata(false));
+
+
         private ObservableCollection<ISearchDataSource> models = null;
+        
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            DataGrid listBox = txtSearchText.Template.FindName("listSearch", txtSearchText) as DataGrid;
+            if (IsEnableSearch==false)
+            {
+                listBox.Visibility = Visibility.Hidden;
+            }
+            string strSearch = (sender as TextBox).Text.Trim();
+            TextChanged?.Invoke(strSearch);
             if (models == null)
             {
                 return;
             }
             searchItems.Clear();
-            string strSearch = (sender as TextBox).Text.Trim();
             if (strSearch == "")
             {
                 return;
@@ -223,5 +244,13 @@ namespace ActivityLog.Widgets
             if (OnHeaderDoubleClick != null) OnHeaderDoubleClick();
         }
 
+        private void txtSearchText_GotFocus(object sender, RoutedEventArgs e)
+        {
+            DataGrid listBox = txtSearchText.Template.FindName("listSearch", txtSearchText) as DataGrid;
+            if (IsEnableSearch == false)
+            {
+                listBox.Visibility = Visibility.Hidden;
+            }
+        }
     }
 }

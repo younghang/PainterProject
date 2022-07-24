@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ActivityLog.Widgets"
              mc:Ignorable="d" 
+             DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
             d:DesignHeight="45" d:DesignWidth="200" Loaded="UserControl_Loaded"> 
  
     <UserControl.Resources>
@@ -37,7 +38,7 @@
         <Canvas Height="{Binding Height}" VerticalAlignment="Top">
             <Grid Canvas.Top="0" Canvas.Left="0"  Width="{Binding Width}" MinWidth="160" >
                 <TextBlock x:Name="txtHintText" Visibility="Hidden" Text="这里搜索2"/>
-                <TextBox x:Name="txtSearchText" TextChanged="TextBox_TextChanged"    VerticalAlignment="Center"    >
+                <TextBox x:Name="txtSearchText" GotFocus="txtSearchText_GotFocus" TextChanged="TextBox_TextChanged"    VerticalAlignment="Center"    >
                     <TextBox.Resources>
                         <VisualBrush x:Key="HintTextBrush" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
                             <VisualBrush.Visual>
@@ -107,7 +108,7 @@
                                                 </ListBox>-->
                                                 <!--Style="{StaticResource DefaultDataGrid}"-->
                                                 <!-- Width="{Binding Path=Width, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type StackPanel}}}""-->
-                                                <DataGrid Panel.ZIndex="120" ColumnWidth="*" Grid.Row="1"  x:Name="listSearch" 
+                                                <DataGrid Panel.ZIndex="120" ColumnWidth="*" Grid.Row="1"  x:Name="listSearch" IsEnabled="{Binding IsEnableSearch, RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
                                                           ItemsSource="{Binding searchItems}" Margin="0" GridLinesVisibility="None" BorderThickness="0"  Visibility="Hidden"  MouseDoubleClick="listSearch_MouseDoubleClick">
                                                     <DataGrid.Columns>
                                                         <DataGridTextColumn 
@@ -123,6 +124,7 @@
                                                     <MultiTrigger.Conditions>
                                                         <Condition Property="Control.IsFocused" Value="True"/>
                                                         <Condition Property="Control.IsMouseOver" Value="True"/>
+
                                                     </MultiTrigger.Conditions>
                                                     <MultiTrigger.Setters>
                                                         <Setter Property="Visibility" Value="Visible" TargetName="listSearch"></Setter>

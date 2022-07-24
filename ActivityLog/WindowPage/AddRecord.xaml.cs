@@ -93,7 +93,7 @@ namespace ActivityLog.WindowPage
         private void addNewTag_Click(object sender, RoutedEventArgs e)
         {
             string str=InputWindow.PleaseInput("添加Tag");
-            if (this.CurRecord.Tags.Contains(str))
+            if (this.CurRecord.Tags.Contains(str)||string.IsNullOrEmpty(str))
             {
                 return;
             }
@@ -177,8 +177,7 @@ namespace ActivityLog.WindowPage
             if (mi == null)
             {
                 return ;
-            }
-
+            } 
             var cm = mi.CommandParameter as ContextMenu;
             if (cm == null)
             {
@@ -188,11 +187,7 @@ namespace ActivityLog.WindowPage
             if (textBox == null)
             {
                 return;
-            }
-            if (textBox == null)
-            {
-                return;
-            }
+            } 
             this.tagPanel.Children.Remove(textBox);
             this.CurRecord.Tags.Remove(textBox.Text);
         }
