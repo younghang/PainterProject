@@ -9,16 +9,37 @@ using Utils.Database;
 
 namespace ActivityLog.Model.DataBase
 {
-    public class ActivityDataBase
+    public class ALDataBase
     {
-        static readonly string DATA_BASE_FILEPATH = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "database\\data.db";
-        protected SQLiteManager manager = null;
-        protected ActivityDataBase()
+        protected ALDataBase()
         {
             manager = new SQLiteManager();
-
         }
-        private static ActivityDataBase _instance = null;
+        static readonly string DATA_BASE_FILEPATH = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "database\\data.db";
+        protected SQLiteManager manager = null;
+        protected void Open()
+        {
+            string error = manager.OpenDB(DATA_BASE_FILEPATH);
+            if (error != "")
+            {
+                MessageWin.MSG(error);
+            }
+        }
+        protected void Close()
+        {
+            if (manager != null)
+            {
+                manager.Close();
+            }
+        }
+        public virtual void CreateTable()
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class ActivityDataBase : ALDataBase
+    {
+        static ActivityDataBase _instance = null;
         public static ActivityDataBase Instance
         {
             get
@@ -27,22 +48,7 @@ namespace ActivityLog.Model.DataBase
                 {
                     _instance = new ActivityDataBase();
                 }
-                return _instance;
-            }
-        }
-        protected void Open()
-        { 
-            string error = manager.OpenDB(DATA_BASE_FILEPATH);
-            if (error != "")
-            {
-                MessageWin.MSG(error);
-            } 
-        }
-        protected void Close()
-        {
-            if (manager!=null)
-            {
-                manager.Close();
+                return (ActivityDataBase)_instance;
             }
         }
         public void DeleteActivity(Activity activity)
@@ -53,7 +59,7 @@ namespace ActivityLog.Model.DataBase
             manager.ExecuteSQL(deleteSQL);
             Close();
         }
-        public void CreateActivityTable()
+        public override void CreateTable()
         {
             Open();
             string sql = "create table if not exists activity (id integer PRIMARY KEY autoincrement,activity_id integer, name text , content text,create_date TEXT )";
@@ -97,7 +103,8 @@ namespace ActivityLog.Model.DataBase
                 activities.Add(Activity.LoadFromJson(jsonStr));
             }
             Close();
-            return activities;
+            var alist = from a in activities orderby a.StartDate descending select a;
+            return alist.ToList();
         }
         public async Task UpdateActivity(Activity activity)
         {
@@ -131,13 +138,11 @@ namespace ActivityLog.Model.DataBase
             Close();
 
         }
-
-      
     }
-    public class RecordDataBase : ActivityDataBase
+    public class RecordDataBase : ALDataBase
     {
-        private static RecordDataBase _instance = null;
-        public static new RecordDataBase Instance
+        static RecordDataBase _instance = null;
+        public static RecordDataBase Instance
         {
             get
             {
@@ -145,10 +150,10 @@ namespace ActivityLog.Model.DataBase
                 {
                     _instance = new RecordDataBase();
                 }
-                return _instance;
+                return (RecordDataBase)_instance;
             }
         }
-        public void CreateRecordsTable()
+        public override void CreateTable()
         {
             Open();
             string sql = "create table if not exists record (id integer PRIMARY KEY autoincrement, remark text , content text,create_date TEXT )";
@@ -159,7 +164,7 @@ namespace ActivityLog.Model.DataBase
         {
             //DELETE FROM TableName WHERE 时间 = '时间' AND 数据 = '数据' AND 状态 = '状态';
             Open();
-            string deleteSQL = "delete from record where create_date = '" + record.FromDate.ToString()+"'";
+            string deleteSQL = "delete from record where create_date = '" + record.FromDate.ToString() + "'";
             manager.ExecuteSQL(deleteSQL);
             Close();
         }
@@ -172,7 +177,7 @@ namespace ActivityLog.Model.DataBase
                 string json = record.ToJsonStr();
                 StringBuilder sb = new StringBuilder();
                 sb.Append("insert into record ( remark, content, create_date) values (");
-                sb.Append("'" + record.Remark + "',"); 
+                sb.Append("'" + record.Remark + "',");
                 sb.Append("'" + json + "',");
                 sb.Append("'" + record.FromDate.ToString() + "'");
                 sb.Append(")");
@@ -196,20 +201,34 @@ namespace ActivityLog.Model.DataBase
             while (reader.Read())
             {
                 string jsonStr = (string)reader["content"];
-                Record record =(Record.LoadFromJson(jsonStr));
-                if (record is RecordActivity)
+                try
                 {
-                    RecordActivity recordActivity = record as RecordActivity;
-                    foreach (var activity in ViewModel.VMActivity.Instance.Activities)
+                    Record record = (Record.LoadFromJson(jsonStr));
+                    if (record is RecordActivity)
                     {
-                        if (recordActivity.Activity.ID == activity.ID)
+                        
+                        RecordActivity recordActivity = record as RecordActivity;
+                        if (recordActivity.Activity == null)
                         {
-                            recordActivity.Activity = activity;
-                            break;
+                            continue;
+                        }
+                        foreach (var activity in ViewModel.VMActivity.Instance.Activities)
+                        {
+                            
+                            if (recordActivity.Activity.ID == activity.ID)
+                            {
+                                recordActivity.Activity = activity;
+                                break;
+                            }
                         }
                     }
+                    records.Add(record);
                 }
-                records.Add(record);
+                catch (Exception)
+                {
+                    continue;
+                }
+               
             }
             Close();
             var rs = from r in records orderby r.FromDate descending select r;
@@ -218,34 +237,42 @@ namespace ActivityLog.Model.DataBase
         public async Task UpdateRecord(Record record)
         {
             Open();
-            string querySQL = "select * from record where create_date = " + record.FromDate.ToString();
-            SQLiteDataReader reader = manager.QueryData(querySQL);
-            bool hasValue = await reader.ReadAsync();
-            if (hasValue)
+            string querySQL = "select * from record where create_date = '" + record.FromDate.ToString()+"'";
+            try
             {
-                //UPDATE TableName SET 时间 = '时间', 数据 = '数据', 状态 = '状态' WHERE 时间 = '时间' AND 数据 = '数据' AND 状态 = '状态';
+                SQLiteDataReader reader = manager.QueryData(querySQL);
+                bool hasValue = await reader.ReadAsync();
+                if (hasValue)
+                {
+                    //UPDATE TableName SET 时间 = '时间', 数据 = '数据', 状态 = '状态' WHERE 时间 = '时间' AND 数据 = '数据' AND 状态 = '状态';
 
-                string json = record.ToJsonStr();
-                StringBuilder sb = new StringBuilder();
-                sb.Append("update record set remark =");
-                sb.Append("'" + record.Remark + "',");
-                sb.Append("content = '" + json + "' ");
-                sb.Append("where create_date = " + record.FromDate.ToString());
-                try
-                {
-                    manager.ExecuteSQL(sb.ToString());
+                    string json = record.ToJsonStr();
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("update record set remark =");
+                    sb.Append("'" + record.Remark + "',");
+                    sb.Append("content = '" + json + "' ");
+                    sb.Append("where create_date = '" + record.FromDate.ToString()+"'");
+                    try
+                    {
+                        manager.ExecuteSQL(sb.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageWin.MSG(ex.Message);
+                        App.GetMainWindow().ToastMessage("修改记录失败", MainWindow.TOAST_TYPE.ERROR);
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageWin.MSG(ex.Message);
+                    _ = InsertRecord(record);
                 }
+                
             }
-            else
-            {
-                _ = InsertRecord(record);
+            catch (Exception e)
+            { 
+                MessageWin.MSG(e.Message) ;
             }
             Close();
-
         }
 
     }

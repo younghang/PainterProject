@@ -27,25 +27,39 @@ namespace ActivityLog.Model.ViewModel
 
         }
         public void LoadFromDatabase()
-        {             
-            var result = MessageWin.LoadingAsync(() => {
+        {
+            string msg="";
+            var result = MessageWin.LoadingAction(() => {
                 MessageWin.SetLoadingMsg("Loading DataBase...");
-                ActivityDataBase.Instance.CreateActivityTable();
+                ActivityDataBase.Instance.CreateTable();
                 var activities = ActivityDataBase.Instance.LoadActivitiesFromDataBase();
                 foreach (var item in activities)
                 {
                     Instance.Activities.Add(item);
                 }
                 Thread.Sleep(500);
-                MessageWin.SetLoadingMsg("Loading Records...");
-                RecordDataBase.Instance.CreateRecordsTable();
-                var records = RecordDataBase.Instance.LoadRecordsFromDataBase();
-                foreach (var item in records)
+                try
                 {
-                    Instance.Records.Add(item);
-                } 
-                return true;
+                    MessageWin.SetLoadingMsg("Loading Records...");
+                    RecordDataBase.Instance.CreateTable();
+                    var records = RecordDataBase.Instance.LoadRecordsFromDataBase();
+                    foreach (var item in records)
+                    {
+                        Instance.Records.Add(item);
+                    }
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    msg = e.Message;
+                    return false;
+                }
+               
             });
+            if (result==false)
+            {
+                MessageWin.MSG(msg);
+            }
         }
         private void saveToDatabase()
         {

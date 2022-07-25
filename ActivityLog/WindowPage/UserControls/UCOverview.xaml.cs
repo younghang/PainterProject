@@ -33,7 +33,8 @@ namespace ActivityLog.WindowPage.UserControls
         public event Action AttachNextEvent;
 
         public UserControl GetUC() { return this; }
-        public void Detach() {
+        public void Detach()
+        {
             Storyboard sb = (Storyboard)App.Current.FindResource("closeDW1");
             if (sb.IsFrozen)
             {
@@ -48,8 +49,9 @@ namespace ActivityLog.WindowPage.UserControls
             AfterDetach();
         }
 
-        public void AfterDetach() {
-            if (AttachNextEvent!=null)
+        public void AfterDetach()
+        {
+            if (AttachNextEvent != null)
             {
                 AttachNextEvent();
             }
@@ -62,7 +64,7 @@ namespace ActivityLog.WindowPage.UserControls
             brushes.Add((SolidColorBrush)FindResource("level1"));
             brushes.Add((SolidColorBrush)FindResource("level2"));
             brushes.Add((SolidColorBrush)FindResource("level3"));
-            brushes.Add((SolidColorBrush)FindResource("level4")); 
+            brushes.Add((SolidColorBrush)FindResource("level4"));
             InitCalendarGraph();
         }
 
@@ -70,11 +72,11 @@ namespace ActivityLog.WindowPage.UserControls
         {
             int activitiesCount = VMActivity.Instance.Activities.Count;
             DateTime lastActivityDate = DateTime.Now;
-            if (activitiesCount>0)
+            if (activitiesCount > 0)
             {
                 lastActivityDate = VMActivity.Instance.Activities[activitiesCount - 1].StartDate;
             }
-            
+
             int ongoingCount = 0;
             foreach (var item in VMActivity.Instance.Activities)
             {
@@ -89,13 +91,13 @@ namespace ActivityLog.WindowPage.UserControls
 
             int recordsCount = VMActivity.Instance.Records.Count;
             DateTime lastRecordDate = DateTime.Now;
-            if (recordsCount>0)
+            if (recordsCount > 0)
             {
                 lastRecordDate = VMActivity.Instance.Records[recordsCount - 1].FromDate;
-            } 
-            int recordHours = 0; 
+            }
+            int recordHours = 0;
             foreach (var item in VMActivity.Instance.Records)
-            { 
+            {
                 if (item is RecordActivity)
                 {
                     recordHours += (item as RecordActivity).Hours;
@@ -109,7 +111,7 @@ namespace ActivityLog.WindowPage.UserControls
 
             int recordsCountRecent = VMActivity.Instance.Records.Count;
             DateTime lastRecordDateRecent = DateTime.Now;
-            if (recordsCount>0)
+            if (recordsCount > 0)
             {
                 lastRecordDateRecent = VMActivity.Instance.Records[recordsCount - 1].FromDate;
 
@@ -130,31 +132,81 @@ namespace ActivityLog.WindowPage.UserControls
             RecordsCountRecent.Text = recordsCountRecent + "";
             RecordsHoursRecent.Text = recordHoursRecent + "";
             LastRecordDateRecent.Text = lastRecordDateRecent.ToString("r");
-            
+
         }
-       
- 
+
+
         List<SolidColorBrush> brushes = new List<SolidColorBrush>();
-    
-        void InitCalendarGraph()
+
+        private async void InitCalendarGraph()
         {
             calendarGraph.Children.Clear();
-            for (int i = 0; i < 365; i++)
+
+            Task<Dictionary<int, int>> task = Task<Dictionary<int, int>>.Run(() =>
+            { 
+                var dataQuery = from rc in VMActivity.Instance.Records
+                           group rc by rc.FromDate.DayOfYear;
+                Dictionary<int, int> values = new Dictionary<int, int>();
+                foreach (var data in dataQuery)
+                {
+                    int rank = 0;
+                    if (data.Count()>=4)
+                    {
+                        rank = 4;
+                    }
+                    else if (data.Count()>=3)
+                    {
+                        rank = 3;
+                    }
+                    else if (data.Count() >= 2)
+                    {
+                        rank = 2;
+                    }
+                    else if (data.Count() >= 1)
+                    {
+                        rank = 1;
+                    }
+                    else if (data.Count() >= 0)
+                    {
+                        rank = 0;
+                    }
+                    values[data.Key] = rank;
+                }
+                return values;
+                 
+            });
+            var dic = await task;
+            DateTime dateTime = DateTime.Now;
+            int year = dateTime.Year;
+            int days = 365;
+            if (year % 400 == 0 || year % 4 == 0 && year % 100 != 0)
+            {
+                days = 366;
+            }
+            else
+            {
+                days = 365;
+            }
+            List<Rectangle> rectangles = new List<Rectangle>();
+            for (int i = 0; i < days; i++)
             {
                 Rectangle rect = new Rectangle();
-                Random random= new Random(i);
-
-                int index = Math.Abs((int)(Rand(0, 1.3,i)));
-                if (index>=brushes.Count)
-                {
-                    index = brushes.Count - 1;
-                }
+                rect.Tag = 0;
+                rectangles.Add(rect);
+            }
+            foreach (var item in dic)
+            {
+                rectangles[item.Key].Tag = item.Value;
+            } 
+            foreach (var rect in rectangles)
+            {
+                int index = (int)rect.Tag;
                 rect.Fill = brushes[index];
                 calendarGraph.Children.Add(rect);
             }
         }
         //随机产生一个符合正态分布的数 u均数，d为方差
-        public static double Rand(double u, double d,int seed)
+        public static double Rand(double u, double d, int seed)
         {
             double u1, u2, z, x;
             //Random ram = new Random();
@@ -173,5 +225,5 @@ namespace ActivityLog.WindowPage.UserControls
 
         }
     }
-    
+
 }

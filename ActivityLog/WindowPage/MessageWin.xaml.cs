@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -46,9 +47,10 @@ namespace ActivityLog.WindowPage
         }
         private bool IsConfirm = false;
 
+        public static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public static async Task<bool> Working(Func<bool> action)
         {
-            var task = Task<bool>.Run(action);
+            var task = Task<bool>.Run(action,cancellationTokenSource.Token);
             bool result = await task;
             Instance.Hide();
             return result;
@@ -60,7 +62,7 @@ namespace ActivityLog.WindowPage
             Instance.txtLoadingMsg.Text = msg;
                 });
         }
-        public static bool LoadingAsync(Func<bool> action)
+        public static bool LoadingAction(Func<bool> action)
         {
             Instance.gridWaiting.Visibility = Visibility.Visible;
             Instance.gridMsg.Visibility = Visibility.Hidden;

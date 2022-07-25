@@ -233,7 +233,14 @@ namespace ActivityLog.Model
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             Activity activity = new Activity();
-            activity.ID= int.Parse(reader.Value.ToString());
+            try
+            {
+                activity.ID= int.Parse(reader.Value.ToString());
+            }
+            catch (Exception)
+            {
+                activity.ID = 0; 
+            }
             return activity;
         }
 

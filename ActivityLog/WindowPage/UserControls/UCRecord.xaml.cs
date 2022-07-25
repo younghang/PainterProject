@@ -110,8 +110,7 @@ namespace ActivityLog.WindowPage.UserControls
                 if (activity.Activity.Title.ToLower().Contains(msg.ToLower()))
                 {
                     return true;
-                }
- 
+                } 
                 return false;
             };
         }
