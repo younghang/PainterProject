@@ -2,6 +2,7 @@
 using ActivityLog.Model.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -109,6 +110,65 @@ namespace ActivityLog.WindowPage.UserControls
                 }
                 return false;
             }; 
+        }
+
+        private void dataGridAc_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            lineChart.Title = "Count";
+            lineChart.Values.Clear();
+            hoursChart.Values.Clear();
+            Activity activity = dataGridAc.SelectedValue as Activity;
+            List<int> times_data = new List<int>();
+            List<int> hours_data = new List<int>();
+            var records = from a in VMActivity.Instance.ARecorsPair
+                      where a.Key == activity
+                      select a.Value;
+            if (records.Count()==0)
+            {
+                return;
+            }
+            var rs = records.ToList()[0];
+            var rgs = from r in rs
+                     orderby r.FromDate    descending
+                     group r by (int)((DateTime.Now-r.FromDate).Days/7) into gps
+                     select gps.AsParallel();
+           
+            foreach (var recordGroup in rgs)
+            {
+                times_data.Add(recordGroup.Count());
+            }
+            times_data.Reverse();
+            foreach (var item in times_data)
+            {
+                if (lineChart.Values.Count>10)
+                {
+                    continue;
+                }
+                lineChart.Values.Add(item*1.0);
+            }
+            //Hours Statics
+            foreach (var recordGroup in rgs)
+            {
+                int hh = 0;
+                foreach (var item in recordGroup)
+                {
+                    hh += item.Hours;
+                }
+                hours_data.Add(hh);
+            }
+            hours_data.Reverse();
+            double sum = 0;
+            foreach (var item in hours_data)
+            {
+                if (hoursChart.Values.Count > 10)
+                {
+                    continue;
+                }
+                sum += item;
+                hoursChart.Values.Add(sum);
+                //hoursChart.Values.Add(item * 1.0);
+            }
+
         }
     }
 }

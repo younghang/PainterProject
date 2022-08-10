@@ -45,7 +45,7 @@ namespace ActivityLog.WindowPage.UserControls
 
         private void UCRecord_Loaded(object sender, RoutedEventArgs e)
         {
-             
+ 
         }
 
         public event Action AttachNextEvent;
@@ -113,6 +113,27 @@ namespace ActivityLog.WindowPage.UserControls
                 } 
                 return false;
             };
+        }
+        private Color[] TagColors ={
+            (Color)ColorConverter.ConvertFromString("Cyan"),
+            (Color)ColorConverter.ConvertFromString("#FFFF7D00"),
+            (Color)ColorConverter.ConvertFromString("#FFCE3B0B"),
+            (Color)ColorConverter.ConvertFromString("#FF00A1FF"),
+            (Color)ColorConverter.ConvertFromString("#FF24A346")
+        };
+        private void dataGridAc_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.tagPanel.Children.Clear();
+            foreach (var item in (dataGridAc.SelectedValue as RecordActivity).Tags)
+            {
+                string str = item;
+                TextBox textBox = new TextBox();
+                textBox.Text = str;
+                //textBox.ContextMenu = (ContextMenu)FindResource("txtContextMenu");
+                textBox.Style = (Style)FindResource("tagText");
+                textBox.Background = new SolidColorBrush(TagColors[(tagPanel.Children.Count) % (TagColors.Length)]);
+                this.tagPanel.Children.Insert(0, textBox);
+            }
         }
     }
 }

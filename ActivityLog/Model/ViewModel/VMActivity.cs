@@ -24,47 +24,38 @@ namespace ActivityLog.Model.ViewModel
         {
             Activities = new ObservableCollection<Activity>();
             Records = new ObservableCollection<Record>();
-
+            loadData = new DataBaseLoader();
         }
-        public void LoadFromDatabase()
-        {
-            string msg="";
-            var result = MessageWin.LoadingAction(() => {
-                MessageWin.SetLoadingMsg("Loading DataBase...");
-                ActivityDataBase.Instance.CreateTable();
-                var activities = ActivityDataBase.Instance.LoadActivitiesFromDataBase();
-                foreach (var item in activities)
-                {
-                    Instance.Activities.Add(item);
-                }
-                Thread.Sleep(500);
-                try
-                {
-                    MessageWin.SetLoadingMsg("Loading Records...");
-                    RecordDataBase.Instance.CreateTable();
-                    var records = RecordDataBase.Instance.LoadRecordsFromDataBase();
-                    foreach (var item in records)
-                    {
-                        Instance.Records.Add(item);
-                    }
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    msg = e.Message;
-                    return false;
-                }
-               
-            });
-            if (result==false)
+        IDataHandle loadData;
+        public void LoadData()
+        { 
+            loadData.LoadData();
+            if (ARecorsPair==null)
             {
-                MessageWin.MSG(msg);
+                ARecorsPair = new Dictionary<Activity, List<RecordActivity>>();
             }
+            else
+            {
+                ARecorsPair.Clear();
+            }
+            foreach (var item in Records)
+            {
+                if (item is RecordActivity)
+                {
+                    RecordActivity recordAc = item as RecordActivity;
+                    if (!ARecorsPair.ContainsKey(recordAc.Activity))
+                    {
+                        ARecorsPair.Add(recordAc.Activity, new List<RecordActivity>());
+                    }
+                    ARecorsPair[recordAc.Activity].Add(recordAc);
+                }
+            }  
         }
-        private void saveToDatabase()
-        {
-            //no need
+        private void SaveData()
+        { 
+            loadData.SaveData();
         }
+        
         private static VMActivity _instance = null;
         public static VMActivity Instance
         {
@@ -104,77 +95,7 @@ namespace ActivityLog.Model.ViewModel
         }
         public ObservableCollection<Activity> Activities { get; set; }
         public ObservableCollection<Record> Records { get; set; }
-        public static string FILE_NAME = "data.json";
-
-        #region For data.txt. No Use anymore
-        [Obsolete]
-        public void LoadDataFromJson()
-        {
-            if (!File.Exists(FILE_NAME))
-            {
-                return;
-            }
-            try
-            {
-                Activities.Clear();
-                Records.Clear();
-                string text = File.ReadAllText(FILE_NAME);
-                Dictionary<string, string> keyValuePairs=  JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
-                string activityStr=keyValuePairs["activity"];
-                string recordStr=keyValuePairs["record"]; 
-                ObservableCollection<Activity> activities = JsonConvert.DeserializeObject<ObservableCollection<Activity>>(activityStr);
-                foreach (var item in activities)
-                {
-                    Activities.Add(item);
-                }
-                var jsonSerializerSettings = new JsonSerializerSettings()
-                {
-                    TypeNameHandling = TypeNameHandling.All
-                };
-
-                ObservableCollection<Record> records = JsonConvert.DeserializeObject<ObservableCollection<Record>>(recordStr, jsonSerializerSettings);
-                foreach (var item in records)
-                {
-                    if (item is RecordActivity)
-                    {
-                        RecordActivity recordActivity = item as RecordActivity;
-                        foreach (var activity in Activities)
-                        {
-                            if (recordActivity.Activity.ID==activity.ID)
-                            {
-                                recordActivity.Activity = activity;
-                                break;
-                            }
-                        }
-                    }
-                    Records.Add(item);
-                }
-                int a = 0;
-                int b = a + 2;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Fail to load data.");
-            }
-        }
-        [Obsolete]
-        public void SaveData()
-        {
-            string activityStr = JsonConvert.SerializeObject(Activities);
-            var jsonSerializerSettings = new JsonSerializerSettings()
-            {
-                TypeNameHandling = TypeNameHandling.All
-            };
-            string recordStr = JsonConvert.SerializeObject(Records, jsonSerializerSettings);
-
-            Dictionary<string, string> keyValuePairs = new Dictionary<string, string>();
-            keyValuePairs["activity"] = activityStr;
-            keyValuePairs["record"] = recordStr;
-            string text = JsonConvert.SerializeObject(keyValuePairs);
-            File.WriteAllText(FILE_NAME, text);
-        }
-        #endregion
-
+        public Dictionary<Activity, List<RecordActivity>> ARecorsPair { get; set; }
         #region Commands
         #region Add/Edit Activity Commands 
         private MyCommandT<IList> _mouseDownCommand;

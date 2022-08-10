@@ -11,6 +11,24 @@
              xmlns:widgets="clr-namespace:ActivityLog.Widgets"
              Width="1200"  >
     <UserControl.Resources>
+        <Style x:Key="tagText" TargetType="{x:Type TextBox}" >
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5 0 5 0"/>
+            <Setter Property="IsEnabled" Value="True"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Foreground" Value="{StaticResource themeTxt}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Border x:Name="border" Padding="3" CornerRadius="8 0 8 0" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"  SnapsToDevicePixels="True" >
+                            <ScrollViewer  x:Name="PART_ContentHost" VerticalAlignment="Center" Focusable="false" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden"></ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <convertor:DateTimeToDaysAgo x:Key="DateTimeToDaysAgo"/>
         <Style x:Key="ContentStyle"  
                TargetType="{x:Type TextBlock}">
@@ -42,11 +60,7 @@
             <ColumnDefinition Width="800"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-
+   
         <Grid Grid.Row="0" Grid.Column="0"  Margin="10,0,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
@@ -73,7 +87,7 @@
                             x:Name="dataGridAc"
                           VerticalGridLinesBrush="Transparent" HorizontalGridLinesBrush="Transparent"
                           BorderThickness="0" ItemsSource="{Binding Records}" 
-                          Template="{DynamicResource DataGridControlTemplate1}"  >
+                          Template="{DynamicResource DataGridControlTemplate1}" SelectionChanged="dataGridAc_SelectionChanged"  >
                     <DataGrid.ContextMenu>
                         <ContextMenu Name="activityMenu" StaysOpen="true">
                             <MenuItem x:Name="menuEdit" Tag="Orange" Icon="{StaticResource editIcon}" Header="修改" Command="{Binding EditRecordCommand}"  CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}, Path=PlacementTarget.SelectedItems}"/>
@@ -175,5 +189,40 @@
             </Grid>
 
         </Grid>
+        <Grid Grid.Row="0" Grid.Column="1" >
+            <StackPanel Orientation="Vertical"  VerticalAlignment="Center" >
+                <TextBlock Text="Tags:" FontSize="20" Margin="10 10" Foreground="Wheat"/>
+                <!--<ListBox ItemsSource Background="Transparent">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBox Text="1324561" Background="#FFFF7D00"    Style="{StaticResource tagText}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>-->
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconMaterial   VerticalAlignment="Center" Margin="40 10 0 0" Kind="Tag" Foreground="Wheat" Width="24" Height="24"/>
+                    <StackPanel x:Name="tagPanel"   Orientation="Horizontal" VerticalAlignment="Center" Margin="10 10 0 0">
+                        <!--<TextBox Text="1324561" Background="#FFFF7D00"    Style="{StaticResource tagText}"  />
+                        <TextBox Text="1324561" Background="#FFCE3B0B"   Style="{StaticResource tagText}"  />-->
+                    </StackPanel>
+                </StackPanel>
+                
+                <StackPanel VerticalAlignment="Center"    Orientation="Vertical"   >
+                    <TextBlock Text="Remark" Style="{StaticResource labelTextBlock}"/>
+                    <TextBox Margin="10" Tag="Remark" TextWrapping="Wrap" Text="{Binding  Path=SelectedItem.Remark, ElementName=dataGridAc}"  Width="360"
+                                 Height="200"
+                                 Style="{StaticResource TextBoxStyle}"
+                             />
+                </StackPanel>
+            </StackPanel>
+            
+        </Grid>
+        
+
     </Grid>
 </UserControl>

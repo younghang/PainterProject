@@ -7,6 +7,7 @@
              xmlns:local="clr-namespace:ActivityLog.WindowPage.UserControls"
              xmlns:widgets="clr-namespace:ActivityLog.Widgets"
              mc:Ignorable="d"  Background="{StaticResource themBG}"
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              x:Name="ucActivity"
              Width="1200" MinHeight="600">
     <UserControl.Resources>
@@ -42,7 +43,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition />
-            <RowDefinition/>
+           
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Grid.Column="0"  Margin="10,0,0,0">
@@ -72,7 +73,7 @@
                           CellStyle="{DynamicResource DataGridCellStyle1}"
                           VerticalGridLinesBrush="Transparent" HorizontalGridLinesBrush="Transparent"
                           BorderThickness="0" ItemsSource="{Binding Activities}" 
-                          Template="{DynamicResource DataGridControlTemplate1}"  >
+                          Template="{DynamicResource DataGridControlTemplate1}" SelectionChanged="dataGridAc_SelectionChanged"  >
                     <DataGrid.Style>
                         <Style TargetType="DataGrid">
                             <Setter Property="BorderThickness" Value="0"/>
@@ -221,7 +222,40 @@
             </Grid>
 
         </Grid>
+        <Grid Grid.Column="1" Grid.Row="0">
 
+            <StackPanel VerticalAlignment="Center" Orientation="Vertical">
+                <Grid> 
+                    <Border Grid.Row="0" Height="150" Width="320" CornerRadius="10" Background="#FD950E" >
+                    <lvc:CartesianChart  x:Name="recordChart"    Margin="10, 10, 10, 10"  Hoverable="True"  >
+                        <lvc:CartesianChart.Series>
+                            <lvc:LineSeries  Name="lineChart" Title="Weeks " Stroke="White"  Values="5,9,8,6,1,5,7,3,6,3"/>
+                        </lvc:CartesianChart.Series>
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis MinValue="0" Name="s1x" ShowLabels="False"></lvc:Axis>
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis MinValue="0" Name="s1y" Foreground="Black" ShowLabels="True"></lvc:Axis>
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
+                </Border>
+                    <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="40 25  60 0" Orientation="Horizontal">
+                 
+                        <TextBlock Text="Weekly Times" VerticalAlignment="Center" Foreground="{StaticResource themeTxt}" Margin="5 0 0 0"/>
+                    </StackPanel>
+                </Grid>
+                <Border Height="150" Width="320" Margin="0 20" CornerRadius="10"  Background="#51AB54" >
+                <lvc:CartesianChart  Margin="10, 10, 10, 10"  Hoverable="True" >
+                    <lvc:CartesianChart.Series>
+                            <lvc:ColumnSeries Fill="White" Title="Hours " Name="hoursChart" MaxColumnWidth="5" Values="5,9,8,6,1,5,7,3,6,3" Width="2"  />
+                    </lvc:CartesianChart.Series>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis MinValue="0" Name="s1y2" Foreground="White" ShowLabels="True"/>
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
+                </Border> 
+            </StackPanel>
+        </Grid>
 
     </Grid>
 </UserControl>

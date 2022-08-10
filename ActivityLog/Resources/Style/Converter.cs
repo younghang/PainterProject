@@ -138,8 +138,19 @@ namespace ActivityLog.Resources.Style
             if (value != null)
             {
                DateTime date = (DateTime)(value);
-                
-                return (DateTime.Now-date).Days.ToString()+" Days Ago";
+                int days = (DateTime.Now - date).Days;
+                if (days<90)
+                {
+                    return (DateTime.Now-date).Days.ToString()+" Days Ago";
+                }else if(days<365)
+                {
+                    int month = days / 30;
+                    return month+" Months Ago";
+                }else
+                {
+                    int year = days / 365;
+                    return year + " Years Ago";
+                } 
             }
             return null;
         }

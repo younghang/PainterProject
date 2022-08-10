@@ -34,7 +34,7 @@ namespace ActivityLog
             this.Loaded += MainWindow_Loaded;
      
             
-            VMActivity.Instance.LoadFromDatabase();
+            VMActivity.Instance.LoadData();
 
         }  
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)

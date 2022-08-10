@@ -136,6 +136,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\DataBase\ActivityDataBase.cs" />
+    <Compile Include="Model\ILoadData.cs" />
+    <Compile Include="Model\Record.cs" />
     <Compile Include="Model\ViewModel\VMActivity.cs" />
     <Compile Include="Resources\Style\Converter.cs" />
     <Compile Include="Widgets\ButtonEx.cs" />
