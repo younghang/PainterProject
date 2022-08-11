@@ -34,9 +34,20 @@ namespace ActivityLog.WindowPage
             this.ACTitleCombox.ItemsSource = VMActivity.Instance.Activities;
             this.Loaded += AddRecord_Loaded;
         }
-
-        private void AddRecord_Loaded(object sender, RoutedEventArgs e)
-        { 
+        private void UpdateTags()
+        {
+            List<UIElement> removeEles = new List<UIElement>();
+            foreach (var item in this.tagPanel.Children)
+            {
+                if (item is TextBox)
+                {
+                    removeEles.Add(item as UIElement);
+                }
+            }
+            foreach (var item in removeEles)
+            {
+                this.tagPanel.Children.Remove(item);
+            }
             foreach (var item in CurRecord.Tags)
             {
                 string str = item;
@@ -48,6 +59,10 @@ namespace ActivityLog.WindowPage
                 int index = tagPanel.Children.IndexOf(this.addNewTag);
                 this.tagPanel.Children.Insert(index, textBox);
             }
+        }
+        private void AddRecord_Loaded(object sender, RoutedEventArgs e)
+        {
+            UpdateTags();
         }
 
         private void CloseWindow(object sender, MouseButtonEventArgs e)
@@ -80,7 +95,17 @@ namespace ActivityLog.WindowPage
 
         private void ACTitleCombox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            object s = ACTitleCombox.Tag;
+            Activity activity= (Activity)this.ACTitleCombox.SelectedItem;
+            if (!VMActivity.Instance.RecordTagsDic.ContainsKey(activity))
+            {
+                return;
+            }
+            var tags = VMActivity.Instance.RecordTagsDic[activity];
+            if (tags != null&&tags.Count>0)
+            {
+                CurRecord.Tags = Utils.CommonUtils.Clone<string>(tags);
+                UpdateTags();
+            } 
         }
         private Color[] TagColors ={ 
             (Color)ColorConverter.ConvertFromString("Cyan"),

@@ -26,17 +26,19 @@ namespace ActivityLog.Model.ViewModel
             Records = new ObservableCollection<Record>();
             loadData = new DataBaseLoader();
         }
-        IDataHandle loadData;
+        IDataHandle loadData=null;
         public void LoadData()
         { 
             loadData.LoadData();
-            if (ARecorsPair==null)
+            if (ARecorsPair==null|| RecordTagsDic==null)
             {
                 ARecorsPair = new Dictionary<Activity, List<RecordActivity>>();
+                RecordTagsDic = new Dictionary<Activity, List<string>>();
             }
             else
             {
                 ARecorsPair.Clear();
+                RecordTagsDic.Clear();
             }
             foreach (var item in Records)
             {
@@ -48,8 +50,21 @@ namespace ActivityLog.Model.ViewModel
                         ARecorsPair.Add(recordAc.Activity, new List<RecordActivity>());
                     }
                     ARecorsPair[recordAc.Activity].Add(recordAc);
+
+                    if (!RecordTagsDic.ContainsKey(recordAc.Activity))
+                    {
+                        RecordTagsDic.Add(recordAc.Activity, new List<string>());
+                    }
+                    var tags = RecordTagsDic[recordAc.Activity];
+                    foreach (var tag in recordAc.Tags)
+                    {
+                        if (!tags.Contains(tag))
+                        {
+                            tags.Add(tag);
+                        }
+                    }
                 }
-            }  
+            }
         }
         private void SaveData()
         { 
@@ -96,6 +111,7 @@ namespace ActivityLog.Model.ViewModel
         public ObservableCollection<Activity> Activities { get; set; }
         public ObservableCollection<Record> Records { get; set; }
         public Dictionary<Activity, List<RecordActivity>> ARecorsPair { get; set; }
+        public Dictionary<Activity, List<string>> RecordTagsDic { get; set; }
         #region Commands
         #region Add/Edit Activity Commands 
         private MyCommandT<IList> _mouseDownCommand;

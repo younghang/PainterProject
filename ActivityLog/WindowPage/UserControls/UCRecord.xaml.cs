@@ -41,6 +41,7 @@ namespace ActivityLog.WindowPage.UserControls
             addnew.ShowDialog();
             RecordActivity record = addnew.CurRecord;
             record.Activity = (Activity)addnew.ACTitleCombox.SelectedItem;
+
         }
 
         private void UCRecord_Loaded(object sender, RoutedEventArgs e)
@@ -124,6 +125,10 @@ namespace ActivityLog.WindowPage.UserControls
         private void dataGridAc_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this.tagPanel.Children.Clear();
+            if (dataGridAc.SelectedValue==null)
+            {
+                return;
+            }
             foreach (var item in (dataGridAc.SelectedValue as RecordActivity).Tags)
             {
                 string str = item;

@@ -244,6 +244,7 @@
                         <TextBlock Text="Weekly Times" VerticalAlignment="Center" Foreground="{StaticResource themeTxt}" Margin="5 0 0 0"/>
                     </StackPanel>
                 </Grid>
+                <Grid>
                 <Border Height="150" Width="320" Margin="0 20" CornerRadius="10"  Background="#51AB54" >
                 <lvc:CartesianChart  Margin="10, 10, 10, 10"  Hoverable="True" >
                     <lvc:CartesianChart.Series>
@@ -253,7 +254,9 @@
                             <lvc:Axis MinValue="0" Name="s1y2" Foreground="White" ShowLabels="True"/>
                         </lvc:CartesianChart.AxisY>
                     </lvc:CartesianChart>
-                </Border> 
+                </Border>
+                    <TextBlock Text="Total Hours" VerticalAlignment="Top" Foreground="{StaticResource themeTxt}" HorizontalAlignment="Right" Margin="0 40 60 0"/>
+                </Grid>
             </StackPanel>
         </Grid>
 
