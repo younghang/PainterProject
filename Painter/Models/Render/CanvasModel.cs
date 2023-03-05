@@ -127,8 +127,11 @@ namespace Painter.Models
         }
         public void Clear()
         {
-            this.fixedLayerManager.Clear();
-            this.freshLayerManager.Clear();
+            if (this.fixedLayerManager!=null&& freshLayerManager!=null)
+            {
+                this.fixedLayerManager.Clear();
+                this.freshLayerManager.Clear();
+            } 
 
             //geoControls.Clear();
             //this.screenManager.Clear();
@@ -140,11 +143,11 @@ namespace Painter.Models
             SetCanvasTranlate(this.Width, this.Height);
             screenManager.SetPainter(new WinFormPainter()); 
         }
-        public   Color Background = Color.White;
+        public Color Background = Color.White;
         public void OnSizeChanged(object sender, EventArgs e)
         {
-            this.Width = (sender as Form).ClientRectangle.Width;
-            this.Height = (sender as Form).ClientRectangle.Height;
+            this.Width = (sender as ContainerControl).ClientRectangle.Width;
+            this.Height = (sender as ContainerControl).ClientRectangle.Height;
             if (fixedLayerManager != null)
             {
                 //this.fixedLayerManager.Clear();
@@ -177,7 +180,7 @@ namespace Painter.Models
             }
             else
             {
-                (this.fixedLayerManager.GetPainter() as WinFormPainter).graphics.Clear(Color.Transparent);
+                (this.fixedLayerManager.GetPainter() as WinFormPainter).graphics.Clear(Background);
             }
             this.fixedLayerManager.Draw();
             graphics.DrawImage((this.fixedLayerManager.GetPainter() as WinFormPainter).GetCanvas(), 0, 0);
@@ -281,8 +284,8 @@ namespace Painter.Models
         }
         public void OnLoad(object sender, EventArgs e)
         {
-            this.Width = (sender as Form).ClientRectangle.Width;
-            this.Height = (sender as Form).ClientRectangle.Height;
+            this.Width = (sender as ContainerControl).ClientRectangle.Width;
+            this.Height = (sender as ContainerControl).ClientRectangle.Height;
 
             SetCanvasTranlate(this.Width, this.Height);
             Init();

@@ -190,7 +190,7 @@
 
         </Grid>
         <Grid Grid.Row="0" Grid.Column="1" >
-            <StackPanel Orientation="Vertical"  VerticalAlignment="Center" >
+            <StackPanel Orientation="Vertical" Margin="0 150 0 0" VerticalAlignment="Top" >
                 <TextBlock Text="Tags:" FontSize="20" Margin="10 10" Foreground="Wheat"/>
                 <!--<ListBox ItemsSource Background="Transparent">
                     <ListBox.ItemsPanel>
@@ -212,10 +212,10 @@
                     </StackPanel>
                 </StackPanel>
                 
-                <StackPanel VerticalAlignment="Center"    Orientation="Vertical"   >
+                <StackPanel VerticalAlignment="Top"    Orientation="Vertical"   >
                     <TextBlock Text="Remark" Style="{StaticResource labelTextBlock}"/>
                     <TextBox Margin="10" Tag="Remark" TextWrapping="Wrap" Text="{Binding  Path=SelectedItem.Remark, ElementName=dataGridAc}"  Width="360"
-                                 Height="200"
+                                 Height="300" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
                                  Style="{StaticResource TextBoxStyle}"
                              />
                 </StackPanel>

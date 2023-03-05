@@ -108,13 +108,22 @@ namespace Utils
         {
             new InFiles(name).SetSettingItem(key, value);
         }
-        public static string GetItem(string name, string key)
+        public static string GetItem(string name, string key,string value="")
         {
             if (File.Exists(name))
             {
-                return new InFiles(name).GetSettingItem(key);
+                string result= new InFiles(name).GetSettingItem(key);
+                if (result=="")
+                {
+                    new InFiles(name).SetSettingItem(key,value);
+                    return value;
+                }
+                return result;
+            }else
+            {
+                File.WriteAllText(name, key + "=" + value);
             }
-            return "";
+            return value;
         }
     }
     class InFiles

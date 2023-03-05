@@ -140,12 +140,33 @@ namespace Utils
             }
         }
         /// <summary>
+        /// 计算文件大小函数(保留两位小数),Size为字节大小
+        /// </summary>
+        /// <param name="size">初始文件大小</param>
+        /// <returns></returns>
+        public static string GetFileSize(long size)
+        {
+            var num = 1024.00; //byte
+
+
+            if (size < num)
+                return size + "B";
+            if (size < Math.Pow(num, 2))
+                return (size / num).ToString("f2") + "K"; //kb
+            if (size < Math.Pow(num, 3))
+                return (size / Math.Pow(num, 2)).ToString("f2") + "M"; //M
+            if (size < Math.Pow(num, 4))
+                return (size / Math.Pow(num, 3)).ToString("f2") + "G"; //G
+             
+            return (size / Math.Pow(num, 4)).ToString("f2") + "T"; //T
+        }
+        /// <summary>
         /// 返回类似00:00.000s的时间差
         /// </summary>
         /// <param name="EndTime"></param>
         /// <param name="StartTime"></param>
         /// <returns></returns>
-        public static string GetTimeSpan(DateTime EndTime, DateTime StartTime,double rate=1)
+        public static string GetTimeSpan(DateTime EndTime, DateTime StartTime,double rate=1,bool ms=true)
         {
             double seconds = (EndTime - StartTime).TotalMilliseconds / 1000 * rate;
             int minue = (int)(seconds / 60);
@@ -164,6 +185,16 @@ namespace Utils
             double milliseconds = (seconds - minue * 60 - sec) * 1000;
             string strMilli = ((int)milliseconds).ToString("000");//ToString("D3")
             string totalTime = strMin + ":" + strSecond + "." + strMilli;
+            int hour= (int)(minue / 60);
+            string strHour= "" + hour;
+            if (hour < 10)
+            {
+                strHour = "0" + hour;
+            }
+            if (ms==false)
+            {
+                totalTime = strHour + ":" + strMin + "." + strSecond;
+            }
             return totalTime;
         }
  

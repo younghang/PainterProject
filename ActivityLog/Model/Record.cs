@@ -125,8 +125,8 @@ namespace ActivityLog.Model
             }
         }
         public List<string> Tags = new List<string>();
-        private int _hourSpend;
-        public int Hours
+        private double _hourSpend;
+        public double Hours
         {
             get { return _hourSpend; }
             set

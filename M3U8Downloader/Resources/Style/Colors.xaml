@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="themeBG_Black">#2d2d30</Color>
+    <Color x:Key="themeBG_White">gray</Color>
+    <SolidColorBrush x:Key="themBG" Color="{StaticResource themeBG_Black}"/>
+    <SolidColorBrush x:Key="themBG_secondary" Color="{StaticResource themeBG_White}"/>
+    <Color x:Key="themeTxt_Black">WhiteSmoke</Color>
+    <Color x:Key="themeTxt_White">Black</Color>
+    <SolidColorBrush x:Key="themeTxt" Color="{StaticResource themeTxt_Black}"/>
+    <SolidColorBrush x:Key="themeTxt_secondary" Color="{StaticResource themeTxt_White}"/>
+</ResourceDictionary>

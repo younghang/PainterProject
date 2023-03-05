@@ -31,11 +31,8 @@ namespace ActivityLog
         public MainWindow()
         {
             InitializeComponent();
-            this.Loaded += MainWindow_Loaded;
-     
-            
-            VMActivity.Instance.LoadData();
-
+            this.Loaded += MainWindow_Loaded; 
+            VMActivity.Instance.LoadData(); 
         }  
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {

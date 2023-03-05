@@ -116,7 +116,7 @@ namespace Painter.Models.Paint
                         this.MaxY = shape.GetMaxY();
                     }
                 }
-            }
+            } 
         }
         public float MaxX { get; set; }
         public float MaxY { get; set; }
@@ -140,6 +140,7 @@ namespace Painter.Models.Paint
                     this.Area += shape.GetArea();
                 }
             }
+            CalMaxMin();
         }
 
         internal List<DrawableObject> GetElements()

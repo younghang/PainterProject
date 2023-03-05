@@ -263,6 +263,11 @@ namespace Painter.Painters
                 Font font;
                 if (t.GetTextMeta().IsScaleble)
                 {
+                    if (t.GetTextMeta().TEXTFONT.Size * (float)Math.Abs(Scale.X)<1)
+                    {
+                        t.IsInVision = false;
+                        return;
+                    }
                     font = new Font(t.GetTextMeta().TEXTFONT.FontFamily, t.GetTextMeta().TEXTFONT.Size * (float)Math.Abs(Scale.X));
                 }
                 else

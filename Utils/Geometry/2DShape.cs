@@ -102,6 +102,10 @@ namespace Painter.Models
         {
             return new PointGeo(this.X, this.Y);
         }
+        public float DistanceTo(PointGeo p)
+        {
+            return (this - p).GetLength();
+        }
         public float Dot(PointGeo p)
         {
             return this.X * p.X + this.Y * p.Y;
@@ -138,6 +142,12 @@ namespace Painter.Models
         public override string ToString()
         {
             return "(" + this.X.ToString("f3") + ", " + this.Y.ToString("f3") + ")";
+        }
+        public void Normalized()
+        {
+            float l = GetLength();
+            this.X = X / l;
+            this.Y = Y / l;
         }
         public void RotateAroundOrigin(float degree, PointGeo refOrigin)
         {

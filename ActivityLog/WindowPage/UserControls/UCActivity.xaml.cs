@@ -119,7 +119,7 @@ namespace ActivityLog.WindowPage.UserControls
             hoursChart.Values.Clear();
             Activity activity = dataGridAc.SelectedValue as Activity;
             List<int> times_data = new List<int>();
-            List<int> hours_data = new List<int>();
+            List<double> hours_data = new List<double>();
             var records = from a in VMActivity.Instance.ARecorsPair
                       where a.Key == activity
                       select a.Value;
@@ -149,7 +149,7 @@ namespace ActivityLog.WindowPage.UserControls
             //Hours Statics
             foreach (var recordGroup in rgs)
             {
-                int hh = 0;
+                double hh = 0;
                 foreach (var item in recordGroup)
                 {
                     hh += item.Hours;

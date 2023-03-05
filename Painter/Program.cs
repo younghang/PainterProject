@@ -15,7 +15,8 @@ namespace Painter
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Settings.LoadSettingFile();
-            Application.Run(new GameJumpFrm());
+            Application.Run(new CorrugatedSheetForm());
+            //Application.Run(new GameJumpFrm());
         } 
     }
 }

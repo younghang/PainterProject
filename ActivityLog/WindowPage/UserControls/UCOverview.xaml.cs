@@ -95,7 +95,7 @@ namespace ActivityLog.WindowPage.UserControls
             {
                 lastRecordDate = VMActivity.Instance.Records[recordsCount - 1].FromDate;
             }
-            int recordHours = 0;
+            double recordHours = 0;
             foreach (var item in VMActivity.Instance.Records)
             {
                 if (item is RecordActivity)
@@ -116,7 +116,7 @@ namespace ActivityLog.WindowPage.UserControls
                 lastRecordDateRecent = VMActivity.Instance.Records[recordsCount - 1].FromDate;
 
             }
-            int recordHoursRecent = 0;
+            double recordHoursRecent = 0;
             recordsCountRecent = 0;
             foreach (var item in VMActivity.Instance.Records)
             {

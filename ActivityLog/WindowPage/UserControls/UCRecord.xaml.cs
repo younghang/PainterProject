@@ -36,8 +36,9 @@ namespace ActivityLog.WindowPage.UserControls
             AddRecord addnew = new AddRecord();
             addnew.CurRecord = (RecordActivity)obj;
             addnew.IsEdit = true;
-            int index=VMActivity.Instance.Activities.IndexOf( addnew.CurRecord.Activity);
-            addnew.ACTitleCombox.SelectedIndex = index;
+            //int index=VMActivity.Instance.Activities.IndexOf(addnew.CurRecord.Activity);
+            //addnew.ACTitleCombox.SelectedIndex = index;
+            addnew.ACTitleCombox.SelectedItem = addnew.CurRecord.Activity;
             addnew.ShowDialog();
             RecordActivity record = addnew.CurRecord;
             record.Activity = (Activity)addnew.ACTitleCombox.SelectedItem;

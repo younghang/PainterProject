@@ -121,8 +121,8 @@ namespace ActivityLog.Model
                 OnPropertyChanged();
             }
         }
-        private int _estimateHour;
-        public int EstimateHour
+        private double _estimateHour;
+        public double EstimateHour
         {
             get { return _estimateHour; }
             set

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ActivityLog.WindowPage.UserControls"
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" 
              x:Name="ucOverview"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
@@ -166,11 +167,24 @@
                         </Grid>
 
                     </Border>
-                </Grid> 
+                </Grid>
+               
             </UniformGrid>
            
         </Grid>
-
+ <Grid Grid.Row="0" Grid.Column="1" Margin="15 60 60 0">
+ 
+                <Border   CornerRadius="10"  Background="#51FB54" >
+                    <lvc:CartesianChart  Margin="10, 10, 10, 10"  Hoverable="True" >
+                        <lvc:CartesianChart.Series>
+                            <lvc:ColumnSeries Fill="White" Title="Hours " Name="hoursChart" MaxColumnWidth="5" Values="5,9,8,6,1,5,7,3,6,3" Width="2"  />
+                        </lvc:CartesianChart.Series>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis MinValue="0" Name="s1y2" Foreground="White" ShowLabels="True"/>
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
+                </Border>  
+                </Grid>
         <Grid Grid.Row="1" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="60"/>
