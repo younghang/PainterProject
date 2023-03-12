@@ -286,6 +286,7 @@ namespace Painter.Painters
                 {
                     return;
                 }
+                if (font.Height > 6000) return;
                 GraphicsState state= graphics.Save();
                 graphics.TranslateTransform(x, y);
                 graphics.RotateTransform(t.Angle);

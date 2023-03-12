@@ -562,7 +562,7 @@ namespace Painter.Models
                         {
                             rapidLine.SecondPoint = point;
                         }
-                        if (curPos.X < 1E-3 && curPos.Y < 1E-3)
+                        if (Math.Abs(curPos.X)< 1E-3 && Math.Abs(curPos.Y) < 1E-3)
                         {
                             curPos = rapidLine.SecondPoint;
                             return;
@@ -626,7 +626,7 @@ namespace Painter.Models
                         shape.FirstPoint = shape.FirstPoint;
                         shape.SecondPoint = shape.SecondPoint;
 
-                        if (curPos.X < 1E-3 && curPos.Y < 1E-3)
+                        if (Math.Abs(curPos.X) < 1E-3 && Math.Abs(curPos.Y) < 1E-3)
                         {
                             curPos = shape.SecondPoint;
                             return;

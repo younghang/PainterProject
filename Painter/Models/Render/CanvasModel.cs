@@ -562,7 +562,7 @@ namespace Painter.Models
                 Scale = 0.8f * Scale;
                 point = 0.8f * point;
             }
-            if (Scale.X > 1E6)
+            if (Scale.X > 1E4)
             {
                 return;//太大会有偏移
             }

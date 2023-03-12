@@ -1,9 +1,11 @@
-﻿using Painter.Models.Paint;
+﻿using Newtonsoft.Json;
+using Painter.Models.Paint;
 using Painter.Models.StageModel;
 using Painter.Painters;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,12 +15,37 @@ namespace Painter.Models.GameModel.StageModel
 
     class CorrugatedSheet
     {
-        public PointGeo OriPos = new PointGeo();
-        public int LineCount = 16;
-        public int LineMargin = 86;
-        public int LineLength = 1000;
-        public float SlotWidth = 80;
-        public float SlotHeight = 30;
+        public CorrugatedSheet() {
+            LineCount = 16;
+            LineMargin = 86;
+            LineLength = 2000;
+            SlotWidth = 80;
+            SlotHeight = 30;
+            StartLine = 8;
+            OriPos = new PointGeo();
+        }
+        public PointGeo OriPos { get; set; }
+        public int LineCount { get; set; }
+        public float LineMargin { get; set; }
+        public float LineLength { get; set; }
+        public float SlotWidth { get; set; }
+        public float SlotHeight { get; set; }
+        public int StartLine { get; set; }
+        public static string ToJsonStr(CorrugatedSheet activity)
+        {
+            string jsonStr = "";
+            jsonStr = JsonConvert.SerializeObject(activity);
+            return jsonStr;
+        }
+        public static CorrugatedSheet LoadFromJson(string strJson)
+        {
+            if (string.IsNullOrEmpty(strJson))
+            {
+                return new CorrugatedSheet();
+            }
+            CorrugatedSheet activity = JsonConvert.DeserializeObject<CorrugatedSheet>(strJson);
+            return activity;
+        }
     }
     class WeldObj : Obstacle
     {
@@ -46,6 +73,9 @@ namespace Painter.Models.GameModel.StageModel
                 InitElement();
             }
         }
+        public virtual PointGeo StartPoint { get;   }
+        public virtual PointGeo EndPoint { get;   }
+        public virtual string ToGCode(bool isRel = false) { return ""; }
     }
     class LineObj : WeldObj
     {
@@ -53,8 +83,9 @@ namespace Painter.Models.GameModel.StageModel
         PointGeo endPos = new PointGeo(0, 100);
        
         public PointGeo StartPos { 
-            get { return startPos; }  
-            set { startPos = value;
+            get { return startPos; }
+            set
+            { startPos = value;
                 this.elements.Clear();
                 InitElement();
             }
@@ -68,19 +99,24 @@ namespace Painter.Models.GameModel.StageModel
                 this.elements.Clear();
                 InitElement();
             }
-        } 
-        public string ToGCode(bool isRel=false)
+        }
+
+        public override PointGeo StartPoint => this.startPos;
+
+        public override PointGeo EndPoint => this.endPos;
+
+        public override string ToGCode(bool isRel=false)
         {
             if (isRel)
             {
-                return "X" + (EndPos-StartPos).X.ToString("f3") + " " + (EndPos - StartPos).Y.ToString("f3") + "\n";
+                return "G01 X" + (EndPos-StartPos).X.ToString("f3") + " Y" + (EndPos - StartPos).Y.ToString("f3") + "\n";
 
             }
             else
             {
-                return "X" + this.EndPos.X.ToString("f3") + " " + this.EndPos.Y.ToString("f3")+"\n"  ;
+                return "G01 X" + this.EndPos.X.ToString("f3") + " Y" + this.EndPos.Y.ToString("f3")+"\n"  ;
             }
-        }
+        } 
         public override void InitElement()
         {
             ShapeMeta lineMeta=new ShapeMeta() { ForeColor = Color.White, BackColor = Color.White, LineWidth = 3 };
@@ -149,7 +185,12 @@ namespace Painter.Models.GameModel.StageModel
                 this.elements.Clear();
                 InitElement();
             }
-        } 
+        }
+
+        public override PointGeo StartPoint => this.CenterPos;
+
+        public override PointGeo EndPoint => this.CenterPos;
+
         public override void InitElement()
         {
             ShapeMeta lineMeta = new ShapeMeta() { ForeColor = Color.White, BackColor = Color.White, LineWidth = 3 };
@@ -205,39 +246,49 @@ namespace Painter.Models.GameModel.StageModel
 
             this.Add(labelText);
         }
+        public override string ToGCode(bool isRel = false)
+        {
+            return "SLOT("+ (Length -Width)+","+ Width + ")\n";
+        }
     }
     
 
     class CorrugatedSheetStage : StageScene
     {
         public CorrugatedSheet SheetData = new CorrugatedSheet();
-        public CorrugatedSheetStage()
+        public CorrugatedSheetStage(CorrugatedSheet sheet=null)
         {
-            MaxX = 600;
+            MaxX = 0;
             MinX = 0;
             MinY = 0;
-            MaxY = 800;
-            width = 600;
-            height = 800;
+            MaxY = 0;
+            width = 1197;  
+            height = 721;
+            if (sheet!=null)
+            {
+                this.SheetData = sheet; 
+            }
         }
         DrawableText scoreText = new DrawableText();
         MainCharacter character = new MainCharacter();
         public override Scene CreateScene()
         {
+            scene.Clear();
             CanvasModel.EnableTrack = false;
             scene.Background = Color.Black;
-            Obstacle TextObject = new Obstacle();
-            scoreText.pos = new PointGeo(300, 400);
-            scoreText.SetDrawMeta(new TextMeta("你好呀 Hello") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
-            RectangleGeo rect = new RectangleGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
-            rect.SetDrawMeta(new ShapeMeta() { ForeColor=Color.White,BackColor=Color.Red });
-            TextObject.Add(rect);
-            TextObject.Add(scoreText);
-            scene.AddObject(TextObject, false);
+
+            //Obstacle TextObject = new Obstacle();
+            //scoreText.pos = new PointGeo(300, 400);
+            //scoreText.SetDrawMeta(new TextMeta("你好呀 Hello") { IsScaleble = true, ForeColor = Color.LimeGreen, TEXTFONT = new Font("Consolas Bold", 36f), stringFormat = new StringFormat() { Alignment = StringAlignment.Center } });
+            //RectangleGeo rect = new RectangleGeo(scoreText.pos, scoreText.pos - new PointGeo(100, 100));
+            //rect.SetDrawMeta(new ShapeMeta() { ForeColor=Color.White,BackColor=Color.Red });
+            //TextObject.Add(rect);
+            //TextObject.Add(scoreText);
+            //scene.AddObject(TextObject, false);
              
             Obstacle sheetObj = new Obstacle();
             int index = 1;
-            List<WeldObj> listObj = new List<WeldObj>();
+            listObj.Clear();
             for (int i = 0; i < SheetData.LineCount; i++)
             {
                 LineObj lineObj = new LineObj();
@@ -274,7 +325,7 @@ namespace Painter.Models.GameModel.StageModel
                 listObj.Add(slot);
                 listObj.Add(slot2); 
             }
-            int firstIndex = 16;
+            int firstIndex = SheetData.StartLine;
             firstIndex = firstIndex * 3 - 2;
             Func<WeldObj, WeldObj,bool> compare = (WeldObj w1, WeldObj w2) =>{
                 bool result = true;
@@ -305,9 +356,7 @@ namespace Painter.Models.GameModel.StageModel
                 }
                 return result;
             };
-
-
-
+             
             for (int i = 0; i < listObj.Count; i++)
             { 
                 for (int j = i+1; j < listObj.Count; j++)
@@ -329,7 +378,7 @@ namespace Painter.Models.GameModel.StageModel
                 if (welObj is LineObj)
                 {
                     LineObj line = welObj as LineObj;
-                    if (i%2==0)
+                    if (i%2==1)
                     {
                         var p = line.StartPos;
                         line.StartPos = line.EndPos;
@@ -392,12 +441,46 @@ namespace Painter.Models.GameModel.StageModel
                 this.MaxX = welObj.MaxX > this.MaxX ? welObj.MaxX : this.MaxX;
                 this.MaxY = welObj.MaxY > this.MaxY ? welObj.MaxY : this.MaxY;
             }
+             
             return scene;
         }
-
+        List<WeldObj> listObj = new List<WeldObj>();
         public override MainCharacter GetMainCharacter()
         {
             return character;
+        }
+        public static string FilePath = "nc.txt";
+        public void GenerateGCode()
+        {
+
+            StringBuilder sb = new StringBuilder();
+
+            //sb.Append("G90\n");
+            //sb.Append("X"+this.SheetData.OriPos.X.ToString("f3") + " Y"+this.SheetData.OriPos.Y.ToString("f3")+"\n");
+            sb.Append("G91\n");
+            PointGeo prePos = new PointGeo(0,0);
+            PointGeo nextPos = this.SheetData.OriPos.Clone();
+            Func<string,PointGeo, PointGeo,string> generate_code = (string name,PointGeo from,PointGeo to) => {
+                PointGeo temp = to - from;
+                return (name+ " X"+ temp.X.ToString("f3") + " Y"+ temp.Y.ToString("f3")+"\n");
+            };
+            for (int i = 0; i < listObj.Count; i++)
+            {
+                var welObj = listObj[i];
+                if (i==0)
+                {
+                    nextPos = nextPos + welObj.StartPoint;
+                }
+                else
+                {
+                    nextPos = welObj.StartPoint; 
+                }
+                sb.Append(generate_code("G00", prePos, nextPos));
+                sb.Append(welObj.ToGCode(true));
+                prePos = welObj.EndPoint;
+            } 
+            File.WriteAllText(FilePath,sb.ToString());
+
         }
     }
 }

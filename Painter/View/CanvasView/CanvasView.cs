@@ -26,6 +26,10 @@ namespace Painter.View.CanvasView
         MainCharacter character; 
         StageController stageController=null;
         StageScene curStage;
+        public CanvasModel GetCanvasModel()
+        {
+            return canvasModel;
+        }
         public CanvasView()
         {
             InitializeComponent();
