@@ -704,6 +704,11 @@ namespace M3U8Downloader
             outputDevice?.Dispose();
             outputDevice = null;  
         }
+
+        private void Avatar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            PlayShoudao();
+        }
     }
 
 }

@@ -160,7 +160,7 @@
                             </Border.RenderTransform>
                         </Border>
                         <Border Width="80" Height="80"  BorderBrush="AliceBlue"  CornerRadius="40">
-                            <Ellipse RenderTransformOrigin="0.5 0.5" x:Name="Avatar" Width="80" Height="80" >
+                            <Ellipse RenderTransformOrigin="0.5 0.5" x:Name="Avatar" Width="80" Height="80" MouseLeftButtonDown="Avatar_MouseLeftButtonDown" >
                                 <Ellipse.RenderTransform>
                                     <TransformGroup>
                                         <RotateTransform/>
