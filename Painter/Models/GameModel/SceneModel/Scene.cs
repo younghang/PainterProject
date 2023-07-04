@@ -19,14 +19,27 @@ namespace Painter.Models.Paint
         private Color background = Color.Transparent;
         public Color Background { get { return background; } set { this.background = value; } }
         public float AirFrictionRatio = 2f;
-        public event Action<SceneObject> AddNewObjectEvent;
+        public event Action<SceneObject,bool> AddNewObjectEvent;
         List<SceneObject> sceneObjects = new List<SceneObject>();
-        internal void AddObject(SceneObject sob, bool isFresh = true)
+        internal void AddObject(SceneObject sob, bool isFresh = true )
         {
-            sceneObjects.Add(sob);
+            if (!sceneObjects.Contains(sob))
+            {
+                sceneObjects.Add(sob);
+            } 
             sob.CurrenScene = this;
             sob.IsHaveTrack = !isFresh;
-            AddNewObjectEvent?.Invoke(sob);
+            AddNewObjectEvent?.Invoke(sob,false);
+        }
+        internal void InsertObject(SceneObject sob, bool isFresh = true)
+        {
+            if (!sceneObjects.Contains(sob))
+            {
+                sceneObjects.Insert(0, sob);
+            }  
+            sob.CurrenScene = this;
+            sob.IsHaveTrack = !isFresh;
+            AddNewObjectEvent?.Invoke(sob,true);
         }
         private object obj = new object();
         public void CheckState()

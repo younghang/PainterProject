@@ -19,7 +19,10 @@ namespace Painter.Models.Paint
         PICTURE,
         OBSTACLE,//障碍物，物体
         WEAPON,//武器 归属Role类对象所有
-        EFFECT//效果类：粒子Particle
+        EFFECT,//效果类：粒子Particle
+        RAY_BEAM,
+        MIRROR,
+        LENS
     };
     public enum SCENE_OBJECT_STATUS { IN_AIR, IN_GROUND };
     public enum SCENE_OBJECT_INTERFER { NONE, INTERFER };
@@ -303,6 +306,10 @@ namespace Painter.Models.Paint
                 return;
             }
             if (this== sceneObject)
+            {
+                return;
+            }
+            if (sceneObject.IsDisposed==true)
             {
                 return;
             }
@@ -594,8 +601,7 @@ namespace Painter.Models.Paint
             //return new RectangeGeo(new PointGeo(this.MinX, this.MinY), new PointGeo(this.MaxX, this.MaxY));
         }
         public override void SetStatus()
-        {
-
+        { 
             if (Status == SCENE_OBJECT_STATUS.IN_AIR)
             {
                 TickCount++;
@@ -770,7 +776,7 @@ namespace Painter.Models.Paint
             }
         }
     }
-    class Obstacle : SceneObject
+    public class Obstacle : SceneObject
     {
         public event Action UpdateEvent;
         public override void SetStatus()

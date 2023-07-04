@@ -88,5 +88,10 @@ namespace Painter
         {
             new GCodeLaserHeadForm().Show();
         }
+
+        private void canvasView_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

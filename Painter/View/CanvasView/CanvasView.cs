@@ -54,6 +54,7 @@ namespace Painter.View.CanvasView
                     stageController.Dispose();
                 }
             };
+            canvasModel.IsYUpDirection = true;
             canvasModel.Invalidate += this.Invalidate;
             canvasModel.EnableClickTest = true;
             canvasModel.EnableSelect = false;
@@ -290,6 +291,11 @@ namespace Painter.View.CanvasView
                 default:
                     break;
             }
+        }
+
+        public StageController GetStageController()
+        {
+            return this.stageController;
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Timers;
 
 namespace Painter.Models.StageModel
 {
-    class StageController//物理场的控制及屏幕的刷新，Render是由CanvasModel做的
+    public class StageController//物理场的控制及屏幕的刷新，Render是由CanvasModel做的
     {
         CanvasModel render;
         public StageController(CanvasModel canvasModel)
@@ -60,15 +60,15 @@ namespace Painter.Models.StageModel
             timer.Start();
         }
 
-        private void CurScene_AddNewObjectEvent(SceneObject obj)
+        private void CurScene_AddNewObjectEvent(SceneObject obj,bool reverse)
         {
             if (!obj.IsHaveTrack)
             {
-                render.GetFreshLayerManager().AddRange(obj.GetElements());
+                render.GetFreshLayerManager().AddRange(obj.GetElements(), reverse);
             }
             else
             {
-                render.GetHoldLayerManager().AddRange(obj.GetElements());
+                render.GetHoldLayerManager().AddRange(obj.GetElements(), reverse);
             }
         }
 
@@ -83,6 +83,14 @@ namespace Painter.Models.StageModel
         {
             physicalField.Start();
             timer.Start();
+        }
+        public void StopRender()
+        {
+            if (timer != null)
+            { 
+                timer.Stop();
+            }
+            PhysicalField.THREAD_SLEEP = false;
         }
         public void Pause()
         {  

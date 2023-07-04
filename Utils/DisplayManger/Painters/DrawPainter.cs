@@ -47,7 +47,7 @@ namespace Painter.Painters
         }
 
         public virtual void DrawPolygon(PolygonGeo polygonGeo) { }
-        public virtual void DrawPath(RoundRec roundRec) { }
+        public virtual void DrawPath(PathGeo roundRec) { }
 
         public virtual void DrawCurve(CurveGeo curveGeo) { } 
     }
@@ -319,6 +319,86 @@ namespace Painter.Painters
                 }
             }
         }
+        public override void DrawPath(PathGeo roundRec)
+        {
+            List<Painter.Models.Shape> shapes = roundRec.GetShapes();
+            ShapeMeta sm = roundRec.GetDrawMeta() as ShapeMeta;
+            pen = new System.Drawing.Pen(sm.ForeColor, sm.LineWidth);
+            if (sm.DashLineStyle != null)
+            {
+                pen.DashPattern = sm.DashLineStyle;
+            }
+
+            // Create a graphics path
+            GraphicsPath path = new GraphicsPath();
+ 
+            foreach (var shape in shapes)
+            {
+                if (shape is LineGeo)
+                {
+                    LineGeo line = shape as LineGeo;
+                    //负区域外就不显示了  
+                    if (TransformX(line.GetMaxX()) < 0)
+                    {
+                        line.IsInVision = false;
+                        return;
+                    }
+                    if (canvas != null && (TransformX(line.GetMinX()) > canvas.Width))
+                    {
+                        line.IsInVision = false;
+                        return;
+                    }
+                    line.IsInVision = true;
+                    path.AddLine(TransformX(line.FirstPoint.X), TransformY(line.FirstPoint.Y), TransformX(line.SecondPoint.X), TransformY(line.SecondPoint.Y));
+                }
+                else if (shape is ArcGeo)
+                {
+                    ArcGeo arc = shape as ArcGeo;
+
+                    int leftcorner = (int)(TransformX(arc.CenterX) - arc.Radius * Math.Abs(Scale.X));
+                    int topcorner = (int)(TransformY(arc.CenterY) - arc.Radius * Math.Abs(Scale.Y));
+ 
+                    if (arc.Radius == 0)
+                    {
+                        return;
+                    }
+                    double sa = arc.StartAngle;
+                    double ea = arc.EndAngle;
+                    if (Scale.Y < 0)
+                    {
+                        sa = -arc.EndAngle;
+                        ea = -arc.StartAngle;
+                    }
+
+                    if (Scale.X < 0)
+                    {
+                        sa = 180 - arc.EndAngle;
+                        ea = 180 - arc.StartAngle;
+                    }
+                    //他这个是顺时针为正
+                    try
+                    {
+                        path.AddArc((leftcorner), (topcorner), Math.Abs((arc.Radius * 2) * Scale.X), Math.Abs((arc.Radius * 2) * Scale.Y), (float)sa, (float)(ea - sa));
+                    }
+                    catch (Exception)
+                    {
+                        roundRec.IsDisposed = true;
+                    }
+
+                   
+                }
+            }
+            //path.SetMarkers();
+            //path.Flatten();
+            // Close the path
+            path.CloseFigure();
+            if (sm.IsFill)
+                graphics.FillPath(new SolidBrush(sm.BackColor), path);
+            if (sm.LineWidth != 0)
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
         public override void DrawPolygon(PolygonGeo polygonGeo)
         {
             if (graphics != null & pen != null)
@@ -330,6 +410,10 @@ namespace Painter.Painters
                     pen.DashPattern = sm.DashLineStyle;
                 }
                 PointF[] points = polygonGeo.GetPointF();
+                if (points.Length<2)
+                {
+                    return;
+                }
                 for (int i = 0; i < points.Length; i++)
                 {
                     points[i].X = (float)TransformX(points[i].X);

@@ -62,8 +62,11 @@ namespace Painter.Models
         public float X;
 
         public float Y;
-
+        public float x { get { return X; } }
+        public float y { get { return Y; } }
         public bool IsNeedDraw = true;
+        public static PointGeo zero { get { return new PointGeo(0,0); } } 
+
         public PointGeo(float x, float y)
         {
             X = x;
@@ -910,6 +913,7 @@ namespace Painter.Models
                 DispersedStartWithRightSide();
             }
         }
+       
         private PointGeo thirdp = new PointGeo();
         public PointGeo ThirdPoint
         {
@@ -918,6 +922,25 @@ namespace Painter.Models
             {
                 this.thirdp = value;
                 Initial();
+            }
+        }
+        public PointGeo StartPos
+        {
+            get { 
+                PointGeo center = new PointGeo(CenterX, CenterY);
+                PointGeo center_front = new PointGeo(CenterX + Radius, CenterY);
+                center_front.RotateAroundOrigin(StartAngle, center);
+                 return center_front;
+            } 
+        }
+        public PointGeo EndPos
+        {
+            get
+            {
+                PointGeo center = new PointGeo(CenterX, CenterY);
+                PointGeo center_front = new PointGeo(CenterX + Radius, CenterY);
+                center_front.RotateAroundOrigin(EndAngle, center);
+                return center_front;
             }
         }
         public override void Initial()
@@ -929,7 +952,7 @@ namespace Painter.Models
             this.EndAngle = (float)(180 / Math.PI * Math.Atan2(ThirdPoint.Y - FirstPoint.Y, ThirdPoint.X - FirstPoint.X));
             //纯粹为GeoControl而添加
             this.Width = (float)(_maxX - _minX);
-            this.Heigth = (float)(_maxY - _minY);
+            this.Heigth = (float)(_maxY - _minY); 
         }
         public override void Draw()
         {
@@ -1301,8 +1324,7 @@ namespace Painter.Models
                 return;
             }
             if (GetDrawMeta() == null)
-                return;
-            Painter.DrawPath(this);
+                return; 
         }
         private void Init()
         {
@@ -1350,6 +1372,14 @@ namespace Painter.Models
         public override List<PointGeo> GetControlPoints()
         {
             return this.points;
+        }
+        //这个没办法，一定要通过自己去调用AddPoint 添加新的点
+        public void AddPoint(PointGeo point)
+        {
+            if (!this.points.Contains(point))
+            {
+                this.points.Add(point); 
+            }
         }
         public  virtual void SamplePointByStep(double ratio)
         {
@@ -1432,7 +1462,7 @@ namespace Painter.Models
         {
             this.pointsMeta = dm as ShapeMeta;
         }
-        private ShapeMeta pointsMeta;
+        protected ShapeMeta pointsMeta;
         public virtual void AddPoints(List<PointGeo> ps)
         {
             if (MaxCount > 0 && ps.Count > MaxCount)
@@ -1599,6 +1629,95 @@ namespace Painter.Models
 
         public PointGeo pos { get; set; }
         private TextMeta pm;
+    }
+    [Serializable]
+    public class PathGeo : RandomLines
+    {
+        public PathGeo()
+        {
+            MaxX = 0;
+            MaxY = 0;
+            MinX = 1E6f;
+            MinY = 1E6f;
+        }
+        public void ClearShape()
+        {
+            this.shapes.Clear();
+        }
+        public List<Shape> GetShapes()
+        {
+            return this.shapes;
+        }
+        private List<Shape> shapes = new List<Shape>();
+        public void AddShape(Shape shape, bool isReverse = false)
+        {
+            if (!shapes.Contains(shape))
+            {
+                if (isReverse)
+                {
+                    shapes.Insert(0, shape);
+                }
+                else
+                    shapes.Add(shape);
+                if (this.MinX > shape.GetMinX())
+                {
+                    this.MinX = shape.GetMinX();
+                }
+                if (this.MaxX < shape.GetMaxX())
+                {
+                    this.MaxX = shape.GetMaxX();
+                }
+                if (this.MinY > shape.GetMinY())
+                {
+                    this.MinY = shape.GetMinY();
+                }
+                if (this.MaxY < shape.GetMaxY())
+                {
+                    this.MaxY = shape.GetMaxY();
+                }
+
+                _premiter += shape.GetPerimeter();
+            }
+        }
+        public override void Draw(PainterBase Painter)
+        {
+            if (!IsShow)
+            {
+                return;
+            }
+            if (pointsMeta == null)
+            {
+                pointsMeta = new ShapeMeta();
+                this.pointsMeta.LineWidth = 1;
+                this.pointsMeta.ForeColor = Color.Black;
+                this.pointsMeta.DashLineStyle = new float[] { 2f, 4f, 1f };
+                pointsMeta.CapStyle = System.Drawing.Drawing2D.LineCap.Round;
+            }
+
+            if (Painter == null)
+                return;
+            Painter.DrawPath(this);
+        }
+        double _premiter = 0;
+        public float MaxX { get; set; }
+        public float MaxY { get; set; }
+        public float MinX { get; set; }
+        public float MinY { get; set; }
+        public void Show()
+        {
+            foreach (var item in this.shapes)
+            {
+                item.IsShow = true;
+            }
+        }
+
+        public void Hide()
+        {
+            foreach (var item in this.shapes)
+            {
+                item.IsShow = false;
+            }
+        }
     }
     //连续加工的最小单位
     public class Geo

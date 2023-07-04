@@ -46,6 +46,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Windows.Presentation">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -81,6 +82,18 @@
     <Compile Include="FileTravaselForm.Designer.cs">
       <DependentUpon>FileTravaselForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Optical\NewLens.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Optical\NewLens.Designer.cs">
+      <DependentUpon>NewLens.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Optical\NewRay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Optical\NewRay.Designer.cs">
+      <DependentUpon>NewRay.cs</DependentUpon>
+    </Compile>
     <Compile Include="GameJumpFrm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,9 +103,11 @@
     <Compile Include="Models\CmdControl\PaintCmd.cs" />
     <Compile Include="Models\GameModel\CameraModel\ScreenCamera.cs" />
     <Compile Include="Models\CmdControl\InputCmds.cs" />
+    <Compile Include="Models\GameModel\SceneModel\OpticalModel\RayLight.cs" />
     <Compile Include="Models\GameModel\StageModel\CorrugatedSheetStage.cs" />
     <Compile Include="Models\GameModel\StageModel\MarioStage.cs" />
     <Compile Include="Models\GameModel\StageModel\MinerStage.cs" />
+    <Compile Include="Models\GameModel\StageModel\OpticalScene.cs" />
     <Compile Include="Models\GameModel\StageModel\SecondStage.cs" />
     <Compile Include="Models\GameModel\StageModel\WeldStage.cs" />
     <Compile Include="Models\GeoModel\3DObject.cs" />
@@ -111,6 +126,12 @@
     </Compile>
     <Compile Include="Object3DForm.Designer.cs">
       <DependentUpon>Object3DForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OpticalForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OpticalForm.Designer.cs">
+      <DependentUpon>OpticalForm.cs</DependentUpon>
     </Compile>
     <Compile Include="PainterForm.cs">
       <SubType>Form</SubType>
@@ -225,11 +246,20 @@
     <EmbeddedResource Include="FileTravaselForm.resx">
       <DependentUpon>FileTravaselForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Optical\NewLens.resx">
+      <DependentUpon>NewLens.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Optical\NewRay.resx">
+      <DependentUpon>NewRay.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GameJumpFrm.resx">
       <DependentUpon>GameJumpFrm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Object3DForm.resx">
       <DependentUpon>Object3DForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OpticalForm.resx">
+      <DependentUpon>OpticalForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PainterForm.resx">
       <DependentUpon>PainterForm.cs</DependentUpon>

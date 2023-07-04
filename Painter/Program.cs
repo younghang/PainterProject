@@ -15,7 +15,7 @@ namespace Painter
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Settings.LoadSettingFile();
-            Application.Run(new CorrugatedSheetForm());
+            Application.Run(new OpticalForm());
             //Application.Run(new GCodeLaserHeadForm());
             //Application.Run(new PainterTest());
             //Application.Run(new GameJumpFrm());

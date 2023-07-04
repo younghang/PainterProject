@@ -27,6 +27,7 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System.Windows.Resources;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace M3U8Downloader
 {
@@ -37,12 +38,192 @@ namespace M3U8Downloader
     {
         bool userStop = false;
         private WaveOutEvent outputDevice;
- 
-        private string FilePath = "./Video";
 
+        private string FilePath = "./Video";
+        public bool TestHuya()
+        {
+            string url;
+            string flv;
+            // string filePath = "F:/bin/testdouyin.html";
+            try
+            {
+
+                string roomid = "222624";
+                string web_url = "https://m.huya.com/" + roomid; //"305607727597"
+
+
+
+                //doc = new HtmlWeb().Load(web_url);
+
+                //通过字符串加载
+                string result = "";
+                int hours = (DateTime.Now - CookieDate).Hours;
+
+
+                HttpWebRequest req2 = (HttpWebRequest)WebRequest.Create(web_url);
+                req2.Timeout = 5000;
+                req2.Method = "GET";
+                req2.UserAgent = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36 Edg/112.0.1722.39";
+
+                HttpWebResponse resp2 = (HttpWebResponse)req2.GetResponse();
+
+                Stream stream = resp2.GetResponseStream();
+
+                try
+                {
+                    //获取内容
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        result = reader.ReadToEnd();
+                    }
+                }
+                finally
+                {
+                    stream.Close();
+                }
+                resp2.Close();
+
+
+
+                Regex r = new Regex(@"HNF_GLOBAL_INIT =[\s\S]*} </script>");
+                var match = r.Match(result);
+                string re = match.Value;
+                if (string.IsNullOrEmpty(re))
+                {
+                    Console.WriteLine("Error");
+                }
+
+                // 解码
+                re = re.Substring(0, re.Length - ("</script>").Length);
+                int indexOffirstEqual = re.IndexOf("=");
+                string jsonStr = re.Substring(indexOffirstEqual + 1, re.Length - indexOffirstEqual - 1);
+                jsonStr = jsonStr.Trim();
+                jsonStr = jsonStr.Substring(0, jsonStr.Length );
+
+                JObject jsonObject = JObject.Parse(jsonStr);
+                File.WriteAllText("./data2.txt", jsonObject.ToString());
+                try
+                {
+                    var gameStreamInfo = jsonObject["roomInfo"]["tLiveInfo"]["tLiveStreamInfo"]["vStreamInfo"]["value"].First;
+                    try
+                    {
+                        if (gameStreamInfo["sFlvUrl"] != null)
+                        {
+                            //string info = gameStreamInfo["sFlvUrl"]+"/"+gameStreamInfo["sStreamName"]+"."+ gameStreamInfo["sFlvUrlSuffix"]+"?"+ gameStreamInfo["sFlvAntiCode"] ;
+                            string info = gameStreamInfo["sHlsUrl"] + "/" + gameStreamInfo["sStreamName"] + "." + gameStreamInfo["sHlsUrlSuffix"] + "?" + gameStreamInfo["sHlsAntiCode"];
+
+                        }
+                        else
+                        {
+
+                        }
+
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+
+                }
+                catch (Exception)
+                {
+
+
+                }
+
+
+                //    try
+                //    {
+                //        var data = doc.GetElementbyId("RENDER_DATA");
+                //        string jsonUrlEncodeStr = data.InnerText;
+
+                //        // 解码
+                //        string jsonStr = System.Web.HttpUtility.UrlDecode(jsonUrlEncodeStr);
+                //        JObject jsonObject = JObject.Parse(jsonStr);
+                //        File.WriteAllText("./room_info.json", jsonObject.ToString());
+
+                //        var room = jsonObject["app"]["initialState"]["roomStore"]["roomInfo"]["room"];
+                //        try
+                //        {
+                //            if (room["stream_url"] != null && room["stream_url"].HasValues)
+                //            {
+                //                File.WriteAllText("./stream_url.json", room["stream_url"].ToString());
+                //                string info = room["stream_url"]["hls_pull_url"].ToString();
+                //                url = info;
+                //                var streamObj = room["stream_url"];
+                //                if (streamObj["flv_pull_url"] != null && streamObj["flv_pull_url"].HasValues)
+                //                {
+
+                //                    //var resol = streamObj["default_resolution"].ToString();
+                //                    //flv = streamObj["flv_pull_url"][resol].ToString();
+                //                    var dic = streamObj["flv_pull_url"].First;
+                //                    flv = dic.Last.ToString();
+                //                }
+
+                //                return true;
+                //            }
+                //            else
+                //            {
+                //                url = "Not on the air.";
+                //                return false;
+                //            }
+
+                //        }
+                //        catch (TimeoutException e)
+                //        {
+                //            Console.WriteLine(e.Message);
+                //            url = "Response Time out.";
+                //            return false;
+                //        }
+                //        catch (Exception)
+                //        {
+                //            url = "Not on the air.";
+                //            return false;
+                //        }
+
+                //    }
+                //    catch (TimeoutException e)
+                //    {
+                //        Console.WriteLine(e.Message);
+                //        url = "Response Time out.";
+                //        return false;
+                //    }
+                //    catch (Exception)
+                //    {
+                //        url = "Parse Error!";
+                //        return false;
+                //    }
+                //}
+                //catch (TimeoutException e)
+                //{
+                //    Console.WriteLine(e.Message);
+                //    url = "Response Time out.";
+                //    return false;
+                //}
+                //catch (System.Net.WebException e)
+                //{
+                //    url = "Notify" + e.Message;
+                //    return false;
+                //}
+                //catch (Exception e)
+                //{
+                //    Console.WriteLine(e.Message);
+                //    url = "Not on the air.";
+                //    return false;
+                //}
+
+            }
+            catch (Exception e)
+            { }
+            return false;
+        }
+    
         public MainWindow()
         {
             InitializeComponent();
+            TestHuya();
+            return;
             string fp = Utils.FileSettings.GetItem("setting.txt", "FilePath", "./Video");
             if (!string.IsNullOrEmpty(fp))
             {

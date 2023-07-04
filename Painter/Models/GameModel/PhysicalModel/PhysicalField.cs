@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows;
 
 namespace Painter.Models.PhysicalModel
 {
@@ -15,6 +17,7 @@ namespace Painter.Models.PhysicalModel
         {
             Rules += InitialRules;
         }
+        private object obj = new object();
         public static float Gravity = -9.8f/2000;
         private void ForceAnalyse(SceneObject sceneObject)
         {
@@ -93,7 +96,7 @@ namespace Painter.Models.PhysicalModel
         {
             ForceAnalyse(sceneObject); 
         }
-        public static float TICK_TIME = 10;
+        public static float TICK_TIME = 10;//10;
         List<Scene> scenes = new List<Scene>();
         public void AddScene(Scene scene)
         {
@@ -102,7 +105,8 @@ namespace Painter.Models.PhysicalModel
                 this.scenes.Add(scene);
             }
         }
-          
+        bool WORKING = true;
+        bool isDisposed = false;    
         internal void Dispose()
         {
             this.scenes.Clear();
@@ -110,7 +114,9 @@ namespace Painter.Models.PhysicalModel
             {
                 timer.Stop();
                 timer.Dispose();
-            } 
+            }
+            WORKING = false;
+            isDisposed = true;
         }
         public void Pause()
         {
@@ -118,50 +124,113 @@ namespace Painter.Models.PhysicalModel
             {
                 timer.Stop();
             }
+            WORKING = false;
         }
         public void Start()
         {
-            timer.Start();
+            if (timer!=null)
+            {
+                timer.Start();
+            }
+            THREAD_SLEEP = true;
+            WORKING = true;
         }
         public Action<SceneObject> Rules;
-        Timer timer;
+        System.Timers.Timer timer=null;
+        public static bool THREAD_SLEEP = true;
         public void ApplyField()
         {
-            timer = new Timer(TICK_TIME);
-            timer.Elapsed += (e, f) =>
-            {
-                TravasalObject(Rules);
-            };
-            timer.Start();
+            new Thread(
+                () =>{
+                    while (!isDisposed)
+                    {
+       
+                        timespan.Start();
+
+                        if (THREAD_SLEEP)
+                        {
+                            Thread.Sleep(1);
+                            TICK_TIME = timeWatcher.ElapsedMilliseconds + 1;
+                        }
+                        else
+                        {
+                            TICK_TIME = timeWatcher.ElapsedMilliseconds;
+                        }
+                        if (WORKING == false)
+                        {
+                            continue;
+                        }
+                        TravasalObject(Rules);
+                        timespan.Stop();
+                    }
+                }
+                ).Start();
+ 
+            //timer = new Timer(TICK_TIME);
+            //timer.Elapsed += (e, f) =>
+            //{
+            //    TravasalObject(Rules);
+            //};
+            //timer.Start();
         }
         Stopwatch timeWatcher = new Stopwatch();
-
+        Stopwatch timespan = new Stopwatch();
+        bool running = false;
         private void TravasalObject(Action<SceneObject> action)
         {
-            timeWatcher.Reset();
-            timeWatcher.Start(); 
-            foreach (var item in this.scenes)
-            {
-                List<SceneObject> sos = item.GetSceneObject();
-                for (int i = sos.Count()-1; i >=0; i--)
-                {
-                    action(sos[i]);//单物体施加物理场：重力 空气阻力 运动学  
-                } 
-                item.CheckState();//检查场景内物体间作用（干涉） 并设置枚举状态
-
-                //依据状态 设置场景内物体的显示效果
-                for (int i = item.GetSceneObject().Count - 1; i >= 0; i--)
-                { 
-                    MotionAnalyse(item.GetSceneObject()[i]);//这里做运动学计算
-                    item.GetSceneObject()[i].SetStatus();
-                    if (item.GetSceneObject()[i].IsDisposed)
-                    {
-                        item.GetSceneObject().RemoveAt(i);
-                    } 
-                }
-            }
             timeWatcher.Stop();
             //Debug.Print(timeWatcher.ElapsedTicks + "");
+            //Debug.Print(timeWatcher.ElapsedMilliseconds + "");
+
+            if (running==true)
+            {
+                return;
+            }
+            running = true;
+            lock (obj)
+            {
+                try
+                {
+                    //timeWatcher.Reset();
+                    //timeWatcher.Start();
+                    foreach (var item in this.scenes)
+                    {
+                        List<SceneObject> sos = item.GetSceneObject();
+                        for (int i = sos.Count() - 1; i >= 0; i--)
+                        {
+                            action(sos[i]);//单物体施加物理场：重力 空气阻力 运动学  
+                        }
+                        item.CheckState();//检查场景内物体间作用（干涉） 并设置枚举状态
+
+                        //依据状态 设置场景内物体的显示效果
+                        for (int i = item.GetSceneObject().Count - 1; i >= 0; i--)
+                        {
+                            MotionAnalyse(item.GetSceneObject()[i]);//这里做运动学计算
+                            item.GetSceneObject()[i].SetStatus();
+                            if (item.GetSceneObject()[i].IsDisposed)
+                            {
+                                item.GetSceneObject().RemoveAt(i);
+                            }
+                        }
+                    }
+                    //timeWatcher.Stop();
+                    //Debug.Print(timeWatcher.ElapsedTicks + "");
+                    //Debug.Print(timeWatcher.ElapsedMilliseconds + "");
+                }
+                catch (Exception e)
+                {
+                    if (this.timer!=null)
+                    {
+                        this.timer.Stop();
+                    } 
+                    MessageBox.Show(e.StackTrace); 
+                    throw;
+                }
+              
+            }
+            running = false;
+            timeWatcher.Reset();
+            timeWatcher.Start();
         }
     }
    
