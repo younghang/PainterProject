@@ -1,0 +1,10 @@
+﻿<Window x:Class="M3U8Downloader.Widgets.MainOverlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:M3U8Downloader.Widgets"
+        mc:Ignorable="d" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" 
+        Title="MainOverlay" Height="450" Width="800">
+    <StackPanel  Name="LayoutRoot" VerticalAlignment="Bottom" SnapsToDevicePixels="True" />
+</Window>

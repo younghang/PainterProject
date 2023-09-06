@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
+ 
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -21,7 +21,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+ 
 using Utils;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -38,7 +38,7 @@ namespace M3U8Downloader
     {
         bool userStop = false;
         private WaveOutEvent outputDevice;
-
+        private MainOverlay mainOverlay=null;
         private string FilePath = "./Video";
         public bool TestHuya()
         {
@@ -222,8 +222,8 @@ namespace M3U8Downloader
         public MainWindow()
         {
             InitializeComponent();
-            TestHuya();
-            return;
+            //TestHuya();
+            //return;
             string fp = Utils.FileSettings.GetItem("setting.txt", "FilePath", "./Video");
             if (!string.IsNullOrEmpty(fp))
             {
@@ -299,6 +299,9 @@ namespace M3U8Downloader
             checkLiveTimer.Elapsed += CheckLiveTimer_Elapsed;
 
             checkLiveTimer.Interval = interval*1000;
+            mainOverlay = new MainOverlay();
+            mainOverlay.OpenOverlay();
+            mainOverlay.Show();
         }
 
         private void CheckLiveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -362,6 +365,12 @@ namespace M3U8Downloader
             if (userStop == false)
             {
                 Start();
+            }
+            if (mainOverlay != null)
+            {
+                mainOverlay.ToastMessage("开播啦",TOAST_TYPE.ALERT);
+                mainOverlay.ToastMessage("开播啦",TOAST_TYPE.ALERT);
+                mainOverlay.ToastMessage("开播啦",TOAST_TYPE.ALERT);
             }
             PlayShoudao();
         }
@@ -436,8 +445,12 @@ namespace M3U8Downloader
                 Dispatcher.BeginInvoke(new Action(delegate
                 {
                     this.ToastMessage(msgStr, msgType);
+                    //if (mainOverlay != null)
+                    //{
+                    //    mainOverlay.ToastMessage(msgStr, msgType);
+                    //}
                 }));
-            }
+            } 
         }
         bool M3U8_Fail = true;
         private void Toast_Completed(object sender, EventArgs e)
@@ -493,6 +506,22 @@ namespace M3U8Downloader
         Downloader downloader = null;
         string URL = "";
         string FLV = "";
+        /// <summary>
+        /// 复制或剪切文件到剪切板
+        /// </summary>
+        /// <param name="files">文件路径数组</param>
+        /// <param name="cut">true:剪切；false:复制</param>
+        public static void CopyToClipboard(string[] files, bool cut)
+        {
+            if (files == null) return;
+            IDataObject data = new DataObject(DataFormats.FileDrop, files);
+            MemoryStream memo = new MemoryStream(4);
+            byte[] bytes = new byte[] { (byte)(cut ? 2 : 5), 0, 0, 0 };
+            memo.Write(bytes, 0, bytes.Length);
+            data.SetData("PreferredDropEffect", memo);
+            Clipboard.SetDataObject(data, false);
+        }
+
         void UpdateProgress(int percent, int i, int pos)
         {
             //SetInfoText(progressBar1, percent.ToString());
@@ -607,7 +636,11 @@ namespace M3U8Downloader
             }
             if (downloader != null)
             {
-                infoMsg.Text = "已启动下载";
+                this.Dispatcher.Invoke(
+                 () =>
+                 {
+                     infoMsg.Text = "已启动下载";
+                 });
                 return;
             }
 
@@ -636,7 +669,29 @@ namespace M3U8Downloader
             downloader.Start();
         }
 
+        private HtmlNode GetStreamNode(HtmlNode parentNode)   {
+            if (parentNode.InnerHtml.Contains(".flv"))
+            {
+                if (parentNode.ChildNodes.Count == 0)
+                {
+                    return parentNode;
+                }
+                else
+                {
+                    foreach (var item in parentNode.ChildNodes) 
+                    {
+                        var childs = GetStreamNode(item);
+                        if (childs != null)
+                        {
+                            return childs;
+                        }
+                    }
+                    return null;
+                }
 
+            }
+            return null;
+        }
         public bool GetLiveUrl(out string url, ref string flv)
         {
             // string filePath = "F:/bin/testdouyin.html";
@@ -645,7 +700,7 @@ namespace M3U8Downloader
             //https://live.douyin.com/
                 // 双子星 208998801140
                 //肥宝 945130793525
-                string roomid = "945130793525";
+                string roomid = "945130793525";//683808954455 realai
                 string web_url = "https://live.douyin.com/" + roomid; //"305607727597"
 
                 HtmlDocument doc = new HtmlDocument();
@@ -715,11 +770,40 @@ namespace M3U8Downloader
 
                 try
                 {
-                    var data = doc.GetElementbyId("RENDER_DATA");
+                    //20230904 Failed
+                    //var data = doc.GetElementbyId("RENDER_DATA");
+ 
+                    var data = GetStreamNode(doc.DocumentNode);
+                    if (data==null)
+                    {
+                        url = "Not on the air.";
+                        return false;
+                    }
+
                     string jsonUrlEncodeStr = data.InnerText;
+                    if (!jsonUrlEncodeStr.Contains("self.__pace_f.push")|| !jsonUrlEncodeStr.Contains("origin")|| !jsonUrlEncodeStr.Contains("\\\\u0026"))
+                    {
+                        throw new Exception("Faild to find flv");
+                    }
+                    jsonUrlEncodeStr=jsonUrlEncodeStr.Replace("self.__pace_f.push", "");
+                    jsonUrlEncodeStr=jsonUrlEncodeStr.Remove(0, 1);
+                    jsonUrlEncodeStr=jsonUrlEncodeStr.Remove(jsonUrlEncodeStr.Length - 1, 1);
 
                     // 解码
                     string jsonStr = System.Web.HttpUtility.UrlDecode(jsonUrlEncodeStr);
+                    int startPos = jsonStr.IndexOf("\"");
+                    jsonStr =  jsonStr.Substring(startPos+1, jsonStr.Length - startPos-3);
+                    //jsonStr = JsonConvert.DeserializeObject<string>(jsonStr);
+                    string flvStr = jsonStr.Substring(jsonStr.IndexOf("origin"));
+                    flvStr = flvStr.Substring(flvStr.IndexOf("http"));
+                    flvStr = flvStr.Substring(0,  flvStr.IndexOf("\""));
+                    flvStr = flvStr.Replace("\\\\u0026", "&");
+                    flvStr = System.Web.HttpUtility.UrlDecode(flvStr);
+                    flvStr = flvStr.Substring(0, flvStr.Length - 1);
+                    url = flvStr;
+                    flv = flvStr;
+                    return true;
+
                     JObject jsonObject = JObject.Parse(jsonStr);
                     File.WriteAllText("./room_info.json", jsonObject.ToString());
 
@@ -769,7 +853,7 @@ namespace M3U8Downloader
                     url = "Response Time out.";
                     return false;
                 }
-                catch (Exception)
+                catch (Exception edd)
                 {
                     url = "Parse Error!";
                     return false;
@@ -888,7 +972,23 @@ namespace M3U8Downloader
 
         private void Avatar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (FLV.Contains("http"))
+            {
+                try
+                {
+                    Clipboard.Clear();//清空剪切板 
+                    Clipboard.SetDataObject(FLV);
+                    Clipboard.Flush();
+                    MessageWin.MSG("直播流地址已复制到粘贴板");
+                }
+                catch (Exception ex)
+                { 
+                     
+                }
+               
+            }
             PlayShoudao();
+            
         }
     }
 
