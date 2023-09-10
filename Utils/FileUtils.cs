@@ -108,6 +108,30 @@ namespace Utils
         {
             new InFiles(name).SetSettingItem(key, value);
         }
+        public static bool GetBool(string name, string key, bool value = false)
+        {
+            bool showInCmd = value;
+            string str = Utils.FileSettings.GetItem(name, key, value?"1":"0");
+
+            if (string.IsNullOrEmpty(str))
+            {
+                showInCmd = false;
+            }
+            else
+            {
+                int result = 0;
+                int.TryParse(str, out result);
+                if (result > 0)
+                {
+                    showInCmd = true;
+                }
+                else
+                {
+                    showInCmd = false;
+                }
+            }
+            return showInCmd;
+        }
         public static string GetItem(string name, string key,string value="")
         {
             if (File.Exists(name))

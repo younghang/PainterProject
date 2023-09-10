@@ -28,6 +28,7 @@ using NAudio.Wave.SampleProviders;
 using System.Windows.Resources;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace M3U8Downloader
 {
@@ -400,7 +401,7 @@ namespace M3U8Downloader
                 this.DragMove();
             }
         }
-        public enum TOAST_TYPE { MESSAGE, ERROR, ALERT }
+        public enum TOAST_TYPE { MESSAGE, ERROR, ALERT } 
         public void ToastMessage(string msgStr, TOAST_TYPE msgType)
         {
             string Title = "Message";
@@ -989,6 +990,61 @@ namespace M3U8Downloader
             }
             PlayShoudao();
             
+        }
+        public static void ExecuteCommandModel(string exePath, string command)
+        {
+            bool showInCmd = true;
+
+            var processInfo = new ProcessStartInfo()
+            {
+                FileName = exePath,
+                Arguments = command,
+                CreateNoWindow = !showInCmd,
+                UseShellExecute = false,
+                RedirectStandardError = !showInCmd,
+                RedirectStandardOutput = false
+            };
+            using (var mergeProcess = new Process())
+            {
+
+                mergeProcess.StartInfo = processInfo;
+                mergeProcess.Start();
+                mergeProcess.WaitForExit();
+            }
+        }
+        private void Border_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files != null && files.Length > 0)
+                {
+                    string filePath = files[0];
+                    string fileName = Path.GetFileName(filePath);
+                    FileInfo info = new FileInfo(filePath);
+                    MessageWin.SetLoadingMsg("开始转码成MP4...");
+                    bool state = MessageWin.LoadingAction(()=> {
+                        string strFFmpegDir = Utils.FileSettings.GetItem("setting.txt", "FFMPEG_DIR", @"./FFmpeg/4.4/ffmpeg.exe");
+                        if (!string.IsNullOrEmpty(strFFmpegDir))
+                        {
+                            if (File.Exists(strFFmpegDir))
+                            {
+                                string cmd = " -i \"" + filePath + "\" -c copy \"" + info.Directory + "/" + info.Name.Replace(info.Extension,"") + "\".mp4";
+                                ExecuteCommandModel(strFFmpegDir, cmd);
+                                return true;
+                            }
+                        } 
+                        return false;
+                    });
+                    if (state&&MessageWin.Confirm("删除原文件？"))
+                    { 
+                        // Delete the file
+                        File.Delete(filePath); 
+                    }
+                    
+                   
+                }
+            }
         }
     }
 

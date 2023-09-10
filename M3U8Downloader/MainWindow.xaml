@@ -84,7 +84,7 @@
             </TransformGroup>
         </Grid.RenderTransform>
 
-        <Border BorderBrush="Wheat"  MouseDown="MoveWindow" Margin="20"  CornerRadius="10" Background="{StaticResource themBG}">
+        <Border BorderBrush="Wheat"  MouseDown="MoveWindow" Margin="20"  CornerRadius="10" Background="{StaticResource themBG}" AllowDrop="True" Drop="Border_Drop">
             <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="60" />

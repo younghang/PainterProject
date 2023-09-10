@@ -15,7 +15,9 @@ using System.Net;
 using System.Text;
 using System.Timers;
 using System.Linq;
-
+using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace M3U8Downloader.Model
 {
@@ -369,30 +371,56 @@ namespace M3U8Downloader.Model
         {
             videoList = m3u8_url;
             filePath = filepath;
-            
+            strFFmpegDir = Utils.FileSettings.GetItem("setting.txt", "FFMPEG_DIR", @"./FFmpeg/4.4/ffmpeg.exe");
+            if (!string.IsNullOrEmpty(strFFmpegDir))
+            {
+                if (File.Exists(strFFmpegDir))
+                {
+                    IsUsingffmpeg = true;
+                }
+            } 
         }
+        bool IsUsingffmpeg = false;
         WebClient webClient = null;
+        string strFFmpegDir="";
+        string fileLocal = "";
+        string fileFullName = "";
+        bool IsRunning = false;
         override public void Start()
         {
-            if (webClient != null)
-            {
-                webClient.Dispose();
-            }
-            webClient = new WebClient();
             if (!Directory.Exists(filePath))
             {
                 Directory.CreateDirectory(filePath);
             }
-            webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
-            webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
-            webClient.Disposed += WebClient_Disposed;
             DateTime dt = DateTime.Now;
             string fileName = dt.Year + "-" + dt.Month + "-" + dt.Day + "-" + dt.Hour.ToString() + "@" + dt.Minute.ToString() + "@" + dt.Second;
+            fileLocal = filePath + "/" + fileName;
+            fileFullName = fileLocal;
+            if (IsUsingffmpeg)
+            {
+                Application.Current.Dispatcher.Invoke(() => {
+                    App.GetMainWindow().ToastMessage("使用FFMPEG保存", MainWindow.TOAST_TYPE.MESSAGE);
+                });
+                fileLocal +=  ".flv";
+                //ffmpeg  -i rtmp://server/live/streamName -c copy dump.flv 
+                ExecuteCommand(strFFmpegDir, " -i " + videoList + " -timeout 30 -c copy " + fileLocal);
 
+            }
+            else
+            {
+                if (webClient != null)
+                {
+                    webClient.Dispose();
+                }
+                webClient = new WebClient();
+                fileLocal += ".flv";
+                webClient.DownloadFileCompleted += new AsyncCompletedEventHandler(Completed);
+                webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
+                webClient.Disposed += WebClient_Disposed;
 
-            string fileLocal = filePath + "/" + fileName + ".flv";
-            webClient.DownloadFileAsync(new Uri(videoList), fileLocal);
-
+                webClient.DownloadFileAsync(new Uri(videoList), fileLocal);
+            }
+            IsRunning = true;
         }
 
         private void WebClient_Disposed(object sender, EventArgs e)
@@ -402,6 +430,10 @@ namespace M3U8Downloader.Model
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
+            if (IsRunning == false)
+            {
+                return;
+            }
             string fileSize = Utils.CommonUtils.GetFileSize(e.BytesReceived);
             FinishATShow(fileSize);
         }
@@ -410,14 +442,131 @@ namespace M3U8Downloader.Model
         {
             FinishATShow("Finish");
         }
+        private Process process = null;
+
+        private void ExecuteCommand(string exePath,string command)
+        {
+
+            bool showInCmd = false;
+            string str = Utils.FileSettings.GetItem("setting.txt", "SHOW_FFMPEG_CMD", "0");
+            if (string.IsNullOrEmpty(str))
+            {
+                showInCmd = false;
+            }
+            else
+            {
+                int result = 0;
+                int.TryParse(str, out result);
+                if (result > 0)
+                {
+                    showInCmd = true;
+                }
+                else
+                {
+                    showInCmd = false;
+                }
+            }
+            var processInfo = new ProcessStartInfo()
+            {
+                FileName = exePath,
+                Arguments = command,
+                CreateNoWindow = !showInCmd,
+                UseShellExecute = false,
+                RedirectStandardError = !showInCmd,
+                RedirectStandardOutput = false
+            }; 
+            process = new Process(); 
+            process.StartInfo = processInfo;
+            if (!showInCmd)
+            {
+                process.ErrorDataReceived += Process_ErrorDataReceived; 
+            }
+            process.Start();
+            if (!showInCmd)
+            {
+                process.BeginErrorReadLine();
+
+            }
+
+        }
+
+        private void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data == null)
+            {
+                return;
+            }
+            if (IsRunning==false)
+            {
+                return;
+            }
+            //frame = 184 fps = 55 q = -1.0 size = 3584kB time = 00:00:09.17 bitrate = 3201.8kbits / s speed = 2.72x
+            string msg=e.Data;
+            string[] lines = msg.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string line in lines)
+            {
+                if (line.Contains("size"))
+                {
+                    string s = line.Substring(line.IndexOf("size"));
+                    s=s.Substring(0, s.IndexOf("kB"));
+                    s = s.Replace("size", "");
+                    s = s.Replace("=", "");
+                    int filesize = 0;
+                    int.TryParse(s, out filesize);
+                    string fileSize = Utils.CommonUtils.GetFileSize(filesize*1024);
+                    FinishATShow(fileSize);
+                }
+                else if (line.Contains("Stream ends")||line.Contains("I/O error"))
+                {
+                    FinishATShow("Finish");
+                    Stop();
+                }else
+                {
+                    FinishATShow(line);
+                }
+            }
+        }
+
         override public void Stop()
         {
-            if (webClient != null)
+            IsRunning = false;
+            if (IsUsingffmpeg)
             {
-                webClient.CancelAsync();
+                if (process != null)
+                {
+                    if (!process.HasExited)
+                    { 
+                        process.Kill();
+                        process = null; 
+                    }
+                    //ffmpeg - i "concat:1.ts|2.ts|3.ts|4.ts" - c copy output.mp4
+                    bool converToMp4 = Utils.FileSettings.GetBool("setting.txt", "结束后自动转码成MP4", true);
+                    if (converToMp4)
+                    {
+                        FinishATShow("开始转码，请稍后...");
+                        string cmd = " -i \"" + fileLocal + "\" -c copy \"" + fileFullName + "\".mp4";
+                        new Task(() => {
+                            MainWindow.ExecuteCommandModel(strFFmpegDir, cmd);
+                            bool deleteFile = Utils.FileSettings.GetBool("setting.txt", "转码后删除flv文件", false);
+                            if (deleteFile)
+                            {
+                                File.Delete(fileLocal);// 删除文件
+                            }
+                            FinishATShow("Finish");
+                        }).Start(); 
+                    }  
+                } 
             }
-            webClient.Dispose();
-            webClient = null;
+            else
+            {
+                if (webClient != null)
+                {
+                    webClient.CancelAsync();
+                }
+                webClient.Dispose();
+                webClient = null;
+            }
+
         }
         override public void Clear()
         {
