@@ -1,4 +1,4 @@
-﻿using Painter.Utils;
+﻿using Painter.MyUtils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

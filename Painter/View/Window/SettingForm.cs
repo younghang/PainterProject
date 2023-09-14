@@ -10,7 +10,7 @@ using System;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
-using Painter.Utils;
+using Painter.MyUtils;
 using Utils;
 
 namespace Painter

@@ -613,5 +613,10 @@ namespace Painter.WinFormDisplay
         {
 
         }
+
+        private void lblFillColor_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

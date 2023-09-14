@@ -12,7 +12,7 @@ namespace CalculatorDll.Calculator.UIController
 		{
 			//加边框
 			chart.Palette = ChartColorPalette.BrightPastel;
-			chart.BorderSkin.SkinStyle = BorderSkinStyle.Emboss;
+			//chart.BorderSkin.SkinStyle = BorderSkinStyle.Emboss;
 
 		}
 		private Chart chart = new Chart();

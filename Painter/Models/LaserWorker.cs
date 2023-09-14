@@ -11,7 +11,7 @@ using Painter.Controller;
 using Painter.DisplayManger;
 using Painter.Models;
 using Painter.Painters;
-using Painter.Utils;
+using Painter.MyUtils;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;

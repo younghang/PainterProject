@@ -181,7 +181,7 @@ namespace CalculatorDll.Calculator.UIController
 						//PushToShow("进入函数求值过程");
 						FuncString funs = FindFuncInTDC(funstring.GetFuncName());
 						double result = GetFuncResult(funs, new FuncString(InputData).GetParamersData());
-						PushToShow("结果：" + result);
+						PushToShow("结果:" + result,"result");
 					}
 					else
 						PushToShow("没有输入参数");

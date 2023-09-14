@@ -23,6 +23,12 @@ namespace CalculatorDll.Calculator.UIController
 		public void AddChart(Chart chart)
 		{
 			mchart = chart;
+			if (!Controls.Contains(mchart))
+			{
+				mchart.Dock = System.Windows.Forms.DockStyle.Fill;
+				Controls.Add(mchart);
+			}
+			mchart.BackImageAlignment = ChartImageAlignmentStyle.Center;
 			//			chart.MouseHover += new EventHandler((x, y) => MessageBox.Show("Mouse over")); //增加事
 		}
 		void FuncFormPaint(object sender, PaintEventArgs e)
@@ -196,17 +202,17 @@ namespace CalculatorDll.Calculator.UIController
 			//			}
 
 
-			if (!Controls.Contains(mchart))
-			{
-				mchart.Dock = System.Windows.Forms.DockStyle.Fill;
-				Controls.Add(mchart);
-			}
-			mchart.BackImageAlignment = ChartImageAlignmentStyle.Center; 
+			
 		}
 
 		private void FuncFigure_Load(object sender, EventArgs e)
 		{
 
 		}
-	}
+
+        private void FuncFigure_Load_1(object sender, EventArgs e)
+        {
+
+        }
+    }
 }

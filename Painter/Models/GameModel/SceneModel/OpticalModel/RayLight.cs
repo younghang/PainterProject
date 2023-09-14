@@ -1,9 +1,11 @@
-﻿using Painter.Models.Paint;
+﻿using Newtonsoft.Json;
+using Painter.Models.Paint;
 using Painter.Painters;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -163,23 +165,14 @@ namespace Painter.Models.GameModel.SceneModel.OpticalModel
     }
 
     public class LensMaterial {
+        public LensMaterial() { }
         public string Name { get; set; }
-        public string Equation;
+        public string Equation { get; set; }
     }
     public class MaterialDataBase
     {
         private MaterialDataBase(){
-            Materials.Add(new LensMaterial()
-            {
-                Name = "NBK7",
-                Equation = "fx(lambda)=1.03961212+0.00600069867/(pow(lambda,2)-0.0139332363)+0.231792344/(pow(lambda,2)-0.0200179144)+1.01046945/(pow(lambda,2)-103.560653)"
-            });
-            Materials.Add(new LensMaterial()
-            {
-                Name = "Mirror",
-                Equation = ""
-            });
-
+            
         }
         private static MaterialDataBase _instance = null;
         public static MaterialDataBase Instance
@@ -193,8 +186,49 @@ namespace Painter.Models.GameModel.SceneModel.OpticalModel
                 return _instance;
             }
         }
+        public static string MATERIAL_NAME = "./data/material.json";
+        public bool LoadData()
+        {
+            if (File.Exists(MATERIAL_NAME) == false)
+            {
+                this.AddMaterail(new LensMaterial()
+                {
+                    Name = "NBK7",
+                    Equation = "1.03961212+0.00600069867/(pow(lambda,2)-0.0139332363)+0.231792344/(pow(lambda,2)-0.0200179144)+1.01046945/(pow(lambda,2)-103.560653)"
+                });
+                this.AddMaterail(new LensMaterial()
+                {
+                    Name = "Mirror",
+                    Equation = ""
+                });
+                return false;
+            }
+            try{
+                string text = File.ReadAllText(MATERIAL_NAME);
+
+                List<LensMaterial> mats = JsonConvert.DeserializeObject<List<LensMaterial>>(text);
+                foreach (var item in mats)
+                {
+                    this.AddMaterail(item.Name,item.Equation);
+                } 
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+            return true;
+        }
+        public void SaveData()
+        {
+            string matStr = JsonConvert.SerializeObject(this.Materials);
+            if (!Directory.Exists("./data"))
+            {
+                Directory.CreateDirectory("./data");
+            }
+            File.WriteAllText(MATERIAL_NAME, matStr);
+        }
         public List<LensMaterial> Materials = new List<LensMaterial>();
-        public LensMaterial LoadMaterialByName(string Name)
+        public LensMaterial GetMaterialByName(string Name)
         {
             for (int i = 0; i < Materials.Count; i++)
             {
@@ -216,17 +250,47 @@ namespace Painter.Models.GameModel.SceneModel.OpticalModel
                 }
             }
             }
+        public void AddMaterail(LensMaterial mat)
+        {
+            AddMaterail(mat.Name, mat.Equation);
+        }
         public void AddMaterail(string name,string equation)
         {
+            if (name[0]>='0'&& name[0]<='9')
+            {
+                return;
+            }
+            if (name!="Mirror")
+            {
+                CalculatorDll.CalService.Input(name + "(lambda)=" + equation);
+            } 
             for (int i = 0; i < this.Materials.Count; i++)
             {
                 if (Materials[i].Name==name)
                 {
                     Materials[i].Equation = equation;
+                    cacheIndices.Clear();
                     return;
                 }
             }
             this.Materials.Add(new LensMaterial() {Name=name,Equation=equation });
+        }
+        private Dictionary<string, float> cacheIndices = new Dictionary<string, float>();
+        public float GetRefractiveIndex(string name,double waveLength)
+        {
+            string key = name + waveLength.ToString("f3");
+            if (cacheIndices.ContainsKey(key))
+            {
+                return cacheIndices[key];
+            }
+            float result = 1;
+            string reStr = CalculatorDll.CalService.Input(name+"("+ waveLength + ")");
+            if (reStr!="")
+            {
+                float.TryParse(reStr, out result);
+                cacheIndices[key] = result;
+            } 
+            return result;
         }
         public int GetMaterialIndex(string name)
         {
@@ -239,6 +303,7 @@ namespace Painter.Models.GameModel.SceneModel.OpticalModel
             }
             return -1;
         }
+        
     }
     public enum LEN_TYPE
     {
@@ -303,7 +368,23 @@ namespace Painter.Models.GameModel.SceneModel.OpticalModel
             }
 
         }
-        public Color BackColor = Color.Aqua;
+        private Color bg = Color.Aqua;
+
+        public Color BackColor
+        {
+            get { return bg; }
+            set
+            {
+                bg = value;
+                foreach (var item in elements)
+                {
+                    if (item is PathGeo)
+                    {
+                        item.GetDrawMeta().BackColor = bg;
+                    } 
+                }
+            }
+        }
         public LEN_TYPE LenType=LEN_TYPE.ARC;
         public PointGeo StartPos=new PointGeo();
         public PointGeo EndPos=new PointGeo();
@@ -903,17 +984,22 @@ namespace Painter.Models.GameModel.SceneModel.OpticalModel
         // 定义一个函数，接受以纳米为单位的波长（lambda）作为参数，并返回N-BK7玻璃的折射率（n）
         public static float RefractiveIndexFromName(double lambda,string name= "NBK7")
         {
-            lambda = lambda / 1000;
+           
             // 使用分数函数公式
             float n = 1;
             // 返回折射率
             if (name== "NBK7")
             {
-                n = (float)(1.03961212 + 0.00600069867 / (Math.Pow(lambda, 2) - 0.0139332363) + 0.231792344 / (Math.Pow(lambda, 2) - 0.0200179144) + 1.01046945 / (Math.Pow(lambda, 2) - 103.560653));
+                lambda = lambda / 1000;
+                n = MaterialDataBase.Instance.GetRefractiveIndex(name,lambda);
+                //n = (float)(1.03961212 + 0.00600069867 / (Math.Pow(lambda, 2) - 0.0139332363) + 0.231792344 / (Math.Pow(lambda, 2) - 0.0200179144) + 1.01046945 / (Math.Pow(lambda, 2) - 103.560653));
             }
             else if (name=="Mirror")
             {
                 n = -n;
+            }else
+            {
+                n = MaterialDataBase.Instance.GetRefractiveIndex(name, lambda);
             }
             return n;
         }
@@ -1175,7 +1261,7 @@ namespace Painter.Models.GameModel.SceneModel.OpticalModel
                     //Trajectory.AddPoint(curPos);
                     tempPoints.Add(curPos.Clone());
                     Trajectory.Clear();
-                    Trajectory.AddPoints(Utils.MyUtils.Clone<PointGeo>(tempPoints));
+                    Trajectory.AddPoints(MyUtils.MyUtils.Clone<PointGeo>(tempPoints));
                     tempPoints.Clear();
                 }
                 DistanceToOri = distance_from_ori;

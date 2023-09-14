@@ -23,9 +23,25 @@ namespace Painter
     {
         public OpticalForm()
         {
+            MaterialDataBase.Instance.LoadData();
             InitializeComponent();
+            
             this.Load += OpticalForm_Load;
             this.FormClosing += OpticalForm_FormClosing;
+            this.listMaterials.KeyDown += OpticalForm_KeyDown;
+        }
+
+        private void OpticalForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode==Keys.Delete)
+            {
+                if (selectedMaterial!=null)
+                {
+                    MaterialDataBase.Instance.RemoveMaterial(selectedMaterial.Name);
+                    selectedMaterial = null;
+                    LoadMaterialsList();
+                } 
+            }
         }
 
         private void OpticalForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -34,6 +50,8 @@ namespace Painter
             {
                 //opticalScene.SaveScene();
             }
+            MaterialDataBase.Instance.SaveData();
+            Utils.FileSettings.SaveItem("./data/set.txt", "FirstRun", "False");
         }
 
         private void OpticalForm_Load(object sender, EventArgs e)
@@ -48,6 +66,32 @@ namespace Painter
             canvasView1.AddControl(geoRayImageLengthLabel);
             canvasView1.MouseMove += CanvasView_MouseMove;
 
+            string firstRun=Utils.FileSettings.GetItem("./data/set.txt", "FirstRun", "True");
+            if (firstRun=="True")
+            {
+                GeoPanel geoPanel = new GeoPanel(560, 300, new RectangleGeo());
+
+                GeoButton geoButton = new GeoButton(100, 50, new RectangleGeo());
+                geoButton.Text = "关闭";
+                geoButton.ClickEvent += () =>
+                {
+                    geoPanel.IsVisible = false;
+
+                };
+                GeoLabel geoLabel2 = new GeoLabel(400, 70, new RectangleGeo());
+                geoLabel2.Alignment = StringAlignment.Near;
+                geoLabel2.Text = "鼠标中键平移视图\n鼠标滚轮缩放视图";
+                geoLabel2.Background = Color.Transparent;
+                geoPanel.AddControl(geoButton);
+                geoPanel.AddControl(geoLabel2);
+                geoPanel.Move(new PointGeo(500, 300));
+                canvasView1.AddControl(geoPanel);
+            }
+            
+            Init();
+        }
+        private void Init()
+        {
             List<string> names = new List<string>();
             for (int i = 0; i < MaterialDataBase.Instance.Materials.Count; i++)
             {
@@ -150,6 +194,12 @@ namespace Painter
                     listMaterials.Items.Add(item.Name);
                 }
             }
+            List<string> names = new List<string>();
+            for (int i = 0; i < MaterialDataBase.Instance.Materials.Count; i++)
+            {
+                names.Add(MaterialDataBase.Instance.Materials[i].Name);
+            }
+            this.cbMaterialNames.DataSource = names;
         }
         private void LoadLensList()
         {
@@ -373,9 +423,11 @@ namespace Painter
             float.TryParse(this.txtRadius2.Text, out lRadius);
             float.TryParse(this.txtHeight.Text, out height);
             var indices = listLens.SelectedItems;
+            List<int> preSelected = new List<int>();
             for (int i = 0; i < indices.Count; i++)
             {
                 int index = indices[i].Index;
+                preSelected.Add(index);
                 LensObject lenObject = lens[index];
                 switch (lenObject.LenType)
                 {
@@ -409,8 +461,8 @@ namespace Painter
                         arcLens.LeftVertex.Y = ori_y;
                         arcLens.Name = name;
                         arcLens.Thick = thickness;
-                        arcLens.RRight = Math.Abs(rRadius);
-                        arcLens.RLeft = Math.Abs(lRadius);
+                        arcLens.RRight = (rRadius);
+                        arcLens.RLeft = (lRadius);
                         arcLens.Height = height;
                         arcLens.Angle = angle;
                         arcLens.InitElement();
@@ -427,8 +479,13 @@ namespace Painter
                     default:
                         break;
                 }
-                opticalScene.GetScene().AddObject(lenObject);
-                LoadLensList();
+                opticalScene.GetScene().AddObject(lenObject); 
+            }
+            LoadLensList();
+            for (int i = 0; i < preSelected.Count; i++)
+            {
+                this.listLens.Items[preSelected[i]].Selected = true;
+                break;
             }
 
         }
@@ -463,9 +520,11 @@ namespace Painter
         private void btnUpdateMaterial_Click(object sender, EventArgs e)
         {
             string name = this.txtMatName.Text;
+            name = name.Trim();
             string equation = this.txtMatEquation.Text;
             var mats = MaterialDataBase.Instance.Materials;
             MaterialDataBase.Instance.AddMaterail(name, equation);
+            LoadMaterialsList(); 
         }
 
         private void btnDeleteMat_Click(object sender, EventArgs e)
@@ -655,7 +714,7 @@ namespace Painter
                                 {
                                     Name = "Y",
                                     Color = Color.Red,
-                                    IsVisibleInLegend = false,
+                                    IsVisibleInLegend = true,
                                     ChartType = SeriesChartType.Line
                                 };
 
@@ -669,6 +728,8 @@ namespace Painter
                                 // Add the series to the chart
                                 chart.Series.Add(series1);
                                 chart.Series.Add(series2);
+                                chart.Legends.Add("X");
+                                chart.Legends.Add("Y");
 
                                 // Add the chart control to the form
                                 chartForm.Controls.Add(chart);
@@ -785,6 +846,31 @@ namespace Painter
             this.AutoAdjustLensGap = false;
         }
 
-     
+        private void 另存ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string fileName = "";
+            Utils.FileUtils.SaveFileDialog(ref fileName);
+            if (this.opticalScene!=null)
+            {
+                this.opticalScene.SaveScene(fileName);
+            }
+            
+        }
+
+        private void 加载ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string fileName = "";
+            Utils.FileUtils.SeletFile(ref fileName);
+            this.opticalScene.Clear();
+            try
+            {
+                this.opticalScene.LoadScene(fileName);
+                Init();
+            }
+            catch (Exception ef)
+            { 
+                MessageBox.Show(ef.Message);
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ using Painter.DisplayManger;
  
 using Painter.Models;
 using Painter.Painters;
-using Painter.Utils;
+using Painter.MyUtils;
 using Painter.View.Window;
 using Utils;
 using Utils.DisplayManger.Axis;
@@ -59,7 +59,7 @@ namespace Painter
                     MessageBox.Show(laserHead.FileFullName+"\n" + msg);
                     return; 
                 }
-                string totalTime = MyUtils.GetTimeSpan();
+                string totalTime = MyUtils.MyUtils.GetTimeSpan();
                 try
                 {
                     this.Invoke(new Action(() =>
@@ -87,12 +87,12 @@ namespace Painter
             ProgramController.Instance.OnHeadPosition += (x, y, laserHead) =>
               {
                   EndTime = DateTime.Now;
-                  string totalTime = MyUtils.GetTimeSpan();
+                  string totalTime = MyUtils.MyUtils.GetTimeSpan();
                   this.Invoke(new Action(() =>
                   {
                       //laserHead.PainterUC.SetText();
                       this.lblTime.Text = totalTime;
-                      this.label1.Text = MyUtils.GetTimeSpan(EndTime, StartTime);
+                      this.label1.Text = MyUtils.MyUtils.GetTimeSpan(EndTime, StartTime);
                       this.lblPosition.Text = "(" + x.ToString("f2") + "," + y.ToString("f2") + ")";
                   }));
               };
@@ -328,7 +328,7 @@ namespace Painter
                 {
                     return;
                 }
-                ShapeMeta shapeMata = MyUtils.CloneObject<ShapeMeta>(processor.CutGeo.GetShapes()[0].GetDrawMeta());
+                ShapeMeta shapeMata = MyUtils.MyUtils.CloneObject<ShapeMeta>(processor.CutGeo.GetShapes()[0].GetDrawMeta());
                 shapeMata.ForeColor = color;
                 shapeMata.LineWidth = 4;
                 processor.CutGeo.GetShapes()[0].SetDrawMeta(shapeMata); 

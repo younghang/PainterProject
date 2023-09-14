@@ -81,10 +81,29 @@ namespace Utils
                 return false;
             }
         }
-        public static bool SeletFile(ref string FileName)
+        public static bool SaveFileDialog(ref string FileName,string fileter= "JSON Files (*.json)|*.json",string title= "Save JSON File")
+        {
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.Filter = fileter;
+                saveFileDialog.Title = title;
+
+                if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                {
+                    return false;
+                }
+                string fileFullName = saveFileDialog.FileName;
+
+                FileName = fileFullName;
+                return true;
+            }
+        }
+
+        public static bool SeletFile(ref string FileName,string filter= "JSON Files (*.json)|*.json")
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
+                openFileDialog.Filter = filter;
                 if (openFileDialog.ShowDialog() != DialogResult.OK)
                 {
                     return false;

@@ -14,7 +14,7 @@ namespace Painter
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Settings.LoadSettingFile();
+            //Settings.LoadSettingFile();
             Application.Run(new OpticalForm());
             //Application.Run(new GCodeLaserHeadForm());
             //Application.Run(new PainterTest());

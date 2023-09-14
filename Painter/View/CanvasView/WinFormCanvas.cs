@@ -20,7 +20,7 @@ using Painter.Models;
 using Painter.DisplayManger;
 using Painter.Painters;
 using Painter.Controller;
-using Painter.Utils;
+using Painter.MyUtils;
 
 namespace Painter.View.CanvasView
 {
@@ -551,7 +551,7 @@ namespace Painter.View.CanvasView
                     pm.ForeColor = Color.FromArgb(ShapeForeColor.A, ShapeForeColor.R, ShapeForeColor.G, ShapeForeColor.B);
                     pm.LineWidth = 1;//float.Parse(txtLineWidth.Text);
                     rl.SetDrawMeta(pm);
-                    List<PointGeo> listP= MyUtils.Clone<PointGeo>(points);
+                    List<PointGeo> listP = MyUtils.MyUtils.Clone<PointGeo>(points);
                     for (int i = 0; i < listP.Count; i++)
                     {
                         listP[i] = ScreenToObjectPos((int)listP[i].X,(int)listP[i].Y);

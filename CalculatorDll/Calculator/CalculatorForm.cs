@@ -85,7 +85,10 @@ namespace CalculatorDll.Calculator
             {
                 string[] lines = this.richTextBox1.Text.Split('\n');
                 LastLine = lines[lines.Length - 1];
-                LastLine = LastLine.Substring(2);
+                if (LastLine!="")
+                {
+                    LastLine = LastLine.Substring(2); 
+                }
                 e.Handled = true;
                 this.richTextBox1.AppendText("\n");
                 con.Run();

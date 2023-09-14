@@ -1,6 +1,6 @@
 ﻿using Painter.Models;
 using Painter.Painters;
-using Painter.Utils;
+using Painter.MyUtils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -89,7 +89,7 @@ namespace Painter
 			gCodeInterpreter1 = new GGodeInterperter(); 
 			gCodeInterpreter1.OnMsg += (msg) => {
 				EndTime = DateTime.Now;
-				string totalTime = MyUtils.GetTimeSpan();
+				string totalTime = MyUtils.MyUtils.GetTimeSpan();
 				try {
 					this.Invoke(new Action(() => {
 						this.richTextBox1.AppendText("[" + totalTime + "]" + msg);

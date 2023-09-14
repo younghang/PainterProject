@@ -97,6 +97,7 @@ namespace Painter.Forms.Optical
                 default:
                     break;
             }
+            lensObject.BackColor = LenShapeColor;
             this.DialogResult = DialogResult.OK;
         }
 
@@ -104,10 +105,28 @@ namespace Painter.Forms.Optical
         {
             this.DialogResult = DialogResult.Cancel; 
         }
-
+        Color LenShapeColor;
         private void NewLens_Load_1(object sender, EventArgs e)
         {
 
+        }
+
+        private void lblColor_Click(object sender, EventArgs e)
+        {
+            Label l = sender as Label;
+            ColorDialog colorDialog = new ColorDialog();
+            DialogResult dialogResult = colorDialog.ShowDialog();
+            Console.WriteLine(dialogResult.ToString());
+            Color color = new Color();
+            if (dialogResult == System.Windows.Forms.DialogResult.OK)
+            {
+                colorDialog.Dispose();
+                color = Color.FromArgb(colorDialog.Color.A, colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B);
+                 
+                LenShapeColor = color;
+               
+                l.BackColor = color;
+            }
         }
     }
 }

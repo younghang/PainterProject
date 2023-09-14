@@ -43,16 +43,18 @@ namespace Painter.Forms.Optical
             this.label6 = new System.Windows.Forms.Label();
             this.txtRadius2 = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.rdPositive = new System.Windows.Forms.RadioButton();
-            this.rdNegetive = new System.Windows.Forms.RadioButton();
-            this.rdArc = new System.Windows.Forms.RadioButton();
             this.rdMirror = new System.Windows.Forms.RadioButton();
+            this.rdArc = new System.Windows.Forms.RadioButton();
+            this.rdNegetive = new System.Windows.Forms.RadioButton();
+            this.rdPositive = new System.Windows.Forms.RadioButton();
             this.label7 = new System.Windows.Forms.Label();
             this.txtThickness = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
             this.txtHeight = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.lblColor = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -183,27 +185,16 @@ namespace Painter.Forms.Optical
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "透镜类型";
             // 
-            // rdPositive
+            // rdMirror
             // 
-            this.rdPositive.AutoSize = true;
-            this.rdPositive.Checked = true;
-            this.rdPositive.Location = new System.Drawing.Point(40, 27);
-            this.rdPositive.Name = "rdPositive";
-            this.rdPositive.Size = new System.Drawing.Size(87, 22);
-            this.rdPositive.TabIndex = 0;
-            this.rdPositive.TabStop = true;
-            this.rdPositive.Text = "凸透镜";
-            this.rdPositive.UseVisualStyleBackColor = true;
-            // 
-            // rdNegetive
-            // 
-            this.rdNegetive.AutoSize = true;
-            this.rdNegetive.Location = new System.Drawing.Point(151, 27);
-            this.rdNegetive.Name = "rdNegetive";
-            this.rdNegetive.Size = new System.Drawing.Size(87, 22);
-            this.rdNegetive.TabIndex = 0;
-            this.rdNegetive.Text = "凹透镜";
-            this.rdNegetive.UseVisualStyleBackColor = true;
+            this.rdMirror.AutoSize = true;
+            this.rdMirror.Location = new System.Drawing.Point(434, 27);
+            this.rdMirror.Name = "rdMirror";
+            this.rdMirror.Size = new System.Drawing.Size(87, 22);
+            this.rdMirror.TabIndex = 0;
+            this.rdMirror.Text = "平面镜";
+            this.rdMirror.UseVisualStyleBackColor = true;
+            this.rdMirror.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
             // 
             // rdArc
             // 
@@ -216,16 +207,27 @@ namespace Painter.Forms.Optical
             this.rdArc.UseVisualStyleBackColor = true;
             this.rdArc.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
             // 
-            // rdMirror
+            // rdNegetive
             // 
-            this.rdMirror.AutoSize = true;
-            this.rdMirror.Location = new System.Drawing.Point(434, 27);
-            this.rdMirror.Name = "rdMirror";
-            this.rdMirror.Size = new System.Drawing.Size(87, 22);
-            this.rdMirror.TabIndex = 0;
-            this.rdMirror.Text = "平面镜";
-            this.rdMirror.UseVisualStyleBackColor = true;
-            this.rdMirror.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
+            this.rdNegetive.AutoSize = true;
+            this.rdNegetive.Location = new System.Drawing.Point(151, 27);
+            this.rdNegetive.Name = "rdNegetive";
+            this.rdNegetive.Size = new System.Drawing.Size(87, 22);
+            this.rdNegetive.TabIndex = 0;
+            this.rdNegetive.Text = "凹透镜";
+            this.rdNegetive.UseVisualStyleBackColor = true;
+            // 
+            // rdPositive
+            // 
+            this.rdPositive.AutoSize = true;
+            this.rdPositive.Checked = true;
+            this.rdPositive.Location = new System.Drawing.Point(40, 27);
+            this.rdPositive.Name = "rdPositive";
+            this.rdPositive.Size = new System.Drawing.Size(87, 22);
+            this.rdPositive.TabIndex = 0;
+            this.rdPositive.TabStop = true;
+            this.rdPositive.Text = "凸透镜";
+            this.rdPositive.UseVisualStyleBackColor = true;
             // 
             // label7
             // 
@@ -280,6 +282,25 @@ namespace Painter.Forms.Optical
             this.txtHeight.TabIndex = 12;
             this.txtHeight.Text = "40";
             // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(481, 201);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(44, 18);
+            this.label10.TabIndex = 7;
+            this.label10.Text = "颜色";
+            // 
+            // lblColor
+            // 
+            this.lblColor.BackColor = System.Drawing.Color.Aqua;
+            this.lblColor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblColor.Location = new System.Drawing.Point(544, 201);
+            this.lblColor.Name = "lblColor";
+            this.lblColor.Size = new System.Drawing.Size(44, 18);
+            this.lblColor.TabIndex = 7;
+            this.lblColor.Click += new System.EventHandler(this.lblColor_Click);
+            // 
             // NewLens
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
@@ -297,6 +318,8 @@ namespace Painter.Forms.Optical
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.label7);
+            this.Controls.Add(this.lblColor);
+            this.Controls.Add(this.label10);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label3);
@@ -340,5 +363,7 @@ namespace Painter.Forms.Optical
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox txtHeight;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label lblColor;
     }
 }

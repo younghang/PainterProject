@@ -15,6 +15,15 @@ namespace Painter.Models.GameModel.StageModel
 {
     class OpticalScene : StageScene
     {
+        public override void Clear()
+        {
+            var items = this.GetScene().GetSceneObject();
+            foreach (var item in items)
+            {
+                item.IsDisposed = true;
+            }
+            base.Clear(); 
+        }
         public OpticalScene()
         {
             MaxX = 300;
@@ -37,15 +46,19 @@ namespace Painter.Models.GameModel.StageModel
             }
         }
         private string SCENE_FILE_NAME = "./data/optical_scene.json";
-        public bool LoadScene()
-        { 
-            if (File.Exists(SCENE_FILE_NAME) ==false)
+        public bool LoadScene(string fileName="")
+        {
+            if (fileName=="")
+            {
+                fileName = SCENE_FILE_NAME;
+            }
+            if (File.Exists(fileName) ==false)
             {
                 return false;
             }
             try
             { 
-                string text = File.ReadAllText(SCENE_FILE_NAME);
+                string text = File.ReadAllText(fileName);
                 Dictionary<string, string> keyValuePairs = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
                 string lensStr = keyValuePairs["lens"];
                 string raysStr = keyValuePairs["rays"];
@@ -75,7 +88,7 @@ namespace Painter.Models.GameModel.StageModel
             }
             return true;
         }
-        public void SaveScene()
+        public void SaveScene(string fileName= "")
         {
             List<RayLight> rays = new List<RayLight>();
             List<LensObject> lens = new List<LensObject>();
@@ -112,7 +125,15 @@ namespace Painter.Models.GameModel.StageModel
             {
                 Directory.CreateDirectory("./data");
             }
-            File.WriteAllText(SCENE_FILE_NAME, text);
+            string filePath = "";
+            if (fileName == "")
+            {
+                filePath = SCENE_FILE_NAME;
+            }else
+            {
+                filePath =   fileName ;
+            }
+            File.WriteAllText(filePath, text);
         }
         public override Scene CreateScene()
         {

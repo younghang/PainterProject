@@ -1,6 +1,6 @@
 ﻿using CalculatorDll;
 using Painter.Controller;
-using Painter.Utils;
+using Painter.MyUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -278,7 +278,7 @@ namespace Painter.Models
                 }
                 if (isSeperatorLine)
                 {
-                    strProcessCmdLines.Add(MyUtils.Clone<string>(code));
+                    strProcessCmdLines.Add(MyUtils.MyUtils.Clone<string>(code));
                     code.Clear();
                 }
                 else
@@ -288,7 +288,7 @@ namespace Painter.Models
             }
             if (code.Count > 0)
             {
-                strProcessCmdLines.Add(MyUtils.Clone<string>(code));
+                strProcessCmdLines.Add(MyUtils.MyUtils.Clone<string>(code));
                 code.Clear();
             }
             return this;

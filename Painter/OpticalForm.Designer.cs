@@ -30,8 +30,11 @@ namespace Painter
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.canvasView1 = new Painter.View.CanvasView.CanvasView();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.保存ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.另存ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.加载ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tab_Rays = new System.Windows.Forms.TabPage();
             this.groupRayProperties = new System.Windows.Forms.GroupBox();
@@ -86,8 +89,14 @@ namespace Painter
             this.removeLens = new System.Windows.Forms.Button();
             this.addLens = new System.Windows.Forms.Button();
             this.tabLength = new System.Windows.Forms.TabPage();
+            this.ckShowAutoAdjust = new System.Windows.Forms.CheckBox();
+            this.txtAutoCount = new System.Windows.Forms.TextBox();
+            this.txt_AutoDelta = new System.Windows.Forms.TextBox();
+            this.btnStopAutoGap = new System.Windows.Forms.Button();
             this.btnFocusAlign = new System.Windows.Forms.Button();
+            this.label21 = new System.Windows.Forms.Label();
             this.lbl_RayImagePoint = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
             this.tabMaterials = new System.Windows.Forms.TabPage();
             this.label16 = new System.Windows.Forms.Label();
@@ -97,13 +106,6 @@ namespace Painter
             this.txtMatEquation = new System.Windows.Forms.RichTextBox();
             this.txtMatName = new System.Windows.Forms.TextBox();
             this.listMaterials = new System.Windows.Forms.ListView();
-            this.btnStopAutoGap = new System.Windows.Forms.Button();
-            this.label20 = new System.Windows.Forms.Label();
-            this.txt_AutoDelta = new System.Windows.Forms.TextBox();
-            this.label21 = new System.Windows.Forms.Label();
-            this.txtAutoCount = new System.Windows.Forms.TextBox();
-            this.ckShowAutoAdjust = new System.Windows.Forms.CheckBox();
-            this.canvasView1 = new Painter.View.CanvasView.CanvasView();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -141,24 +143,50 @@ namespace Painter
             this.splitContainer1.SplitterDistance = 690;
             this.splitContainer1.TabIndex = 2;
             // 
+            // canvasView1
+            // 
+            this.canvasView1.BackColor = System.Drawing.Color.White;
+            this.canvasView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.canvasView1.Location = new System.Drawing.Point(0, 32);
+            this.canvasView1.Name = "canvasView1";
+            this.canvasView1.Size = new System.Drawing.Size(1419, 658);
+            this.canvasView1.TabIndex = 0;
+            this.canvasView1.Load += new System.EventHandler(this.canvasView1_Load);
+            // 
             // menuStrip1
             // 
             this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.保存ToolStripMenuItem});
+            this.保存ToolStripMenuItem,
+            this.另存ToolStripMenuItem,
+            this.加载ToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1419, 36);
+            this.menuStrip1.Size = new System.Drawing.Size(1419, 32);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // 保存ToolStripMenuItem
             // 
             this.保存ToolStripMenuItem.Name = "保存ToolStripMenuItem";
-            this.保存ToolStripMenuItem.Size = new System.Drawing.Size(62, 30);
+            this.保存ToolStripMenuItem.Size = new System.Drawing.Size(62, 28);
             this.保存ToolStripMenuItem.Text = "保存";
             this.保存ToolStripMenuItem.Click += new System.EventHandler(this.保存ToolStripMenuItem_Click);
+            // 
+            // 另存ToolStripMenuItem
+            // 
+            this.另存ToolStripMenuItem.Name = "另存ToolStripMenuItem";
+            this.另存ToolStripMenuItem.Size = new System.Drawing.Size(62, 28);
+            this.另存ToolStripMenuItem.Text = "另存";
+            this.另存ToolStripMenuItem.Click += new System.EventHandler(this.另存ToolStripMenuItem_Click);
+            // 
+            // 加载ToolStripMenuItem
+            // 
+            this.加载ToolStripMenuItem.Name = "加载ToolStripMenuItem";
+            this.加载ToolStripMenuItem.Size = new System.Drawing.Size(62, 28);
+            this.加载ToolStripMenuItem.Text = "加载";
+            this.加载ToolStripMenuItem.Click += new System.EventHandler(this.加载ToolStripMenuItem_Click);
             // 
             // tabControl1
             // 
@@ -400,6 +428,7 @@ namespace Painter
             // 
             // numericUpDown1
             // 
+            this.numericUpDown1.DecimalPlaces = 2;
             this.numericUpDown1.Location = new System.Drawing.Point(66, 37);
             this.numericUpDown1.Minimum = new decimal(new int[] {
             100,
@@ -731,6 +760,42 @@ namespace Painter
             this.tabLength.Text = "总长";
             this.tabLength.UseVisualStyleBackColor = true;
             // 
+            // ckShowAutoAdjust
+            // 
+            this.ckShowAutoAdjust.AutoSize = true;
+            this.ckShowAutoAdjust.Location = new System.Drawing.Point(211, 37);
+            this.ckShowAutoAdjust.Name = "ckShowAutoAdjust";
+            this.ckShowAutoAdjust.Size = new System.Drawing.Size(106, 22);
+            this.ckShowAutoAdjust.TabIndex = 3;
+            this.ckShowAutoAdjust.Text = "实时显示";
+            this.ckShowAutoAdjust.UseVisualStyleBackColor = true;
+            // 
+            // txtAutoCount
+            // 
+            this.txtAutoCount.Location = new System.Drawing.Point(148, 133);
+            this.txtAutoCount.Name = "txtAutoCount";
+            this.txtAutoCount.Size = new System.Drawing.Size(100, 28);
+            this.txtAutoCount.TabIndex = 2;
+            this.txtAutoCount.Text = "200";
+            // 
+            // txt_AutoDelta
+            // 
+            this.txt_AutoDelta.Location = new System.Drawing.Point(148, 85);
+            this.txt_AutoDelta.Name = "txt_AutoDelta";
+            this.txt_AutoDelta.Size = new System.Drawing.Size(100, 28);
+            this.txt_AutoDelta.TabIndex = 2;
+            this.txt_AutoDelta.Text = "0.175";
+            // 
+            // btnStopAutoGap
+            // 
+            this.btnStopAutoGap.Location = new System.Drawing.Point(178, 179);
+            this.btnStopAutoGap.Name = "btnStopAutoGap";
+            this.btnStopAutoGap.Size = new System.Drawing.Size(99, 45);
+            this.btnStopAutoGap.TabIndex = 1;
+            this.btnStopAutoGap.Text = "停止";
+            this.btnStopAutoGap.UseVisualStyleBackColor = true;
+            this.btnStopAutoGap.Click += new System.EventHandler(this.btnStopAutoGap_Click);
+            // 
             // btnFocusAlign
             // 
             this.btnFocusAlign.Location = new System.Drawing.Point(29, 179);
@@ -741,6 +806,15 @@ namespace Painter
             this.btnFocusAlign.UseVisualStyleBackColor = true;
             this.btnFocusAlign.Click += new System.EventHandler(this.btnFocusAlign_Click);
             // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(26, 136);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(98, 18);
+            this.label21.TabIndex = 0;
+            this.label21.Text = "F3移动次数";
+            // 
             // lbl_RayImagePoint
             // 
             this.lbl_RayImagePoint.AutoSize = true;
@@ -749,6 +823,15 @@ namespace Painter
             this.lbl_RayImagePoint.Size = new System.Drawing.Size(35, 18);
             this.lbl_RayImagePoint.TabIndex = 0;
             this.lbl_RayImagePoint.Text = "0.0";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(26, 88);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(116, 18);
+            this.label20.TabIndex = 0;
+            this.label20.Text = "F3移动微距离";
             // 
             // label19
             // 
@@ -780,9 +863,9 @@ namespace Painter
             this.label16.AutoSize = true;
             this.label16.Location = new System.Drawing.Point(418, 86);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(134, 18);
+            this.label16.Size = new System.Drawing.Size(440, 18);
             this.label16.TabIndex = 4;
-            this.label16.Text = "折射率与波长nm";
+            this.label16.Text = "折射率与波长nm  (公式中使用变量名lambda表示波长)";
             // 
             // label15
             // 
@@ -795,7 +878,7 @@ namespace Painter
             // 
             // btnDeleteMat
             // 
-            this.btnDeleteMat.Location = new System.Drawing.Point(906, 46);
+            this.btnDeleteMat.Location = new System.Drawing.Point(912, 38);
             this.btnDeleteMat.Name = "btnDeleteMat";
             this.btnDeleteMat.Size = new System.Drawing.Size(130, 41);
             this.btnDeleteMat.TabIndex = 3;
@@ -805,7 +888,7 @@ namespace Painter
             // 
             // btnUpdateMaterial
             // 
-            this.btnUpdateMaterial.Location = new System.Drawing.Point(746, 46);
+            this.btnUpdateMaterial.Location = new System.Drawing.Point(752, 38);
             this.btnUpdateMaterial.Name = "btnUpdateMaterial";
             this.btnUpdateMaterial.Size = new System.Drawing.Size(130, 41);
             this.btnUpdateMaterial.TabIndex = 3;
@@ -838,70 +921,6 @@ namespace Painter
             this.listMaterials.UseCompatibleStateImageBehavior = false;
             this.listMaterials.View = System.Windows.Forms.View.List;
             this.listMaterials.SelectedIndexChanged += new System.EventHandler(this.listMaterials_SelectedIndexChanged);
-            // 
-            // btnStopAutoGap
-            // 
-            this.btnStopAutoGap.Location = new System.Drawing.Point(178, 179);
-            this.btnStopAutoGap.Name = "btnStopAutoGap";
-            this.btnStopAutoGap.Size = new System.Drawing.Size(99, 45);
-            this.btnStopAutoGap.TabIndex = 1;
-            this.btnStopAutoGap.Text = "停止";
-            this.btnStopAutoGap.UseVisualStyleBackColor = true;
-            this.btnStopAutoGap.Click += new System.EventHandler(this.btnStopAutoGap_Click);
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(26, 88);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(116, 18);
-            this.label20.TabIndex = 0;
-            this.label20.Text = "F3移动微距离";
-            // 
-            // txt_AutoDelta
-            // 
-            this.txt_AutoDelta.Location = new System.Drawing.Point(148, 85);
-            this.txt_AutoDelta.Name = "txt_AutoDelta";
-            this.txt_AutoDelta.Size = new System.Drawing.Size(100, 28);
-            this.txt_AutoDelta.TabIndex = 2;
-            this.txt_AutoDelta.Text = "0.175";
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(26, 136);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(98, 18);
-            this.label21.TabIndex = 0;
-            this.label21.Text = "F3移动次数";
-            // 
-            // txtAutoCount
-            // 
-            this.txtAutoCount.Location = new System.Drawing.Point(148, 133);
-            this.txtAutoCount.Name = "txtAutoCount";
-            this.txtAutoCount.Size = new System.Drawing.Size(100, 28);
-            this.txtAutoCount.TabIndex = 2;
-            this.txtAutoCount.Text = "200";
-            // 
-            // ckShowAutoAdjust
-            // 
-            this.ckShowAutoAdjust.AutoSize = true;
-            this.ckShowAutoAdjust.Location = new System.Drawing.Point(211, 37);
-            this.ckShowAutoAdjust.Name = "ckShowAutoAdjust";
-            this.ckShowAutoAdjust.Size = new System.Drawing.Size(106, 22);
-            this.ckShowAutoAdjust.TabIndex = 3;
-            this.ckShowAutoAdjust.Text = "实时显示";
-            this.ckShowAutoAdjust.UseVisualStyleBackColor = true;
-            // 
-            // canvasView1
-            // 
-            this.canvasView1.BackColor = System.Drawing.Color.White;
-            this.canvasView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.canvasView1.Location = new System.Drawing.Point(0, 36);
-            this.canvasView1.Name = "canvasView1";
-            this.canvasView1.Size = new System.Drawing.Size(1419, 654);
-            this.canvasView1.TabIndex = 0;
-            this.canvasView1.Load += new System.EventHandler(this.canvasView1_Load);
             // 
             // OpticalForm
             // 
@@ -1018,5 +1037,7 @@ namespace Painter
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.CheckBox ckShowAutoAdjust;
+        private System.Windows.Forms.ToolStripMenuItem 另存ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 加载ToolStripMenuItem;
     }
 }

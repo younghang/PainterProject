@@ -273,6 +273,7 @@ namespace Painter.WinFormDisplay
             this.lblFillColor.Size = new System.Drawing.Size(22, 24);
             this.lblFillColor.TabIndex = 4;
             this.lblFillColor.Tag = "Fill";
+            this.lblFillColor.Click += new System.EventHandler(this.lblFillColor_Click);
             // 
             // label5
             // 
