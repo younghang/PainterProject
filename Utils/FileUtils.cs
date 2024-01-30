@@ -223,6 +223,9 @@ namespace Utils
             }
             SaveConfigurations();
         }
-
+        public Dictionary<string, string> GetData()
+        {
+            return settingItems;
+        }
     }
 }

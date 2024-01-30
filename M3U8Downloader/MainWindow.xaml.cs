@@ -304,11 +304,19 @@ namespace M3U8Downloader
             mainOverlay.OpenOverlay();
             mainOverlay.Show();
         }
-
+        private bool cancelCheck = false;
         private void CheckLiveTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             lock (lockObj)
             {
+                if (cancelCheck==true)
+                {
+                    infoMsg.Dispatcher.Invoke(() =>
+                    {
+                        infoMsg.Text = DateTime.Now + " " + "Cancel";
+                    });
+                    return;
+                }
                 Random random = new Random();
                 int span = random.Next(1, 4);
                 Thread.Sleep(span * 1000 );
@@ -316,6 +324,7 @@ namespace M3U8Downloader
                 string flv = "";
                 if (GetLiveUrl(out liveUrl, ref flv))
                 {
+                    cancelCheck = true;
                     ToastMessage("已获取到直播流地址:" + flv, TOAST_TYPE.MESSAGE);
                     checkLiveTimer.Stop();
                     StartLiveStreamSaveThread(liveUrl, flv);
@@ -351,6 +360,7 @@ namespace M3U8Downloader
 
         private void StartLiveCheckTimer()
         {
+            cancelCheck = false;
             checkLiveTimer.Start();
         }
         private void StartLiveStreamSaveThread(string url, string flv_url)
@@ -374,6 +384,11 @@ namespace M3U8Downloader
                 mainOverlay.ToastMessage("开播啦",TOAST_TYPE.ALERT);
             }
             PlayShoudao();
+            if (true)
+            {
+                string roomid = Utils.FileSettings.GetItem("setting.txt", "Room_ID", "945130793525");
+
+            }
         }
         private void CloseWindow(object sender, MouseButtonEventArgs e)
         {
@@ -391,6 +406,10 @@ namespace M3U8Downloader
             checkLiveTimer.Stop();
             outputDevice?.Stop();
             Stop();
+            if (mainOverlay != null)
+            {
+                mainOverlay.Close();
+            }
             this.Close();
             Application.Current.Shutdown();
         }
@@ -698,12 +717,22 @@ namespace M3U8Downloader
             // string filePath = "F:/bin/testdouyin.html";
             try
             {
-            //https://live.douyin.com/
+                //https://live.douyin.com/
                 // 双子星 208998801140
                 //肥宝 945130793525
+                //元子 633279863465
                 string roomid = "945130793525";//683808954455 realai
+                Utils.FileSettings.GetItem("setting.txt", "肥宝", "945130793525");
+                //Utils.FileSettings.GetItem("setting.txt", "双子星", "208998801140");
+                //Utils.FileSettings.GetItem("setting.txt", "元子", "633279863465");
+                roomid =Utils.FileSettings.GetItem("setting.txt", "Room_ID", "945130793525");
+                if (roomid=="0")
+                {
+                    roomid = "945130793525";
+                } 
+                //roomid = "208998801140";
                 string web_url = "https://live.douyin.com/" + roomid; //"305607727597"
-
+                
                 HtmlDocument doc = new HtmlDocument();
 
                 //doc = new HtmlWeb().Load(web_url);
@@ -719,13 +748,17 @@ namespace M3U8Downloader
                     req.Timeout = 5000;
                     req.Method = "GET";
                     HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-                    var cookies = resp.Headers[HttpResponseHeader.SetCookie].ToString().Split(';');
+                    var cookies = resp.Headers[HttpResponseHeader.SetCookie].ToString().Split(';',',');
                     
                     cookieContainer = new CookieContainer();
                     for (int i = 0; i < cookies.Length; i++)
                     {
                         var item = cookies[i];
                         Cookie cookie = new Cookie();
+                        if (item.ToString().Contains("=")==false)
+                        {
+                            continue;
+                        } 
                         cookie.Name = item.ToString().Split('=')[0].Trim();
                         cookie.Value = item.ToString().Split('=')[1].Trim();
                         cookie.Domain = ".douyin.com";
@@ -782,23 +815,74 @@ namespace M3U8Downloader
                     }
 
                     string jsonUrlEncodeStr = data.InnerText;
-                    if (!jsonUrlEncodeStr.Contains("self.__pace_f.push")|| !jsonUrlEncodeStr.Contains("origin")|| !jsonUrlEncodeStr.Contains("\\\\u0026"))
+                    if (!jsonUrlEncodeStr.Contains(".flv"))
+                    //if (!jsonUrlEncodeStr.Contains("self.__pace_f.push")|| !jsonUrlEncodeStr.Contains("origin")|| !jsonUrlEncodeStr.Contains("\\\\u0026"))
                     {
                         throw new Exception("Faild to find flv");
                     }
-                    jsonUrlEncodeStr=jsonUrlEncodeStr.Replace("self.__pace_f.push", "");
-                    jsonUrlEncodeStr=jsonUrlEncodeStr.Remove(0, 1);
-                    jsonUrlEncodeStr=jsonUrlEncodeStr.Remove(jsonUrlEncodeStr.Length - 1, 1);
-
+                     
+                    Func<int,string,string> get_flv = (int startIndex,string s )=>{
+                        string _flv = "";
+                        string ss = s.Substring(startIndex);
+                        int index_of_flv = ss.IndexOf(".flv");
+                        if (index_of_flv==-1)
+                        {
+                            return _flv;
+                        }
+                        string sss = ss.Substring(index_of_flv);
+                        int index_of_quote = sss.IndexOf("\"");
+                        string sss_pre = ss.Substring(0, index_of_flv);
+                        int index_of_http = sss_pre.LastIndexOf("http");
+                        if (index_of_http==-1)
+                        {
+                            return "";
+                        }
+                        _flv = ss.Substring(index_of_http, index_of_quote + index_of_flv - index_of_http);
+                        return _flv;
+                            };
+                    int index_of_temp = 0;
+                    string tempstr = "";
+                    List<string> playList = new List<string>();
+                    while(index_of_temp < jsonUrlEncodeStr.Length)
+                    { 
+                        tempstr = get_flv(index_of_temp, jsonUrlEncodeStr);
+                        if (tempstr=="")
+                        {
+                            break;
+                        }
+                        if (tempstr.Contains("only"))
+                        {
+                            index_of_temp = jsonUrlEncodeStr.IndexOf(tempstr)+tempstr.Length;
+                        }
+                        else
+                        { 
+                            playList.Add(tempstr);
+                            index_of_temp = jsonUrlEncodeStr.IndexOf(tempstr) + tempstr.Length;
+                        }
+                    }
+                    if (playList.Count== 0)
+                    {
+                        url = "Not on the air.";
+                        return false;
+                    }
+                    foreach (var item in playList)
+                    {
+                        if (item.Contains("hd")|| item.Contains("or4"))
+                        {
+                            jsonUrlEncodeStr = item;
+                            break;
+                        }
+                    }
                     // 解码
                     string jsonStr = System.Web.HttpUtility.UrlDecode(jsonUrlEncodeStr);
-                    int startPos = jsonStr.IndexOf("\"");
-                    jsonStr =  jsonStr.Substring(startPos+1, jsonStr.Length - startPos-3);
+                    //int startPos = jsonStr.IndexOf("\"");
+                    //jsonStr =  jsonStr.Substring(startPos+1, jsonStr.Length - startPos-3);
                     //jsonStr = JsonConvert.DeserializeObject<string>(jsonStr);
-                    string flvStr = jsonStr.Substring(jsonStr.IndexOf("origin"));
-                    flvStr = flvStr.Substring(flvStr.IndexOf("http"));
-                    flvStr = flvStr.Substring(0,  flvStr.IndexOf("\""));
-                    flvStr = flvStr.Replace("\\\\u0026", "&");
+                    //string flvStr = jsonStr.Substring(jsonStr.IndexOf("origin"));
+                    //flvStr = flvStr.Substring(flvStr.IndexOf("http"));
+                    //flvStr = flvStr.Substring(0,  flvStr.IndexOf("\""));
+                    string flvStr = jsonStr;
+                    flvStr = flvStr.Replace("\\u0026", "&");
                     flvStr = System.Web.HttpUtility.UrlDecode(flvStr);
                     flvStr = flvStr.Substring(0, flvStr.Length - 1);
                     url = flvStr;
@@ -869,6 +953,7 @@ namespace M3U8Downloader
             catch (System.Net.WebException e)
             {
                 url ="Notify" + e.Message;
+                cookieContainer = new CookieContainer();
                 return false;
             }
             catch (Exception e)
@@ -907,6 +992,7 @@ namespace M3U8Downloader
                 downloader.trytimer.Enabled = false;
                 downloader.cancle = true;
             }
+            cookieContainer = new CookieContainer();
             downloader.Stop();
             downloader = null;
         }

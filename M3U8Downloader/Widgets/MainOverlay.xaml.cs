@@ -54,6 +54,13 @@ namespace M3U8Downloader.Widgets
             this.timer = new DispatcherTimer(new TimeSpan(0, 0, 1), DispatcherPriority.Normal, new EventHandler(this.ShowFront), base.Dispatcher);
             this.timer.Start();
             this.Loaded += MainOverlay_Loaded;
+            this.Closing += MainOverlay_Closing;
+        }
+
+        private void MainOverlay_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            timer.Stop();
+
         }
 
         private void MainOverlay_Loaded(object sender, RoutedEventArgs e)
