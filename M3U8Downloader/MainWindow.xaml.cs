@@ -855,12 +855,16 @@ namespace M3U8Downloader
                             index_of_temp = jsonUrlEncodeStr.IndexOf(tempstr)+tempstr.Length;
                         }
                         else
-                        { 
+                        {
+                            if (playList.Contains(tempstr))
+                            {
+                                break;
+                            }
                             playList.Add(tempstr);
                             index_of_temp = jsonUrlEncodeStr.IndexOf(tempstr) + tempstr.Length;
                         }
                     }
-                    if (playList.Count== 0)
+                    if (playList.Count== 0|| playList.Count>10)
                     {
                         url = "Not on the air.";
                         return false;
