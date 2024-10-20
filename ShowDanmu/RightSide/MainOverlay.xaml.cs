@@ -190,7 +190,10 @@ namespace ShowDanmu.RightSide
                 }));
             }
         }
-
+        public int  GetTextCount()
+        {
+            return this.LayoutRoot.Children.Count;
+        }
         public void AddText(string user, string text, bool warn = false, bool foreceenablefullscreen = false)
         {
 

@@ -15,16 +15,25 @@ namespace DailyClickCount
 {
     public partial class Form1 : Form
     {
+        private Dictionary<DateTime, int> seconds = new Dictionary<DateTime, int>();
         private Dictionary<DateTime, int> clickCounts = new Dictionary<DateTime, int>();
         private Dictionary<DateTime, int> keyCounts = new Dictionary<DateTime, int>();
         private Queue<DateTime> workingTime = new Queue<DateTime>(1000);
         private DataGridView dataGridView;
         private RichTextBox textBox;
         public static string START_UP_PATH = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-
+        System.Timers.Timer idlTimer = new System.Timers.Timer();
+        System.Timers.Timer countTimer = new System.Timers.Timer();
+        int workingSecs = 0;
         private static string dataFilePath = "click_counts.txt";
         public Form1()
         {
+            idlTimer.Elapsed += IdlTimer_Elapsed;
+            countTimer.Elapsed += CountTimer_Elapsed;
+            idlTimer.Interval = 1000*60;//一分钟无动作 停止计时
+            countTimer.Interval = 1000;
+            idlTimer.Start();
+            idlTimer.AutoReset = false;
             InitializeComponent();
             dataGridView = new DataGridView();
             dataGridView.Dock = DockStyle.Fill;
@@ -34,6 +43,7 @@ namespace DailyClickCount
             dataGridView.Columns.Add("Date", "Date");
             dataGridView.Columns.Add("Clicks", "Clicks");
             dataGridView.Columns.Add("Keys", "Keys");
+            dataGridView.Columns.Add("Seconds", "Seconds");
             textBox = new RichTextBox();
             textBox.Width = 600;
             textBox.Height = 200;
@@ -49,6 +59,24 @@ namespace DailyClickCount
             this.Load += Form1_Load;
         }
 
+        private void CountTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            workingSecs++;
+            DateTime today = DateTime.Today;
+            if (seconds.ContainsKey(today))
+            {
+                seconds[today]=(workingSecs);
+            }
+            else
+            {
+                seconds[today] = 0;
+            }
+        }
+
+        private void IdlTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            countTimer.Stop();
+        }
 
         KeyboardHook key = new KeyboardHook();
         MouseHook mouse = new MouseHook();
@@ -86,7 +114,7 @@ namespace DailyClickCount
 
             // 显示托盘图标
             notifyIcon.Visible = true;
-            saveTimer.Interval = 1000 * 60;
+            saveTimer.Interval = 1000 * 60*5;
             saveTimer.Tick += SaveTimer_Tick;
             saveTimer.Start();
         }
@@ -175,6 +203,7 @@ namespace DailyClickCount
 
                     Console.WriteLine("备份成功！");
                 }
+                
                 // 删除超过90天的备份文件
                 foreach (FileInfo backupFile in backupFiles)
                 {
@@ -182,8 +211,12 @@ namespace DailyClickCount
 
                     if (timeSinceBackup.Days > 90)
                     {
-                        File.Delete(backupFile.FullName);
-                        Console.WriteLine($"删除过期备份文件：{backupFile.Name}");
+                        FileInfo ff=new FileInfo(sourceFilePath);
+                        if (backupFile.Length<ff.Length)
+                        {
+                            File.Delete(backupFile.FullName);
+                            Console.WriteLine($"删除过期备份文件：{backupFile.Name}");
+                        }
                     }
                 }
             }
@@ -197,6 +230,12 @@ namespace DailyClickCount
         }
         void key_OnKeyDownEvent(object sender, System.Windows.Forms.KeyEventArgs e)
         {
+            if (countTimer.Enabled == false)
+            {
+                countTimer.Start();
+                idlTimer.Stop();
+                idlTimer.Start();
+            }
             //this.Text = e.KeyData.ToString();
             // 等待用户按下 Ctrl+C
             if (e.Control && e.KeyCode == Keys.C)
@@ -225,6 +264,12 @@ namespace DailyClickCount
         }
         void mouse_OnMouseActivity(object sender, System.Windows.Forms.MouseEventArgs e)
         {
+            if (countTimer.Enabled == false)
+            {
+                countTimer.Start();
+                idlTimer.Stop();
+                idlTimer.Start(); 
+            }
             if (e.Button == MouseButtons.Left && e.Delta == 1)
             {
                 DateTime today = DateTime.Today;
@@ -236,11 +281,24 @@ namespace DailyClickCount
                 {
                     clickCounts[today] = 1;
                 }
-                MainOverlay.Instance.AddText("Click", clickCounts[today].ToString());
-                if (clickCounts[today]%500==0)
+                if (keyCounts.ContainsKey(today))
+                {
+                    
+                }
+                else
+                {
+                    keyCounts[today] = 1;
+                }
+                MainOverlay.Instance.AddText("Click", clickCounts[today].ToString()+"   ["+keyCounts[today].ToString()+"]");
+                if (clickCounts[today]%500==0|| keyCounts[today] % 1000 == 0)
                 {
                     MainOverlay.Instance.ToastMessage("超标！！！", MainOverlay.TOAST_TYPE.ERROR);
                     DanmakuCurtain.Instance.Shoot("超标！！！");
+                }
+                if (MainOverlay.Instance.GetTextCount()>18)
+                {
+                    MainOverlay.Instance.ToastMessage("静心！！！", MainOverlay.TOAST_TYPE.ERROR);
+                    DanmakuCurtain.Instance.Shoot("静心！！！");
                 }
                 this.workingTime.Enqueue(DateTime.Now);
                 RefreshDataGridView();
@@ -265,6 +323,7 @@ namespace DailyClickCount
             {
                 int keyCount = 0;
                 int mouseCount = 0;
+                int ms = 0;
                 if (clickCounts.Count > i)
                 {
                     mouseCount = clickCounts.ElementAt(i).Value;
@@ -273,19 +332,63 @@ namespace DailyClickCount
                 {
                     keyCount = keyCounts.ElementAt(i).Value;
                 }
-                dataGridView.Rows.Add(clickCounts.ElementAt(i).Key.ToShortDateString(), mouseCount, keyCount);
+                var key = clickCounts.ElementAt(i).Key;
+                if (seconds.ContainsKey(key))
+                {
+                   ms = seconds[key];
+                } 
+                dataGridView.Rows.Add(clickCounts.ElementAt(i).Key.ToShortDateString(), mouseCount, keyCount, ConvertSecondsToHMS(ms));
             }
 
         }
+        public static string ConvertSecondsToHMS(int totalSeconds)
+        {
+            int hours = totalSeconds / 3600;
+            int minutes = (totalSeconds % 3600) / 60;
+            int seconds = totalSeconds % 60;
 
+            return $"{hours:D2}:{minutes:D2}:{seconds:D2}";
+        }
         // 从文件加载点击次数
         private void LoadClickCounts()
         {
             if (File.Exists(START_UP_PATH + dataFilePath))
             {
+                string filePath = START_UP_PATH + dataFilePath;
+                FileInfo fileInfo = new FileInfo(START_UP_PATH + dataFilePath);
+
+
+                // 获取当前exe所在目录
+                string exePath = AppDomain.CurrentDomain.BaseDirectory;
+
+                // 构建备份文件夹路径
+                string backupFolderPath = Path.Combine(exePath, "BackUp");
+
+                // 检查备份文件夹是否存在，不存在则创建
+                if (!Directory.Exists(backupFolderPath))
+                {
+                    Directory.CreateDirectory(backupFolderPath);
+                }
+                 
+                // 获取备份文件夹中的文件列表
+                DirectoryInfo backupFolder = new DirectoryInfo(backupFolderPath);
+                FileInfo[] backupFiles = backupFolder.GetFiles();
+
+                // 按创建时间降序排序文件列表
+                backupFiles = backupFiles.OrderByDescending(f => f.CreationTime).ToArray();
+
+                // 检查上一次备份文件的日期
+                if (backupFiles.Length > 0)
+                {
+                    FileInfo lastBackupFile = backupFiles[0]; // 获取最近的备份文件
+                    if(fileInfo.Length<lastBackupFile.Length)
+                    {
+                        filePath = lastBackupFile.FullName;
+                    }
+                }
                 try
                 {
-                    string[] lines = File.ReadAllLines(START_UP_PATH + dataFilePath);
+                    string[] lines = File.ReadAllLines(filePath);
                     foreach (string line in lines)
                     {
                         string[] parts = line.Split(',');
@@ -304,6 +407,17 @@ namespace DailyClickCount
                             count = int.Parse(parts[2]);
                             keyCounts[date] = count;
                         }
+                        else if (parts.Length == 4)
+                        {
+                            DateTime date = DateTime.Parse(parts[0]);
+                            int count = int.Parse(parts[1]);
+                            clickCounts[date] = count;
+                            count = int.Parse(parts[2]);
+                            keyCounts[date] = count;
+                            count = 0;
+                            int.TryParse(parts[3],out count);
+                            seconds[date] = count;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -315,6 +429,83 @@ namespace DailyClickCount
         // 保存点击次数到文件
         private void SaveClickCounts()
         {
+            Dictionary<DateTime, int> seconds_temp = new Dictionary<DateTime, int>();
+            Dictionary<DateTime, int> clickCounts_temp = new Dictionary<DateTime, int>();
+            Dictionary<DateTime, int> keyCounts_temp = new Dictionary<DateTime, int>();
+            if (File.Exists(START_UP_PATH + dataFilePath))
+            {
+                string filePath = START_UP_PATH + dataFilePath;
+                FileInfo fileInfo = new FileInfo(START_UP_PATH + dataFilePath);
+
+
+                // 获取当前exe所在目录
+                string exePath = AppDomain.CurrentDomain.BaseDirectory;
+
+                // 构建备份文件夹路径
+                string backupFolderPath = Path.Combine(exePath, "BackUp");
+
+                // 检查备份文件夹是否存在，不存在则创建
+                if (!Directory.Exists(backupFolderPath))
+                {
+                    Directory.CreateDirectory(backupFolderPath);
+                }
+
+                // 获取备份文件夹中的文件列表
+                DirectoryInfo backupFolder = new DirectoryInfo(backupFolderPath);
+                FileInfo[] backupFiles = backupFolder.GetFiles();
+
+                // 按创建时间降序排序文件列表
+                backupFiles = backupFiles.OrderByDescending(f => f.CreationTime).ToArray();
+
+                // 检查上一次备份文件的日期
+                if (backupFiles.Length > 0)
+                {
+                    FileInfo lastBackupFile = backupFiles[0]; // 获取最近的备份文件
+                    if (fileInfo.Length < lastBackupFile.Length)
+                    {
+                        filePath = lastBackupFile.FullName;
+                    }
+                }
+                try
+                {
+                    string[] lines = File.ReadAllLines(filePath);
+                    foreach (string line in lines)
+                    {
+                        string[] parts = line.Split(',');
+                        if (parts.Length == 2)
+                        {
+                            DateTime date = DateTime.Parse(parts[0]);
+                            int count = int.Parse(parts[1]);
+                            clickCounts_temp[date] = count;
+                        }
+
+                        else if (parts.Length == 3)
+                        {
+                            DateTime date = DateTime.Parse(parts[0]);
+                            int count = int.Parse(parts[1]);
+                            clickCounts_temp[date] = count;
+                            count = int.Parse(parts[2]);
+                            keyCounts_temp[date] = count;
+                        }
+                        else if (parts.Length == 4)
+                        {
+                            DateTime date = DateTime.Parse(parts[0]);
+                            int count = int.Parse(parts[1]);
+                            clickCounts_temp[date] = count;
+                            count = int.Parse(parts[2]);
+                            keyCounts_temp[date] = count;
+                            count = 0;
+                            int.TryParse(parts[3], out count);
+                            seconds_temp[date] = count;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Failed to load click counts: " + ex.Message);
+                }
+            }
+
             try
             {
                 using (StreamWriter writer = new StreamWriter(START_UP_PATH + dataFilePath))
@@ -323,6 +514,7 @@ namespace DailyClickCount
                     {
                         int keyCount = 0;
                         int mouseCount = 0;
+                        int ms = 0;
                         if (clickCounts.Count > i)
                         {
                             mouseCount = clickCounts.ElementAt(i).Value;
@@ -331,7 +523,24 @@ namespace DailyClickCount
                         {
                             keyCount = keyCounts.ElementAt(i).Value;
                         }
-                        writer.WriteLine($"{clickCounts.ElementAt(i).Key},{mouseCount},{keyCount}");
+                        var key = clickCounts.ElementAt(i).Key;
+                        if (seconds.ContainsKey(key))
+                        {
+                            ms = seconds[key];
+                        }
+                        if (keyCount<keyCounts_temp[key])
+                        {
+                            keyCount = keyCounts_temp[key];
+                        }
+                        if (mouseCount < clickCounts_temp[key])
+                        {
+                            mouseCount = clickCounts_temp[key];
+                        }
+                        if (ms < seconds_temp[key])
+                        {
+                            ms = seconds_temp[key];
+                        }
+                        writer.WriteLine($"{clickCounts.ElementAt(i).Key},{mouseCount},{keyCount},{ms}");
                     }
 
                 }

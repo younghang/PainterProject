@@ -151,6 +151,15 @@ namespace Utils
             }
             return showInCmd;
         }
+        public static string GetKey(string name,string value)
+        {
+            if (File.Exists(name))
+            {
+                string result = new InFiles(name).FindKey(value);
+                return result;
+            }
+            return "";
+        }
         public static string GetItem(string name, string key,string value="")
         {
             if (File.Exists(name))
@@ -219,6 +228,21 @@ namespace Utils
                 CONFIGURE_TEXT += (item.Key + "=" + item.Value + "\n");
             }
             File.WriteAllText(ConfigureFileName, CONFIGURE_TEXT);
+        }
+        public string FindKey(string value)
+        {
+            LoadConfigurations();
+            if (settingItems.ContainsValue(value))
+            {
+                foreach (var item in settingItems.Keys)
+                {
+                    if (settingItems[item]==value&&item!= "Room_ID")
+                    {
+                        return item;
+                    }
+                }
+            }
+            return "";
         }
         public string GetSettingItem(string key)
         {

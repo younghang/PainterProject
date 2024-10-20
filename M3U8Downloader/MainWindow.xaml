@@ -92,7 +92,7 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <Grid  Grid.Row="0" Height="30"    HorizontalAlignment="Left" Margin="10,0" VerticalAlignment="Center">
-                    <TextBlock Margin="0 0 0 0"  Width="300"   Foreground="WhiteSmoke" FontWeight="Bold" VerticalAlignment="Center" FontSize="24" Text="肥宝❤ Live Download" MouseDown="TextBlock_MouseDown"/>
+                    <TextBlock Margin="0 0 0 0" x:Name="txtTitle" Width="300"   Foreground="WhiteSmoke" FontWeight="Bold" VerticalAlignment="Center" FontSize="24" Text="肥宝❤ Live Download" MouseDown="TextBlock_MouseDown"/>
                 </Grid>
                 
                 <Border x:Name="closeButton" HorizontalAlignment="Right" Margin="10,0"   CornerRadius="15" Width="30" Height="30" Grid.Row="0" MouseDown="CloseWindow">

@@ -38,6 +38,8 @@ namespace M3U8Downloader
     public partial class MainWindow : Window
     {
         bool userStop = false;
+        private string RoomName = "";
+        private string RoomID = "";
         private WaveOutEvent outputDevice;
         private MainOverlay mainOverlay=null;
         private string FilePath = "./Video";
@@ -679,7 +681,7 @@ namespace M3U8Downloader
             }
             else
             {
-                downloader = new SimpleFlvVideoDownloader(FLV, this.FilePath);
+                downloader = new SimpleFlvVideoDownloader(FLV, this.FilePath,RoomID + RoomName);
             }
             downloader.Clear();
             downloader.DownloadUpdate += UpdateProgress;
@@ -721,6 +723,7 @@ namespace M3U8Downloader
                 // 双子星 208998801140
                 //肥宝 945130793525
                 //元子 633279863465
+
                 string roomid = "945130793525";//683808954455 realai
                 Utils.FileSettings.GetItem("setting.txt", "肥宝", "945130793525");
                 //Utils.FileSettings.GetItem("setting.txt", "双子星", "208998801140");
@@ -732,9 +735,16 @@ namespace M3U8Downloader
                 } 
                 //roomid = "208998801140";
                 string web_url = "https://live.douyin.com/" + roomid; //"305607727597"
-                
+                RoomID = roomid;
+                RoomName = Utils.FileSettings.GetKey("setting.txt", RoomID);
                 HtmlDocument doc = new HtmlDocument();
-
+                if (RoomID!= "945130793525")
+                {
+                    this.Dispatcher.Invoke(()=> {
+                        txtTitle.Text = RoomName;
+                        this.Avatar.Visibility = Visibility.Hidden;
+                    });
+                }
                 //doc = new HtmlWeb().Load(web_url);
 
                 //通过字符串加载

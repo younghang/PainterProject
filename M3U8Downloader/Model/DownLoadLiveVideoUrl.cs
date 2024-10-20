@@ -367,7 +367,7 @@ namespace M3U8Downloader.Model
     public class SimpleFlvVideoDownloader : Downloader
     {
 
-        public SimpleFlvVideoDownloader(string m3u8_url, string filepath = "./Video")
+        public SimpleFlvVideoDownloader(string m3u8_url, string filepath = "./Video",string preFix="")
         {
             videoList = m3u8_url;
             filePath = filepath;
@@ -378,8 +378,10 @@ namespace M3U8Downloader.Model
                 {
                     IsUsingffmpeg = true;
                 }
-            } 
+            }
+            PreFix = preFix;
         }
+        string PreFix = "";
         bool IsUsingffmpeg = false;
         WebClient webClient = null;
         string strFFmpegDir="";
@@ -393,7 +395,7 @@ namespace M3U8Downloader.Model
                 Directory.CreateDirectory(filePath);
             }
             DateTime dt = DateTime.Now;
-            string fileName = dt.Year + "-" + dt.Month + "-" + dt.Day + "-" + dt.Hour.ToString() + "@" + dt.Minute.ToString() + "@" + dt.Second;
+            string fileName =PreFix + dt.Year + "-" + dt.Month + "-" + dt.Day + "-" + dt.Hour.ToString() + "@" + dt.Minute.ToString() + "@" + dt.Second;
             fileLocal = filePath + "/" + fileName;
             fileFullName = fileLocal;
             if (IsUsingffmpeg)
