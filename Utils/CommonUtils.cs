@@ -169,23 +169,24 @@ namespace Utils
         public static string GetTimeSpan(DateTime EndTime, DateTime StartTime,double rate=1,bool ms=true)
         {
             double seconds = (EndTime - StartTime).TotalMilliseconds / 1000 * rate;
-            int minue = (int)(seconds / 60);
+            int remian_sec = (int)(seconds) % 3600;
+            int minue = (int)(remian_sec / 60);
             string strMin = "" + minue;
 
             if (minue < 10)
             {
                 strMin = "0" + minue;
             }
-            int sec = (int)(seconds - minue * 60);
+            int hour= (int)(seconds / 3600);
+            int sec = (int)(remian_sec% 60);
             string strSecond = "" + sec;
             if (sec < 10)
             {
                 strSecond = "0" + sec;
             }
-            double milliseconds = (seconds - minue * 60 - sec) * 1000;
+            double milliseconds = (seconds - hour*3600-minue * 60 - sec) * 1000;
             string strMilli = ((int)milliseconds).ToString("000");//ToString("D3")
             string totalTime = strMin + ":" + strSecond + "." + strMilli;
-            int hour= (int)(minue / 60);
             string strHour= "" + hour;
             if (hour < 10)
             {

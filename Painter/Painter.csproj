@@ -145,6 +145,12 @@
     <Compile Include="PainterForm.Designer.cs">
       <DependentUpon>PainterForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="StaticLayout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StaticLayout.Designer.cs">
+      <DependentUpon>StaticLayout.cs</DependentUpon>
+    </Compile>
     <Compile Include="TempTest\PainterTest.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -270,6 +276,9 @@
     <EmbeddedResource Include="PainterForm.resx">
       <DependentUpon>PainterForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="StaticLayout.resx">
+      <DependentUpon>StaticLayout.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TempTest\PainterTest.resx">
       <DependentUpon>PainterTest.cs</DependentUpon>
     </EmbeddedResource>
@@ -326,6 +335,7 @@
       <DependentUpon>WinFormUC.cs</DependentUpon>
     </EmbeddedResource>
     <None Include=".editorconfig" />
+    <Compile Include="Models\GameModel\SceneModel\StaticChargeModel\ChargeObject.cs" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

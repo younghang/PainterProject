@@ -742,7 +742,8 @@ namespace M3U8Downloader
                 {
                     this.Dispatcher.Invoke(()=> {
                         txtTitle.Text = RoomName;
-                        this.Avatar.Visibility = Visibility.Hidden;
+                        //this.Avatar.Visibility = Visibility.Hidden;
+                        this.Avatar.Fill = (Brush)Application.Current.Resources["themBG"];
                     });
                 }
                 //doc = new HtmlWeb().Load(web_url);
